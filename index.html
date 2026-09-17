@@ -1,5 +1,4 @@
 <title>Just a Game 3×3</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap">
 
@@ -24,6 +23,9 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Prevent body scroll while login overlay is visible */
+  body.login-open { overflow: hidden; position: fixed; width: 100%; }
 
   html, body {
     height: 100%;
@@ -1975,7 +1977,7 @@
     .role-badge { font-size: 10px; padding: 3px 7px; }
 
     /* LOGIN: much bigger, readable, easy to tap */
-    .login-screen { padding: 16px; align-items: flex-start; padding-top: max(40px, env(safe-area-inset-top, 40px)); }
+    .login-screen { padding: 16px; overflow-y: auto; align-items: flex-start; padding-top: max(40px, env(safe-area-inset-top, 40px)); }
     .login-card { padding: 32px 24px 36px; gap: 20px; border-radius: 20px; max-width: 100%; }
     .login-header svg { width: 72px; height: 72px; }
     .login-title { font-size: 32px; margin-top: 10px; }
@@ -2683,58 +2685,54 @@
     if (name === 'schedule') renderScheduleTab();
   }
 
-  // ── Supabase cloud sync ───────────────────────────────────────────
+  // ── Supabase cloud sync (pure fetch — no library needed) ─────────
   const SB_URL = 'https://frkvpkfuewwtmyefbstf.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZya3Zwa2Z1ZXd3dG15ZWZic3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MzE1MjAsImV4cCI6MjEwNTIwNzUyMH0.8yJKlEaHeBNUKK3Vokwfz6NIYkNSwp7om5NwmP_o0Zg';
-  const SB_ROW  = 'jag3x3';
-  let sb = null;
+  const SB_ROW = 'jag3x3';
   let syncTimeout = null;
+  let lastCloudTs = null;
+  let pollTimer   = null;
 
-  function setSyncDot(state) { // 'ok' | 'busy' | 'err' | ''
+  function setSyncDot(state) {
     const el = document.getElementById('sync-dot');
     if (!el) return;
     el.className = 'sync-dot' + (state ? ' ' + state : '');
-    el.title = state === 'ok' ? 'Cloud: synced' : state === 'busy' ? 'Cloud: syncing…' : state === 'err' ? 'Cloud: offline (local save ok)' : 'Cloud: connecting…';
+    el.title = { ok: 'Cloud: synced', busy: 'Cloud: syncing…', err: 'Cloud: offline — saved locally' }[state] || 'Cloud: connecting…';
   }
 
-  function initSupabase() {
-    try {
-      sb = supabase.createClient(SB_URL, SB_KEY);
-      // Real-time: update all devices when data changes
-      sb.channel('league-sync')
-        .on('postgres_changes', {
-          event: 'UPDATE', schema: 'public',
-          table: 'league_data', filter: `id=eq.${SB_ROW}`
-        }, payload => {
-          const incoming = payload.new && payload.new.data;
-          if (!incoming || !incoming.teams) return;
-          // Don't clobber an in-progress scored game
-          teams    = incoming.teams;
-          schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...incoming.schedule };
-          try {
-            localStorage.setItem('jag3x3_teams',    JSON.stringify(teams));
-            localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule));
-          } catch(e) {}
-          renderTeamsTable();
-          renderScheduleTab();
-          renderGamePicker();
-          setSyncDot('ok');
-        })
-        .subscribe();
-    } catch(e) {
-      console.warn('Supabase init failed:', e);
-    }
+  function sbFetch(path, opts = {}) {
+    return fetch(SB_URL + path, {
+      ...opts,
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {})
+      }
+    });
+  }
+
+  async function pushToCloud() {
+    const res = await sbFetch('/rest/v1/league_data', {
+      method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ id: SB_ROW, data: { teams, schedule }, updated_at: new Date().toISOString() })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    lastCloudTs = new Date().toISOString();
   }
 
   async function loadFromCloud() {
-    if (!sb) return;
+    setSyncDot('busy');
     try {
-      const { data, error } = await sb
-        .from('league_data').select('data').eq('id', SB_ROW).single();
-      if (error) throw error;
-      const incoming = data && data.data;
+      const res = await sbFetch(`/rest/v1/league_data?id=eq.${SB_ROW}&select=data,updated_at`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      const row = rows && rows[0];
+      const incoming = row && row.data;
+
       if (incoming && Array.isArray(incoming.teams) && incoming.teams.length) {
-        // Cloud has data — use it
+        lastCloudTs = row.updated_at;
         teams    = incoming.teams;
         schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...incoming.schedule };
         try {
@@ -2744,45 +2742,64 @@
         renderTeamsTable();
         renderScheduleTab();
         renderGamePicker();
-        setSyncDot('ok');
       } else if (teams.length || (schedule.blocks && schedule.blocks.length)) {
-        // Cloud is empty but this device has local data — push it up now
-        setSyncDot('busy');
-        await sb.from('league_data').upsert({
-          id: SB_ROW,
-          data: { teams, schedule },
-          updated_at: new Date().toISOString()
-        });
-        setSyncDot('ok');
-      } else {
-        setSyncDot('ok');
+        // Cloud empty but we have local data — push it up
+        await pushToCloud();
       }
+      setSyncDot('ok');
+      startPolling();
     } catch(e) {
-      console.warn('Cloud load failed, using local data:', e);
+      console.warn('Cloud load failed:', e);
       setSyncDot('err');
     }
   }
 
-  // Debounced so rapid successive saves (e.g. adding fouls + score) send one request
+  // Poll every 30 s — pick up changes from other devices
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(async () => {
+      try {
+        const res = await sbFetch(`/rest/v1/league_data?id=eq.${SB_ROW}&select=updated_at`);
+        if (!res.ok) return;
+        const rows = await res.json();
+        const ts = rows[0] && rows[0].updated_at;
+        if (!ts || ts === lastCloudTs) return;
+        // Something changed — pull full update
+        const res2 = await sbFetch(`/rest/v1/league_data?id=eq.${SB_ROW}&select=data,updated_at`);
+        const rows2 = await res2.json();
+        const row = rows2 && rows2[0];
+        if (!row || !row.data || !Array.isArray(row.data.teams)) return;
+        lastCloudTs = row.updated_at;
+        teams    = row.data.teams;
+        schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...row.data.schedule };
+        try {
+          localStorage.setItem('jag3x3_teams',    JSON.stringify(teams));
+          localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule));
+        } catch(e) {}
+        renderTeamsTable();
+        renderScheduleTab();
+        renderGamePicker();
+        setSyncDot('ok');
+      } catch(e) { /* ignore poll errors silently */ }
+    }, 30000);
+  }
+
+  // Debounced — batches rapid changes into one write
   function syncToCloud() {
-    if (!sb) return;
     clearTimeout(syncTimeout);
     setSyncDot('busy');
     syncTimeout = setTimeout(async () => {
       try {
-        const { error } = await sb.from('league_data').upsert({
-          id: SB_ROW,
-          data: { teams, schedule },
-          updated_at: new Date().toISOString()
-        });
-        if (error) throw error;
+        await pushToCloud();
         setSyncDot('ok');
       } catch(e) {
-        console.warn('Cloud sync failed:', e);
+        console.warn('Sync failed:', e);
         setSyncDot('err');
       }
     }, 600);
   }
+
+  function initSupabase() { /* no-op — kept for call-site compatibility */ }
 
   // ── Teams ─────────────────────────────────────────────────────────
   let teams = [];
@@ -3708,6 +3725,7 @@
       currentRole = selectedLoginRole;
       try { sessionStorage.setItem('jag3x3_role', currentRole); } catch(e) {}
       document.getElementById('login-screen').hidden = true;
+      document.body.classList.remove('login-open');
       err.hidden = true;
       applyRole(currentRole);
     } else {
@@ -3734,6 +3752,7 @@
     document.getElementById('tab-btn-schedule').hidden = false;
     document.getElementById('header-right').hidden = true;
     document.getElementById('login-screen').hidden = false;
+    document.body.classList.add('login-open');
     document.getElementById('login-pin').value = '';
     document.getElementById('login-error').hidden = true;
     document.getElementById('role-admin-btn').classList.add('active');
@@ -3747,10 +3766,13 @@
       if (r && CREDS[r] !== undefined) {
         currentRole = r;
         document.getElementById('login-screen').hidden = true;
+        document.body.classList.remove('login-open');
         applyRole(r);
         return true;
       }
     } catch(e) {}
+    // No valid session — login screen shows; lock body scroll so overlay stays put
+    document.body.classList.add('login-open');
     return false;
   }
 
