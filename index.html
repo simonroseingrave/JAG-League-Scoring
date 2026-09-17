@@ -436,6 +436,86 @@
 
   .ctrl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
 
+  /* Shot clock reset — bigger and bolder */
+  .ctrl-btn.shot-reset {
+    font-size: 16px;
+    font-weight: 800;
+    padding: 12px 4px;
+    background: var(--surface-3);
+    border-color: var(--border-light);
+    letter-spacing: 0.02em;
+  }
+  .ctrl-btn.shot-reset:hover { background: #2e3f70; border-color: var(--text-muted); }
+
+  /* Submit Result */
+  .submit-result-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0 2px;
+  }
+  .submit-result-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 22px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .submit-result-btn:hover { border-color: var(--success); color: var(--success); }
+
+  .submit-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .submit-score-row:last-child { border-bottom: none; }
+  .submit-team-lbl {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .submit-score-inp {
+    width: 70px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    border-radius: 7px;
+    color: var(--text);
+    padding: 4px 6px;
+  }
+  .submit-score-inp:focus { outline: none; border-color: var(--accent); }
+
+  .submit-warn {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .submit-winner-line {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    color: var(--text-muted);
+    min-height: 22px;
+    margin: 8px 0 14px;
+  }
+
   /* Duration picker */
   .duration-picker-wrap {
     display: flex;
@@ -1936,7 +2016,7 @@
           </div>
           <div class="clock-controls">
             <button class="ctrl-btn primary" id="start-pause-btn" onclick="toggleClock()">Start</button>
-            <button class="ctrl-btn" onclick="resetShotClock()" title="Reset shot clock">Shot ↺</button>
+            <button class="ctrl-btn shot-reset" onclick="resetShotClock()" title="Reset shot clock">Shot ↺</button>
             <button class="ctrl-btn danger" onclick="resetGame()">Reset</button>
           </div>
           <div class="duration-picker-wrap">
@@ -1961,6 +2041,11 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Submit Result button (shown when scoring a scheduled game) -->
+      <div class="submit-result-wrap" id="submit-result-wrap" hidden>
+        <button class="submit-result-btn" onclick="openSubmitResult()">✓ Submit Result</button>
       </div>
 
       <!-- Winner banner -->
@@ -2075,13 +2160,38 @@
   </div>
 </div>
 
-<!-- Select Game Modal -->
+<!-- Select Game Modal (legacy, kept for closeSelectGame() shim) -->
 <div class="modal-overlay" id="select-game-modal" hidden>
   <div class="modal modal-wide">
     <div class="modal-title">Select Game</div>
     <div class="select-game-list" id="select-game-list"></div>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeSelectGame()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Result Modal -->
+<div class="modal-overlay" id="submit-result-modal" hidden>
+  <div class="modal">
+    <div class="modal-title">Submit Result</div>
+    <div class="submit-warn" id="submit-warn" hidden>
+      <strong style="color:var(--accent)">⚠ Game still in progress</strong> — submitting now will end it and record the current scores.
+    </div>
+    <div>
+      <div class="submit-score-row">
+        <span class="submit-team-lbl" id="submit-team-home">HOME</span>
+        <input class="submit-score-inp" id="submit-score-home" type="number" min="0" max="99" value="0" oninput="updateSubmitWinner()">
+      </div>
+      <div class="submit-score-row">
+        <span class="submit-team-lbl" id="submit-team-away">AWAY</span>
+        <input class="submit-score-inp" id="submit-score-away" type="number" min="0" max="99" value="0" oninput="updateSubmitWinner()">
+      </div>
+    </div>
+    <div class="submit-winner-line" id="submit-winner-line"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSubmitResult()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmSubmitResult()">Save Result</button>
     </div>
   </div>
 </div>
@@ -2392,6 +2502,7 @@
     activeScheduledGameId = null;
     document.getElementById('active-game-label').hidden = true;
     document.getElementById('save-draw-btn').hidden = true;
+    document.getElementById('submit-result-wrap').hidden = true;
     updatePeriodLabel();
     updateSelectGameBtn();
   }
@@ -2645,9 +2756,70 @@
     lbl.textContent = `● ${dateStr ? dateStr + ' · ' : ''}${g.slot}`;
     lbl.hidden = false;
 
+    document.getElementById('submit-result-wrap').hidden = false;
     updatePeriodLabel();
     renderGamePicker(); // refresh picker to show ● SCORING highlight
   }
+
+  // ── Submit Result ─────────────────────────────────────────────────
+  function openSubmitResult() {
+    document.getElementById('submit-team-home').textContent = document.getElementById('team-a-name').textContent;
+    document.getElementById('submit-team-away').textContent = document.getElementById('team-b-name').textContent;
+    document.getElementById('submit-score-home').value = S.scoreA;
+    document.getElementById('submit-score-away').value = S.scoreB;
+    // Warn if game is not yet over (clock running or game never reached end state)
+    document.getElementById('submit-warn').hidden = S.gameOver;
+    updateSubmitWinner();
+    document.getElementById('submit-result-modal').hidden = false;
+  }
+
+  function updateSubmitWinner() {
+    const h = parseInt(document.getElementById('submit-score-home').value) || 0;
+    const a = parseInt(document.getElementById('submit-score-away').value) || 0;
+    const hn = document.getElementById('submit-team-home').textContent;
+    const an = document.getElementById('submit-team-away').textContent;
+    const el = document.getElementById('submit-winner-line');
+    if (h === 0 && a === 0) { el.innerHTML = ''; return; }
+    if (h > a) el.innerHTML = `🏆 Winner: <strong style="color:var(--text)">${hn}</strong>`;
+    else if (a > h) el.innerHTML = `🏆 Winner: <strong style="color:var(--text)">${an}</strong>`;
+    else el.innerHTML = `<span style="color:var(--text-dim)">Scores are tied</span>`;
+  }
+
+  function closeSubmitResult() {
+    document.getElementById('submit-result-modal').hidden = true;
+  }
+
+  function confirmSubmitResult() {
+    if (!activeScheduledGameId) { closeSubmitResult(); return; }
+
+    const homeScore = parseInt(document.getElementById('submit-score-home').value) || 0;
+    const awayScore = parseInt(document.getElementById('submit-score-away').value) || 0;
+
+    // Stop clock if still running
+    if (S.running) { clearInterval(S.iv); S.running = false; S.gameOver = true; }
+
+    const g = allGames().find(x => x.id === activeScheduledGameId);
+    if (g) {
+      g.scoreHome = homeScore;
+      g.scoreAway = awayScore;
+      g.completed = true;
+      saveSchedule();
+      renderScheduleTab();
+      renderGamePicker();
+      renderTeamsTable();
+    }
+
+    activeScheduledGameId = null;
+    document.getElementById('active-game-label').hidden = true;
+    document.getElementById('save-draw-btn').hidden = true;
+    document.getElementById('submit-result-wrap').hidden = true;
+    updatePeriodLabel();
+    closeSubmitResult();
+  }
+
+  document.getElementById('submit-result-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeSubmitResult();
+  });
 
   document.getElementById('select-game-modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeSelectGame();
@@ -2672,6 +2844,7 @@
 
     activeScheduledGameId = null;
     document.getElementById('active-game-label').hidden = true;
+    document.getElementById('submit-result-wrap').hidden = true;
     updateSelectGameBtn();
   }
 
