@@ -194,11 +194,7 @@
     box-shadow: 0 0 24px var(--accent-glow);
   }
 
-  .team-name-input {
-    background: none;
-    border: none;
-    border-bottom: 1px dashed var(--border-light);
-    color: var(--text);
+  .team-name-display {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 17px;
     font-weight: 700;
@@ -206,13 +202,28 @@
     text-transform: uppercase;
     text-align: center;
     width: 100%;
-    outline: none;
+    color: var(--text);
     padding: 2px 4px;
-    transition: border-color 0.15s;
+    line-height: 1.2;
+    min-height: 1.4em;
   }
 
-  .team-name-input:focus { border-bottom-color: var(--accent); }
-  .team-name-input::placeholder { color: var(--text-dim); }
+  .set-teams-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .set-teams-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .score-display {
     font-family: 'Barlow Condensed', sans-serif;
@@ -817,6 +828,35 @@
     color: var(--accent);
   }
 
+  /* Set Teams modal */
+  .set-teams-form { display: flex; flex-direction: column; gap: 14px; }
+  .set-teams-row { display: flex; flex-direction: column; gap: 5px; }
+  .set-teams-row-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .set-teams-select {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 9px 12px;
+    border-radius: 8px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .set-teams-select:focus { border-color: var(--accent); }
+
   @media (max-width: 480px) {
     .app-header { padding: 10px 14px; }
     .app-main { padding: 10px 14px; }
@@ -829,7 +869,7 @@
     .ctrl-btn { width: 66px; font-size: 10px; padding: 7px 2px; }
     .ctrl-btn.primary { font-size: 13px; }
     .team-panel { padding: 10px 7px; }
-    .team-name-input { font-size: 14px; }
+    .team-name-display { font-size: 14px; }
     .score-btn { font-size: 14px; padding: 9px 2px; }
     .result-row { grid-template-columns: 1fr; }
     .result-row .score-sep { display: none; }
@@ -1213,13 +1253,14 @@
       <div class="game-status-bar">
         <span class="period-label" id="period-label">3×3 Basketball · First to 21 or 12 min</span>
         <span class="game-state-badge" id="game-state-badge">Not Started</span>
+        <button class="set-teams-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
       </div>
 
       <div class="scoreboard">
 
         <!-- Team A -->
         <div class="team-panel" id="panel-a">
-          <input class="team-name-input" id="team-a-name" type="text" maxlength="12" placeholder="Team A" value="HOME" autocomplete="off" spellcheck="false">
+          <div class="team-name-display" id="team-a-name">HOME</div>
           <div class="score-display" id="score-a">0</div>
           <div class="score-buttons">
             <button class="score-btn pt1" onclick="addScore('a',1)">+1</button>
@@ -1254,7 +1295,7 @@
 
         <!-- Team B -->
         <div class="team-panel" id="panel-b">
-          <input class="team-name-input" id="team-b-name" type="text" maxlength="12" placeholder="Team B" value="AWAY" autocomplete="off" spellcheck="false">
+          <div class="team-name-display" id="team-b-name">AWAY</div>
           <div class="score-display" id="score-b">0</div>
           <div class="score-buttons">
             <button class="score-btn pt1" onclick="addScore('b',1)">+1</button>
@@ -1363,6 +1404,27 @@
   </div>
 
 </main>
+
+<!-- Set Teams Modal -->
+<div class="modal-overlay" id="set-teams-modal" hidden>
+  <div class="modal">
+    <div class="modal-title">Set Teams</div>
+    <div class="set-teams-form">
+      <div class="set-teams-row">
+        <div class="set-teams-row-label">Team A (Home)</div>
+        <select class="set-teams-select" id="set-team-a-select"></select>
+      </div>
+      <div class="set-teams-row">
+        <div class="set-teams-row-label">Team B (Away)</div>
+        <select class="set-teams-select" id="set-team-b-select"></select>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="modal-cancel" onclick="closeSetTeams()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmSetTeams()">Confirm</button>
+    </div>
+  </div>
+</div>
 
 <!-- Add Team Modal -->
 <div class="modal-overlay" id="add-team-modal" hidden>
@@ -1569,8 +1631,8 @@
     document.getElementById('game-state-badge').className = 'game-state-badge';
     document.getElementById('start-pause-btn').textContent = 'Final';
 
-    const nA = document.getElementById('team-a-name').value.trim() || 'Team A';
-    const nB = document.getElementById('team-b-name').value.trim() || 'Team B';
+    const nA = document.getElementById('team-a-name').textContent.trim() || 'Team A';
+    const nB = document.getElementById('team-b-name').textContent.trim() || 'Team B';
     const wName = w === 'a' ? nA : nB;
     const wS = w === 'a' ? S.scoreA : S.scoreB;
     const lS = w === 'a' ? S.scoreB : S.scoreA;
@@ -1840,7 +1902,48 @@
     document.getElementById('result-score-b').value = '';
   }
 
-  // Keyboard shortcuts for modal
+  // ── Set Teams ─────────────────────────────────────────────────────
+  function openSetTeams() {
+    const selA = document.getElementById('set-team-a-select');
+    const selB = document.getElementById('set-team-b-select');
+    const curA = document.getElementById('team-a-name').textContent.trim();
+    const curB = document.getElementById('team-b-name').textContent.trim();
+
+    // Build options: registered teams + generic HOME/AWAY fallbacks
+    const opts = teams.length
+      ? teams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')
+      : '<option value="HOME">HOME</option><option value="AWAY">AWAY</option>';
+
+    selA.innerHTML = opts;
+    selB.innerHTML = opts;
+
+    // Try to restore current selections
+    selA.value = curA;
+    selB.value = curB;
+    // If current value isn't in the list, just default to first/second option
+    if (!selA.value && selA.options.length) selA.selectedIndex = 0;
+    if (!selB.value && selB.options.length) selB.selectedIndex = Math.min(1, selB.options.length - 1);
+
+    document.getElementById('set-teams-modal').hidden = false;
+  }
+
+  function closeSetTeams() {
+    document.getElementById('set-teams-modal').hidden = true;
+  }
+
+  function confirmSetTeams() {
+    const a = document.getElementById('set-team-a-select').value;
+    const b = document.getElementById('set-team-b-select').value;
+    document.getElementById('team-a-name').textContent = a || 'HOME';
+    document.getElementById('team-b-name').textContent = b || 'AWAY';
+    closeSetTeams();
+  }
+
+  document.getElementById('set-teams-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeSetTeams();
+  });
+
+  // ── Keyboard shortcuts for modal ──────────────────────────────────
   document.getElementById('new-team-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') confirmAddTeam();
     if (e.key === 'Escape') closeAddTeam();
