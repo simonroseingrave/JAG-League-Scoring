@@ -4803,12 +4803,8 @@
   }
 
   function pngDrawStandings(ctx, teamsData, pad, startY, W) {
-    const sorted = [...teamsData]
-      .filter(t => t.name && t.name.trim())
-      .sort((a, b) => {
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        return ((b.ptsFor||0)-(b.ptsAgainst||0)) - ((a.ptsFor||0)-(a.ptsAgainst||0));
-      });
+    // Use the live computed standings (same as the in-app table)
+    const sorted = computeStandings().filter(t => t.name && t.name.trim());
 
     if (!sorted.length) {
       ctx.fillStyle = '#3d5080';
@@ -4889,19 +4885,19 @@
       ctx.font = '600 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#8fa0bb';
-      ctx.fillText(String(team.played||0), cP, textY);
+      ctx.fillText(String((team.w||0) + (team.l||0)), cP, textY);
 
       ctx.fillStyle = isFirst ? '#f59e0b' : '#f8faff';
       ctx.font = `${isFirst ? 800 : 700} ${isFirst ? 34 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
-      ctx.fillText(String(team.wins||0), cW, textY);
+      ctx.fillText(String(team.w||0), cW, textY);
 
       ctx.fillStyle = '#8fa0bb';
       ctx.font = '600 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
-      ctx.fillText(String(team.losses||0), cL, textY);
-      ctx.fillText(String(team.ptsFor||0), cPF, textY);
-      ctx.fillText(String(team.ptsAgainst||0), cPA, textY);
+      ctx.fillText(String(team.l||0), cL, textY);
+      ctx.fillText(String(team.pf||0), cPF, textY);
+      ctx.fillText(String(team.pa||0), cPA, textY);
 
-      const diff = (team.ptsFor||0) - (team.ptsAgainst||0);
+      const diff = (team.pf||0) - (team.pa||0);
       ctx.fillStyle = diff > 0 ? '#22c55e' : diff < 0 ? '#ef4444' : '#6b7fa8';
       ctx.font = '700 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
       ctx.fillText((diff > 0 ? '+' : '') + diff, cD, textY);
@@ -4968,14 +4964,12 @@
         // Team names
         ctx.fillStyle = '#f8faff';
         ctx.font = '700 30px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
-        const teamsStr = (g.teamA || '') + '  vs  ' + (g.teamB || '');
+        const teamsStr = (g.home || '') + '  vs  ' + (g.away || '');
         ctx.fillText(teamsStr, pad + 110, y + 10);
 
         // Score (if completed)
-        if (g.result && g.result.scoreA != null) {
-          const wA = g.result.scoreA > g.result.scoreB;
-          const wB = g.result.scoreB > g.result.scoreA;
-          const scoreStr = g.result.scoreA + '  –  ' + g.result.scoreB;
+        if (g.completed && g.scoreHome != null) {
+          const scoreStr = g.scoreHome + '  –  ' + g.scoreAway;
           ctx.font = '800 30px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
           ctx.fillStyle = '#f59e0b';
           ctx.textAlign = 'right';
@@ -4994,7 +4988,7 @@
     let played = [];
     blocks.forEach(b => {
       (b.games || []).forEach(g => {
-        if (g.result && g.result.scoreA != null) played.push({date: b.date, game: g});
+        if (g.completed && g.scoreHome != null) played.push({date: b.date, game: g});
       });
     });
     played.reverse();
@@ -5038,8 +5032,8 @@
 
       for (const g of byDate[dt]) {
         if (y > H - 100) break;
-        const wA = g.result.scoreA > g.result.scoreB;
-        const wB = g.result.scoreB > g.result.scoreA;
+        const wA = g.scoreHome > g.scoreAway;
+        const wB = g.scoreAway > g.scoreHome;
 
         ctx.fillStyle = 'rgba(28,37,64,0.65)';
         pngRoundRect(ctx, pad, y - 32, W - 2*pad, GAME_H - 4, 8);
@@ -5049,16 +5043,16 @@
         ctx.font = `${wA ? 800 : 600} ${wA ? 32 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
         ctx.fillStyle = wA ? '#f8faff' : '#6b7fa8';
         ctx.textAlign = 'right';
-        let nameA = (g.teamA || '').toUpperCase();
+        let nameA = (g.home || '').toUpperCase();
         const maxTW = MID - 130 - pad;
         while (ctx.measureText(nameA).width > maxTW && nameA.length > 2) nameA = nameA.slice(0,-1);
-        if (nameA !== (g.teamA||'').toUpperCase()) nameA += '…';
+        if (nameA !== (g.home||'').toUpperCase()) nameA += '…';
         ctx.fillText(nameA, MID - 120, y + 14);
 
         // Score A
         ctx.font = '900 52px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
         ctx.fillStyle = wA ? '#f59e0b' : '#f8faff';
-        ctx.fillText(String(g.result.scoreA), MID - 20, y + 18);
+        ctx.fillText(String(g.scoreHome), MID - 20, y + 18);
 
         // Dash
         ctx.fillStyle = '#3d5080';
@@ -5070,14 +5064,14 @@
         ctx.font = '900 52px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
         ctx.fillStyle = wB ? '#f59e0b' : '#f8faff';
         ctx.textAlign = 'left';
-        ctx.fillText(String(g.result.scoreB), MID + 22, y + 18);
+        ctx.fillText(String(g.scoreAway), MID + 22, y + 18);
 
         // Team B
         ctx.font = `${wB ? 800 : 600} ${wB ? 32 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
         ctx.fillStyle = wB ? '#f8faff' : '#6b7fa8';
-        let nameB = (g.teamB || '').toUpperCase();
+        let nameB = (g.away || '').toUpperCase();
         while (ctx.measureText(nameB).width > maxTW && nameB.length > 2) nameB = nameB.slice(0,-1);
-        if (nameB !== (g.teamB||'').toUpperCase()) nameB += '…';
+        if (nameB !== (g.away||'').toUpperCase()) nameB += '…';
         ctx.fillText(nameB, MID + 120, y + 14);
         ctx.textAlign = 'left';
 
@@ -5238,8 +5232,8 @@
         html+='<div class="jag-block"><div class="jag-block-date">'+label+'</div>';
         (b.games||[]).forEach(function(g){
           var scoreHtml='';
-          if(g.result&&g.result.scoreA!=null){scoreHtml='<span class="jag-game-score">'+g.result.scoreA+' – '+g.result.scoreB+'</span>';}
-          html+='<div class="jag-game"><span class="jag-game-time">'+(g.slot||'')+'</span><span class="jag-game-teams">'+g.teamA+'<span class="jag-game-vs">vs</span>'+g.teamB+'</span>'+scoreHtml+'</div>';
+          if(g.completed&&g.scoreHome!=null){scoreHtml='<span class="jag-game-score">'+g.scoreHome+' – '+g.scoreAway+'</span>';}
+          html+='<div class="jag-game"><span class="jag-game-time">'+(g.slot||'')+'</span><span class="jag-game-teams">'+(g.home||'')+'<span class="jag-game-vs">vs</span>'+(g.away||'')+'</span>'+scoreHtml+'</div>';
         });
         html+='</div>';
       });
@@ -5282,7 +5276,7 @@
       var played=[];
       blocks.forEach(function(b){
         (b.games||[]).forEach(function(g){
-          if(g.result&&g.result.scoreA!=null)played.push({date:b.date,game:g});
+          if(g.completed&&g.scoreHome!=null)played.push({date:b.date,game:g});
         });
       });
       if(!played.length){el.innerHTML='<div class="jag-r"><div class="jag-no-data">No results yet.</div></div>';return;}
@@ -5298,10 +5292,10 @@
         var label=d.toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long'});
         html+='<div class="jag-r-block"><div class="jag-r-date">'+label+'</div>';
         byDate[dt].forEach(function(g){
-          var wA=g.result.scoreA>g.result.scoreB,wB=g.result.scoreB>g.result.scoreA;
+          var wA=g.scoreHome>g.scoreAway,wB=g.scoreAway>g.scoreHome;
           html+='<div class="jag-r-game">';
-          html+='<div class="jag-r-teams"><span class="jag-r-team'+(wA?' winner':'')+'">'+g.teamA+'</span> <span style="color:#bbb;font-weight:400;font-size:12px;">vs</span> <span class="jag-r-team'+(wB?' winner':'')+'">'+g.teamB+'</span></div>';
-          html+='<div class="jag-r-score-wrap"><span class="jag-r-score'+(wA?' winner':'')+'">'+g.result.scoreA+'</span><span class="jag-r-sep">–</span><span class="jag-r-score'+(wB?' winner':'')+'">'+g.result.scoreB+'</span></div>';
+          html+='<div class="jag-r-teams"><span class="jag-r-team'+(wA?' winner':'')+'">'+g.home+'</span> <span style="color:#bbb;font-weight:400;font-size:12px;">vs</span> <span class="jag-r-team'+(wB?' winner':'')+'">'+g.away+'</span></div>';
+          html+='<div class="jag-r-score-wrap"><span class="jag-r-score'+(wA?' winner':'')+'">'+g.scoreHome+'</span><span class="jag-r-sep">–</span><span class="jag-r-score'+(wB?' winner':'')+'">'+g.scoreAway+'</span></div>';
           html+='</div>';
         });
         html+='</div>';
@@ -5342,19 +5336,34 @@
     .then(function(r){return r.json();})
     .then(function(rows){
       if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No standings yet.</div></div>';return;}
-      var teams=(rows[0].data.teams||[]).filter(function(t){return t.name&&t.name.trim();});
-      if(!teams.length){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No teams yet.</div></div>';return;}
+      var teamNames=(rows[0].data.teams||[]).map(function(t){return t.name;}).filter(Boolean);
+      var blocks=(rows[0].data.schedule&&rows[0].data.schedule.blocks)||[];
+      var stats={};
+      teamNames.forEach(function(n){stats[n]={name:n,w:0,l:0,pf:0,pa:0};});
+      blocks.forEach(function(b){
+        (b.games||[]).forEach(function(g){
+          if(!g.completed||g.scoreHome==null)return;
+          var h=g.home,a=g.away,sh=+g.scoreHome,sa=+g.scoreAway;
+          if(!stats[h])stats[h]={name:h,w:0,l:0,pf:0,pa:0};
+          if(!stats[a])stats[a]={name:a,w:0,l:0,pf:0,pa:0};
+          if(sh>sa){stats[h].w++;stats[a].l++;}else if(sa>sh){stats[a].w++;stats[h].l++;}
+          stats[h].pf+=sh;stats[h].pa+=sa;
+          stats[a].pf+=sa;stats[a].pa+=sh;
+        });
+      });
+      var teams=Object.values(stats).filter(function(t){return t.name&&t.name.trim();});
+      if(!teams.length){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No standings yet.</div></div>';return;}
       teams.sort(function(a,b){
-        if(b.wins!==a.wins)return b.wins-a.wins;
-        var dA=(a.ptsFor||0)-(a.ptsAgainst||0),dB=(b.ptsFor||0)-(b.ptsAgainst||0);
+        if(b.w!==a.w)return b.w-a.w;
+        var dA=a.pf-a.pa,dB=b.pf-b.pa;
         return dB-dA;
       });
       var html='<div class="jag-s"><div class="jag-s-title">League Standings</div><table><thead><tr><th class="num">#</th><th>Team</th><th class="num">P</th><th class="num">W</th><th class="num">L</th><th class="num">PF</th><th class="num">PA</th><th class="num">+/−</th></tr></thead><tbody>';
       teams.forEach(function(t,i){
-        var diff=(t.ptsFor||0)-(t.ptsAgainst||0);
+        var diff=t.pf-t.pa;
         var diffStr=(diff>0?'+':'')+diff;
         var diffCls=diff>0?'diff-pos':diff<0?'diff-neg':'';
-        html+='<tr class="'+(i===0?'top-row':'')+'"><td class="pos num">'+(i+1)+'</td><td class="team-name">'+t.name+'</td><td class="num">'+(t.played||0)+'</td><td class="num">'+(t.wins||0)+'</td><td class="num">'+(t.losses||0)+'</td><td class="num">'+(t.ptsFor||0)+'</td><td class="num">'+(t.ptsAgainst||0)+'</td><td class="num '+diffCls+'">'+diffStr+'</td></tr>';
+        html+='<tr class="'+(i===0?'top-row':'')+'"><td class="pos num">'+(i+1)+'</td><td class="team-name">'+t.name+'</td><td class="num">'+(t.w+t.l)+'</td><td class="num">'+t.w+'</td><td class="num">'+t.l+'</td><td class="num">'+t.pf+'</td><td class="num">'+t.pa+'</td><td class="num '+diffCls+'">'+diffStr+'</td></tr>';
       });
       html+='</tbody></table></div>';
       el.innerHTML=html;
