@@ -1937,19 +1937,46 @@
   .gp-status.scoring { color: var(--accent); font-weight: 700; letter-spacing: 0.04em; }
   .gp-status.done { color: var(--success); font-variant-numeric: tabular-nums; }
 
+  /* === COMPACT ACTIVE-GAME BAR (game picker in scoring mode) === */
+  .gp-active-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.18);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .gp-active-dot { color: var(--success); font-size: 9px; flex-shrink: 0; }
+  .gp-active-matchup {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 0.03em; flex: 1;
+  }
+  .gp-active-round { font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
+  .gp-active-change {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    color: var(--accent); flex-shrink: 0;
+  }
+
   /* ===================================================
-     MOBILE ENHANCEMENTS — login legibility + score fill
+     MOBILE — login legibility + full-bleed scoring
      =================================================== */
   @media (max-width: 640px) {
 
-    /* --- LOGIN: much larger, easier to tap and read --- */
+    /* HEADER: ultra-compact — hide brand text, shrink logo */
+    .app-header { padding: 8px 12px; }
+    .brand-mark { width: 30px; height: 30px; }
+    .brand-text { display: none; }
+    .tab-btn { font-size: 12px; padding: 5px 11px; }
+    .logout-btn { font-size: 11px; padding: 4px 8px; }
+    .role-badge { font-size: 10px; padding: 3px 7px; }
+
+    /* LOGIN: much bigger, readable, easy to tap */
     .login-screen { padding: 16px; align-items: flex-start; padding-top: max(40px, env(safe-area-inset-top, 40px)); }
-    .login-card {
-      padding: 32px 24px 36px;
-      gap: 20px;
-      border-radius: 20px;
-      max-width: 100%;
-    }
+    .login-card { padding: 32px 24px 36px; gap: 20px; border-radius: 20px; max-width: 100%; }
     .login-header svg { width: 72px; height: 72px; }
     .login-title { font-size: 32px; margin-top: 10px; }
     .login-sub { font-size: 15px; margin-top: 4px; }
@@ -1959,50 +1986,61 @@
     .login-pin { font-size: 20px; padding: 15px 16px; border-radius: 11px; }
     .login-submit { font-size: 18px; font-weight: 800; padding: 16px; border-radius: 11px; margin-top: 4px; }
 
-    /* --- SCORE TAB: tight gutters, bigger targets --- */
-    .app-main { padding-left: 10px; padding-right: 10px; }
+    /* SCORE TAB: zero side padding — full bleed */
+    .app-main { padding-left: 0; padding-right: 0; padding-top: 10px; }
+    .game-layout { gap: 8px; }
 
-    /* Smaller status bar to save vertical space */
-    .game-status-bar { padding: 4px 0; gap: 6px; }
-    .period-label { font-size: 11px; }
-    .game-state-badge { font-size: 10px; padding: 2px 8px; }
-    .status-btn { font-size: 10px; padding: 3px 8px; }
-    .active-game-label { font-size: 10px; padding: 2px 8px; }
+    /* Status bar: compact, nudge inward */
+    .game-status-bar { padding: 4px 12px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; }
+    .period-label { font-size: 11px; white-space: nowrap; }
+    .game-state-badge { font-size: 10px; padding: 2px 8px; white-space: nowrap; }
+    .status-btn { font-size: 10px; padding: 3px 8px; white-space: nowrap; }
+    .active-game-label { font-size: 10px; padding: 2px 8px; white-space: nowrap; }
 
-    /* Tighter game picker rows — easier to tap */
-    .gp-block-header { padding: 11px 12px; }
-    .gp-block-name { font-size: 13px; }
-    .gp-game { padding: 13px 14px; }
-    .gp-teams { font-size: 16px; }
-    .gp-time { font-size: 15px; }
+    /* Game picker: bigger tap targets */
+    .gp-active-bar { margin: 0 10px; }
+    .game-picker { margin: 0 10px; }
+    .gp-block-header { padding: 12px 14px; }
+    .gp-block-name { font-size: 14px; }
+    .gp-game { padding: 14px 16px; }
+    .gp-teams { font-size: 17px; }
+    .gp-time { font-size: 15px; min-width: 52px; }
 
-    /* SCOREBOARD: bigger names, scores, buttons */
-    .scoreboard { gap: 6px; }
-    .team-panel { padding: 12px 8px; gap: 10px; border-radius: 14px; }
-    .team-name-display { font-size: 20px; }
-    .score-display { font-size: 108px; }
-    .score-btn { font-size: 20px; font-weight: 800; padding: 15px 4px; border-radius: 10px; }
-    .score-btn.undo { font-size: 17px; padding: 15px 12px; }
+    /* SCOREBOARD: full-width, edge to edge */
+    .scoreboard { gap: 0; }
+    .team-panel {
+      padding: 14px 10px 12px;
+      gap: 10px;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    .team-name-display { font-size: 21px; }
+    /* Score: fluid, fills the column */
+    .score-display { font-size: clamp(88px, 26vw, 130px); }
+    /* Score buttons: fat tap targets */
+    .score-buttons { gap: 6px; }
+    .score-btn { font-size: 22px; font-weight: 800; padding: 18px 4px; min-height: 62px; border-radius: 10px; }
+    .score-btn.undo { font-size: 17px; padding: 18px 14px; }
     .fouls-label { font-size: 10px; }
-    .foul-dot { width: 11px; height: 11px; }
-    .foul-btn { font-size: 11px; padding: 4px 9px; }
+    .foul-dot { width: 12px; height: 12px; }
+    .foul-btn { font-size: 11px; padding: 5px 9px; }
 
-    /* CLOCK COLUMN: bigger digits, bigger controls */
-    .clock-column { gap: 7px; }
-    .game-clock { font-size: 48px; min-width: 88px; }
-    .shot-clock-wrap { width: 88px; padding: 6px 8px; }
-    .shot-clock { font-size: 36px; }
-    .ctrl-btn { width: 88px; font-size: 13px; padding: 10px 4px; }
-    .ctrl-btn.primary { font-size: 17px; padding: 12px 4px; }
-    .ctrl-btn.shot-reset { font-size: 18px; padding: 14px 4px; }
+    /* CLOCK COLUMN: bigger everything */
+    .clock-column { gap: 8px; padding-top: 4px; }
+    .game-clock { font-size: 52px; min-width: 92px; }
+    .shot-clock-wrap { width: 92px; padding: 6px 8px; }
+    .shot-clock { font-size: 38px; }
+    .ctrl-btn { width: 92px; font-size: 13px; padding: 11px 4px; }
+    .ctrl-btn.primary { font-size: 18px; padding: 13px 4px; }
+    .ctrl-btn.shot-reset { font-size: 19px; padding: 15px 4px; }
     .ctrl-btn.danger { font-size: 11px; padding: 8px 4px; }
     .dur-btn { font-size: 13px; padding: 7px 2px; }
 
-    /* Submit button larger */
-    .submit-result-btn { font-size: 15px; padding: 11px 28px; }
-
-    /* Winner banner */
-    .winner-banner { padding: 20px 16px; }
+    /* Submit + winner */
+    .submit-result-wrap { padding: 8px 12px 4px; }
+    .submit-result-btn { font-size: 15px; padding: 12px 28px; width: 100%; }
+    .winner-banner { margin: 0 10px; border-radius: 12px; padding: 20px 16px; }
     .winner-banner-name { font-size: 40px; }
   }
 </style>
@@ -2893,11 +2931,28 @@
   // ── Game Picker (inline accordion on Score tab) ───────────────────
   function updateSelectGameBtn() { renderGamePicker(); } // legacy shim — all callers preserved
 
+  let gpForceExpanded = false;
+
   function renderGamePicker() {
     const picker = document.getElementById('game-picker');
     const blocks = (schedule.blocks || []).filter(b => b.games && b.games.length);
     if (!blocks.length) { picker.hidden = true; return; }
     picker.hidden = false;
+
+    // COMPACT BAR: when a game is actively being scored, collapse to one line
+    if (activeScheduledGameId && !gpForceExpanded) {
+      const g = allGames().find(x => x.id === activeScheduledGameId);
+      if (g) {
+        const block = (schedule.blocks || []).find(b => b.games && b.games.some(x => x.id === g.id));
+        picker.innerHTML = `<div class="gp-active-bar" onclick="gpToggleExpand()">
+          <span class="gp-active-dot">●</span>
+          <span class="gp-active-matchup">${g.home}<span class="gp-vs">vs</span>${g.away}</span>
+          ${block ? `<span class="gp-active-round">${block.label}</span>` : ''}
+          <span class="gp-active-change">change ▾</span>
+        </div>`;
+        return;
+      }
+    }
 
     // Initialise expand state: open blocks with upcoming games, closed if all done
     blocks.forEach(b => {
@@ -2957,6 +3012,11 @@
     renderGamePicker();
   }
 
+  function gpToggleExpand() {
+    gpForceExpanded = !gpForceExpanded;
+    renderGamePicker();
+  }
+
   function closeSelectGame() { document.getElementById('select-game-modal').hidden = true; }
 
   function selectScheduledGame(id) {
@@ -2975,8 +3035,9 @@
     lbl.hidden = false;
 
     document.getElementById('submit-result-wrap').hidden = false;
+    gpForceExpanded = false; // collapse picker back to compact bar
     updatePeriodLabel();
-    renderGamePicker(); // refresh picker to show ● SCORING highlight
+    renderGamePicker(); // refresh picker to show compact active bar
   }
 
   // ── Submit Result ─────────────────────────────────────────────────
