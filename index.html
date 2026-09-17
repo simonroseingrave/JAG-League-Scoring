@@ -2170,14 +2170,14 @@
     animation: pulse-badge 1.5s ease infinite;
   }
 
-  /* Compact score band */
+  /* Score band — team names big and white */
   .sm-scores-band {
     display: flex;
     align-items: stretch;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    height: 116px;
+    height: 130px;
   }
   .sm-score-side {
     flex: 1;
@@ -2197,9 +2197,9 @@
   }
   .sm-team-name {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(15px, 4.2vw, 22px);
+    font-size: clamp(20px, 5.5vw, 30px);
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     text-align: center;
     color: var(--text);
@@ -2207,7 +2207,7 @@
   }
   .sm-score {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(58px, 17vw, 80px);
+    font-size: clamp(56px, 16vw, 76px);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -2217,7 +2217,7 @@
   }
   .sm-score-side.winner .sm-score { color: var(--accent); }
 
-  /* Button area — flex:1, type fills the space */
+  /* Button area — fixed-height buttons, space above */
   .sm-body {
     flex: 1;
     display: flex;
@@ -2227,15 +2227,16 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end; /* buttons sit at bottom of space */
     padding: 8px 7px 7px;
     gap: 6px;
     border-right: 1px solid var(--border);
   }
   .sm-btn-col:last-child { border-right: none; }
 
-  /* Scoring buttons — type sized to fill ~40% of button height */
+  /* Fixed-size scoring buttons — readable, not overwhelming */
   .sm-btn {
-    flex: 1;
+    flex: 0 0 auto;
     border: none;
     color: var(--text);
     font-family: 'Barlow Condensed', sans-serif;
@@ -2243,9 +2244,8 @@
     border-radius: 12px;
     cursor: pointer;
     transition: opacity 0.07s, transform 0.06s;
-    min-height: 52px;
-    font-size: clamp(52px, 15vw, 72px);
-    letter-spacing: 0.01em;
+    font-size: 32px;
+    letter-spacing: 0.02em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2255,12 +2255,14 @@
   .sm-btn.pt2 {
     background: var(--surface-3);
     border: 1px solid var(--border-light);
-    flex: 1.35;
+    height: 76px;
+    font-size: 36px;
   }
   .sm-btn.pt1 {
     background: var(--surface-2);
     border: 1px solid var(--border);
-    font-size: clamp(42px, 12vw, 58px);
+    height: 64px;
+    font-size: 30px;
   }
 
   /* Auxiliary row: undo + fouls */
@@ -2269,7 +2271,7 @@
     align-items: stretch;
     gap: 6px;
     flex-shrink: 0;
-    height: 52px;
+    height: 64px;
   }
   .sm-btn.undo {
     flex: 0 0 52px;
@@ -2279,7 +2281,6 @@
     font-size: 20px;
     font-weight: 700;
     border-radius: 10px;
-    min-height: unset;
     height: 100%;
     display: flex;
     align-items: center;
@@ -2290,105 +2291,120 @@
   .sm-fouls-row {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    gap: 5px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
     border-radius: 10px;
-    padding: 0 10px;
+    padding: 6px 8px;
     height: 100%;
     cursor: pointer;
   }
-  .sm-fouls-row:active { border-color: var(--danger); }
-  .sm-fouls-dots { display: flex; gap: 5px; }
+  .sm-fouls-row:active { border-color: var(--danger); background: rgba(239,68,68,0.08); }
+  .sm-fouls-dots { display: flex; gap: 6px; align-items: center; }
   .sm-foul-dot {
-    width: 12px; height: 12px;
+    width: 16px; height: 16px;
     border-radius: 50%;
     background: var(--border-light);
     flex-shrink: 0;
   }
-  .sm-foul-dot.active { background: var(--danger); }
+  .sm-foul-dot.active { background: var(--danger); box-shadow: 0 0 6px rgba(239,68,68,0.5); }
   .sm-foul-btn {
     background: none;
     border: none;
     color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0;
     cursor: pointer;
     flex-shrink: 0;
+    line-height: 1;
   }
+  /* Show foul count as number alongside dots */
+  .sm-foul-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-muted);
+    line-height: 1;
+  }
+  .sm-foul-count.has-fouls { color: var(--danger); }
 
-  /* Clock footer — tall and prominent */
+  /* Clock footer — dominant, everything at a glance */
   .sm-footer {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 0 10px;
-    height: 88px;
+    height: 100px;
     background: var(--surface);
-    border-top: 1px solid var(--border);
+    border-top: 2px solid var(--border);
     flex-shrink: 0;
   }
   .sm-clock-wrap, .sm-shot-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1px;
+    gap: 2px;
     flex-shrink: 0;
   }
   .sm-clock-label, .sm-shot-label {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
+  /* Game timer — large, white */
   .sm-game-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 46px;
+    font-size: 52px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     letter-spacing: 0.01em;
-    min-width: 90px;
+    min-width: 100px;
     text-align: center;
     line-height: 1;
     transition: color 0.3s;
   }
   .sm-game-clock.urgent { color: var(--danger); }
+  /* Shot clock — large, always amber */
   .sm-shot-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 46px;
+    font-size: 52px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
-    color: var(--text);
-    min-width: 44px;
+    color: var(--accent);
+    min-width: 48px;
     text-align: center;
     line-height: 1;
     transition: color 0.2s;
   }
+  .sm-shot-label { color: var(--accent); opacity: 0.7; }
   .sm-shot-clock.urgent { color: var(--danger); }
   .sm-shot-clock.warn { color: var(--accent); }
 
+  /* START button — full footer height */
   .sm-start-btn {
     flex: 1;
     background: var(--accent);
     border: none;
     color: #000;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0;
-    height: 64px;
-    border-radius: 12px;
+    height: 76px;
+    border-radius: 14px;
     cursor: pointer;
     transition: opacity 0.1s;
   }
@@ -2397,22 +2413,22 @@
 
   .sm-shot-reset-btn {
     background: var(--surface-2);
-    border: 1px solid var(--border-light);
-    color: var(--text-muted);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: var(--accent);
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 22px;
     font-weight: 800;
-    width: 50px;
-    height: 64px;
-    border-radius: 12px;
+    width: 52px;
+    height: 76px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: color 0.1s;
+    transition: opacity 0.1s;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .sm-shot-reset-btn:active { color: var(--text); }
+  .sm-shot-reset-btn:active { opacity: 0.7; }
 
   .sm-submit-btn {
     background: none;
@@ -2424,8 +2440,8 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0 10px;
-    height: 64px;
-    border-radius: 12px;
+    height: 76px;
+    border-radius: 14px;
     cursor: pointer;
     transition: border-color 0.12s, color 0.12s;
     white-space: nowrap;
@@ -2434,12 +2450,14 @@
   .sm-submit-btn:active { border-color: var(--success); color: var(--success); }
 
   /* Duration picker chips inside the overlay footer */
+  #sm-duration-picker { flex-direction: column; gap: 3px; flex-shrink: 0; }
   #sm-duration-picker .dur-btn {
-    font-size: 13px;
-    padding: 6px 8px;
-    height: 40px;
-    border-radius: 8px;
-    min-width: 36px;
+    font-size: 12px;
+    padding: 4px 7px;
+    height: auto;
+    border-radius: 6px;
+    min-width: 34px;
+    flex: none;
   }
 
   /* Compact active-game bar: info side + Score button */
@@ -2541,7 +2559,7 @@
         <button class="sm-btn undo" onclick="undoScore('a')" title="Undo last score">↩</button>
         <div class="sm-fouls-row" onclick="addFoul('a')" title="Add foul">
           <div class="sm-fouls-dots" id="sm-fouls-a-dots"></div>
-          <button class="sm-foul-btn">+F</button>
+          <div class="sm-foul-count" id="sm-foul-count-a">0F</div>
         </div>
       </div>
     </div>
@@ -2551,7 +2569,7 @@
       <button class="sm-btn pt1" onclick="addScore('b',1)">+1</button>
       <div class="sm-aux-row">
         <div class="sm-fouls-row" onclick="addFoul('b')" title="Add foul">
-          <button class="sm-foul-btn">+F</button>
+          <div class="sm-foul-count" id="sm-foul-count-b">0F</div>
           <div class="sm-fouls-dots" id="sm-fouls-b-dots"></div>
         </div>
         <button class="sm-btn undo" onclick="undoScore('b')" title="Undo last score">↩</button>
@@ -3512,12 +3530,18 @@
 
   function renderSmFouls(t, n) {
     const el = document.getElementById(`sm-fouls-${t}-dots`);
-    if (!el) return;
-    el.innerHTML = '';
-    for (let i = 0; i < MAX_FOUL_D; i++) {
-      const d = document.createElement('div');
-      d.className = 'sm-foul-dot' + (i < n ? ' active' : '');
-      el.appendChild(d);
+    if (el) {
+      el.innerHTML = '';
+      for (let i = 0; i < MAX_FOUL_D; i++) {
+        const d = document.createElement('div');
+        d.className = 'sm-foul-dot' + (i < n ? ' active' : '');
+        el.appendChild(d);
+      }
+    }
+    const cnt = document.getElementById(`sm-foul-count-${t}`);
+    if (cnt) {
+      cnt.textContent = n + 'F';
+      cnt.className = 'sm-foul-count' + (n > 0 ? ' has-fouls' : '');
     }
   }
 
