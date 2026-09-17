@@ -3428,9 +3428,18 @@
     if (document.getElementById('login-screen').hidden) {
       document.body.classList.remove('login-open');
     }
-    // Mirror scores back to the main scoreboard (should already match)
+    // Mirror scores back to the main scoreboard
     document.getElementById('score-a').textContent = S.scoreA;
     document.getElementById('score-b').textContent = S.scoreB;
+    // If the game hasn't started (no score, clock never ran), deselect it
+    // so the game row goes back to showing the "Score" button
+    if (S.scoreA === 0 && S.scoreB === 0 && !S.running && !S.gameOver) {
+      activeScheduledGameId = null;
+      resetGame();
+      renderGamePicker();
+    } else {
+      renderGamePicker();
+    }
   }
 
   function renderSmFouls(t, n) {
