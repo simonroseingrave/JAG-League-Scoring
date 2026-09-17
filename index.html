@@ -1974,17 +1974,30 @@
     .logout-btn { font-size: 11px; padding: 4px 8px; }
     .role-badge { font-size: 10px; padding: 3px 7px; }
 
-    /* LOGIN: much bigger, readable, easy to tap */
-    .login-screen { padding: 16px; overflow-y: auto; align-items: flex-start; padding-top: max(40px, env(safe-area-inset-top, 40px)); }
-    .login-card { padding: 32px 24px 36px; gap: 20px; border-radius: 20px; max-width: 100%; }
-    .login-header svg { width: 72px; height: 72px; }
-    .login-title { font-size: 32px; margin-top: 10px; }
-    .login-sub { font-size: 15px; margin-top: 4px; }
-    .login-error { font-size: 15px; padding: 10px 14px; }
-    .login-field-label { font-size: 13px; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .login-role-btn { font-size: 18px; padding: 14px 10px; border-radius: 10px; }
-    .login-pin { font-size: 20px; padding: 15px 16px; border-radius: 11px; }
-    .login-submit { font-size: 18px; font-weight: 800; padding: 16px; border-radius: 11px; margin-top: 4px; }
+    /* LOGIN: full-screen card on mobile */
+    .login-screen {
+      padding: 0;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    .login-card {
+      border-radius: 0;
+      border: none;
+      max-width: 100%;
+      width: 100%;
+      min-height: 100%;
+      padding: max(48px, env(safe-area-inset-top, 48px)) 28px max(40px, env(safe-area-inset-bottom, 40px));
+      gap: 22px;
+      justify-content: center;
+    }
+    .login-header svg { width: 80px; height: 80px; }
+    .login-title { font-size: 36px; margin-top: 10px; }
+    .login-sub { font-size: 16px; margin-top: 5px; }
+    .login-error { font-size: 15px; padding: 12px 14px; }
+    .login-field-label { font-size: 14px; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .login-role-btn { font-size: 20px; padding: 16px 10px; border-radius: 12px; }
+    .login-pin { font-size: 22px; padding: 17px 16px; border-radius: 12px; }
+    .login-submit { font-size: 20px; font-weight: 800; padding: 18px; border-radius: 12px; margin-top: 6px; }
 
     /* SCORE TAB: zero side padding — full bleed */
     .app-main { padding-left: 0; padding-right: 0; padding-top: 10px; }
