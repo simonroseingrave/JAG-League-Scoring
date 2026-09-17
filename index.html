@@ -1736,6 +1736,85 @@
     padding-bottom: 5px; margin-bottom: 4px;
     border-bottom: 1px solid var(--border);
   }
+
+  /* === INLINE GAME PICKER === */
+  .game-picker {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .gp-block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: var(--surface-2);
+    cursor: pointer;
+    user-select: none;
+    border-top: 1px solid var(--border);
+  }
+  .gp-block:first-child .gp-block-header { border-top: none; }
+
+  .gp-block-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex: 1;
+  }
+  .gp-block-date { font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
+  .gp-block-count { font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+  .gp-block-chevron {
+    font-size: 11px; color: var(--text-dim); flex-shrink: 0;
+    transition: transform 0.15s; display: inline-block;
+  }
+  .gp-block-header.open .gp-block-chevron { transform: rotate(180deg); }
+
+  .gp-games { border-top: 1px solid var(--border); }
+
+  .gp-game {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .gp-game:last-child { border-bottom: none; }
+  .gp-game:active { background: var(--surface-2); }
+
+  .gp-game.gp-active {
+    background: rgba(245,158,11,0.07);
+    border-left: 3px solid var(--accent);
+    padding-left: 11px;
+  }
+  .gp-game.gp-done { opacity: 0.45; cursor: default; }
+  .gp-game.gp-done:active { background: transparent; }
+
+  .gp-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+  .gp-teams {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    flex: 1;
+  }
+  .gp-vs { font-size: 10px; font-weight: 400; color: var(--text-dim); margin: 0 5px; }
+  .gp-status { font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
+  .gp-status.scoring { color: var(--accent); font-weight: 700; letter-spacing: 0.04em; }
+  .gp-status.done { color: var(--success); font-variant-numeric: tabular-nums; }
 </style>
 
 <!-- Login Screen -->
@@ -1824,8 +1903,10 @@
         <span class="game-state-badge" id="game-state-badge">Not Started</span>
         <span class="active-game-label" id="active-game-label" hidden>● Scheduled</span>
         <button class="status-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
-        <button class="status-btn" onclick="openSelectGame()" id="select-game-btn" hidden>Select Game</button>
       </div>
+
+      <!-- Inline game picker accordion -->
+      <div id="game-picker" class="game-picker" hidden></div>
 
       <div class="scoreboard">
 
@@ -2165,6 +2246,7 @@
   };
 
   let activeScheduledGameId = null;
+  let gpExpanded = {}; // block id → boolean (expanded state for game picker)
 
   // ── Fouls ─────────────────────────────────────────────────────────
   function renderFouls(t, n) {
@@ -2479,42 +2561,78 @@
     });
   });
 
-  // ── Select Game ───────────────────────────────────────────────────
-  function updateSelectGameBtn() {
-    const hasGames = allGames().some(g => !g.completed);
-    document.getElementById('select-game-btn').hidden = !hasGames;
+  // ── Game Picker (inline accordion on Score tab) ───────────────────
+  function updateSelectGameBtn() { renderGamePicker(); } // legacy shim — all callers preserved
+
+  function renderGamePicker() {
+    const picker = document.getElementById('game-picker');
+    const blocks = (schedule.blocks || []).filter(b => b.games && b.games.length);
+    if (!blocks.length) { picker.hidden = true; return; }
+    picker.hidden = false;
+
+    // Initialise expand state: open blocks with upcoming games, closed if all done
+    blocks.forEach(b => {
+      if (gpExpanded[b.id] === undefined) {
+        gpExpanded[b.id] = b.games.some(g => !g.completed);
+      }
+    });
+
+    picker.innerHTML = blocks.map(b => {
+      const isOpen = gpExpanded[b.id];
+      const dateStr = b.date ? formatDateShort(b.date) : '';
+      const upcoming = b.games.filter(g => !g.completed).length;
+      const countLabel = upcoming > 0
+        ? `${upcoming} to play`
+        : '<span style="color:var(--success)">done</span>';
+
+      const gamesHtml = b.games.map(g => {
+        const isActive = g.id === activeScheduledGameId;
+        const isDone = g.completed && !isActive;
+        let cls = 'gp-game';
+        if (isActive) cls += ' gp-active';
+        if (isDone) cls += ' gp-done';
+
+        let statusHtml;
+        if (isActive) {
+          statusHtml = `<span class="gp-status scoring">● SCORING</span>`;
+        } else if (g.completed) {
+          const sc = (g.scoreHome !== null && g.scoreAway !== null)
+            ? `${g.scoreHome}–${g.scoreAway}` : '✓';
+          statusHtml = `<span class="gp-status done">${sc}</span>`;
+        } else {
+          statusHtml = `<span class="gp-status" style="color:var(--accent);font-size:16px;line-height:1;">▶</span>`;
+        }
+
+        const clickable = !isDone; // can always re-select active or upcoming
+        return `<div class="${cls}" ${clickable ? `onclick="selectScheduledGame('${g.id}')"` : ''}>
+          <span class="gp-time">${g.slot || ''}</span>
+          <span class="gp-teams">${g.home}<span class="gp-vs">vs</span>${g.away}</span>
+          ${statusHtml}
+        </div>`;
+      }).join('');
+
+      return `<div class="gp-block">
+        <div class="gp-block-header ${isOpen ? 'open' : ''}" onclick="toggleGpBlock('${b.id}')">
+          <span class="gp-block-name">${b.label}</span>
+          ${dateStr ? `<span class="gp-block-date">${dateStr}</span>` : ''}
+          <span class="gp-block-count">${countLabel}</span>
+          <span class="gp-block-chevron">▾</span>
+        </div>
+        <div class="gp-games" ${isOpen ? '' : 'hidden'} id="gp-games-${b.id}">${gamesHtml}</div>
+      </div>`;
+    }).join('');
   }
 
-  function openSelectGame() {
-    const list = document.getElementById('select-game-list');
-    const hasUpcoming = allGames().some(g => !g.completed);
-
-    if (!hasUpcoming) {
-      list.innerHTML = '<div class="select-game-no-games">No upcoming games in the schedule</div>';
-    } else {
-      list.innerHTML = (schedule.blocks || []).map(block => {
-        const blockUpcoming = (block.games || []).filter(g => !g.completed);
-        if (!blockUpcoming.length) return '';
-        return `<div class="select-game-date-group">
-          <div class="select-game-date-label">${block.label} — ${formatDate(block.date)}</div>
-          ${blockUpcoming.map(g => `
-            <div class="select-game-item" onclick="selectScheduledGame('${g.id}')">
-              <span class="select-game-time">${g.slot}</span>
-              <span class="select-game-teams">${g.home} <span style="color:var(--text-dim);font-size:11px;font-weight:600"> vs </span> ${g.away}</span>
-            </div>
-          `).join('')}
-        </div>`;
-      }).filter(Boolean).join('');
-    }
-
-    document.getElementById('select-game-modal').hidden = false;
+  function toggleGpBlock(blockId) {
+    gpExpanded[blockId] = !gpExpanded[blockId];
+    renderGamePicker();
   }
 
   function closeSelectGame() { document.getElementById('select-game-modal').hidden = true; }
 
   function selectScheduledGame(id) {
     const g = allGames().find(x => x.id === id);
-    if (!g) return;
+    if (!g || g.completed) return;
     const block = (schedule.blocks || []).find(b => b.games && b.games.some(x => x.id === id));
 
     resetGame();
@@ -2528,8 +2646,7 @@
     lbl.hidden = false;
 
     updatePeriodLabel();
-    updateSelectGameBtn();
-    closeSelectGame();
+    renderGamePicker(); // refresh picker to show ● SCORING highlight
   }
 
   document.getElementById('select-game-modal').addEventListener('click', e => {
