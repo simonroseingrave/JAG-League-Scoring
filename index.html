@@ -1588,7 +1588,7 @@
 
   .role-badge {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1601,14 +1601,14 @@
 
   .logout-btn {
     background: none;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 5px;
     cursor: pointer;
     transition: color 0.12s, border-color 0.12s;
@@ -1919,6 +1919,23 @@
   .gp-game.gp-done { opacity: 0.45; cursor: default; }
   .gp-game.gp-done:active { background: transparent; }
 
+  .gp-play-btn {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .gp-play-btn:active { opacity: 0.8; transform: scale(0.96); }
+
   .gp-time {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 14px;
@@ -2001,7 +2018,7 @@
     .login-submit { font-size: 20px; font-weight: 800; padding: 18px; border-radius: 12px; margin-top: 6px; }
 
     /* SCORE TAB: zero side padding — full bleed */
-    .app-main { padding-left: 0; padding-right: 0; padding-top: 10px; }
+    .app-main { padding-left: 0; padding-right: 0; padding-top: 4px; }
     .game-layout { gap: 8px; }
 
     /* Status bar: compact, nudge inward */
@@ -2014,11 +2031,14 @@
     /* Game picker: bigger tap targets */
     .gp-active-bar { margin: 0 10px; }
     .game-picker { margin: 0 10px; }
-    .gp-block-header { padding: 12px 14px; }
-    .gp-block-name { font-size: 14px; }
-    .gp-game { padding: 14px 16px; }
-    .gp-teams { font-size: 17px; }
-    .gp-time { font-size: 15px; min-width: 52px; }
+    .gp-block-header { padding: 13px 16px; }
+    .gp-block-name { font-size: 15px; }
+    .gp-block-date { font-size: 13px; }
+    .gp-game { padding: 16px 16px; gap: 12px; }
+    .gp-teams { font-size: 20px; font-weight: 800; }
+    .gp-time { font-size: 15px; min-width: 58px; color: var(--text-muted); }
+    .gp-vs { font-size: 11px; margin: 0 6px; }
+    .gp-play-btn { font-size: 15px; padding: 12px 18px; }
 
     /* SCOREBOARD: full-width, edge to edge */
     .scoreboard { gap: 0; }
@@ -2541,9 +2561,9 @@
         <button class="status-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
       </div>
 
-      <div id="no-game-msg" style="text-align:center;padding:48px 20px 24px;color:var(--text-muted);">
-        <div style="font-size:36px;margin-bottom:12px;">🏀</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Select a game to start scoring</div>
+      <div id="no-game-msg" style="text-align:center;padding:24px 20px 16px;color:var(--text-muted);">
+        <div style="font-size:32px;margin-bottom:10px;">🏀</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Tap a game below to score it</div>
       </div>
 
       <!-- Inline game picker accordion -->
@@ -3388,6 +3408,11 @@
 
   // ── Game Picker (inline accordion on Score tab) ───────────────────
   // ── Full-screen scoring overlay ───────────────────────────────────
+  function selectAndScore(id) {
+    selectScheduledGame(id);
+    enterScoringMode();
+  }
+
   function enterScoringMode() {
     document.getElementById('score-mode-screen').hidden = false;
     document.body.classList.add('login-open'); // freeze body scroll behind overlay
@@ -3529,17 +3554,17 @@
 
         let statusHtml;
         if (isActive) {
-          statusHtml = `<span class="gp-status scoring">● SCORING</span>`;
+          statusHtml = `<button class="gp-play-btn" onclick="enterScoringMode()" style="background:var(--surface-3);color:var(--accent);border:1px solid var(--accent);">▶ Scoring</button>`;
         } else if (g.completed) {
           const sc = (g.scoreHome !== null && g.scoreAway !== null)
             ? `${g.scoreHome}–${g.scoreAway}` : '✓';
           statusHtml = `<span class="gp-status done">${sc}</span>`;
         } else {
-          statusHtml = `<span class="gp-status" style="color:var(--accent);font-size:16px;line-height:1;">▶</span>`;
+          statusHtml = `<button class="gp-play-btn" onclick="selectAndScore('${g.id}')">Score</button>`;
         }
 
-        const clickable = !isDone; // can always re-select active or upcoming
-        return `<div class="${cls}" ${clickable ? `onclick="selectScheduledGame('${g.id}')"` : ''}>
+        const clickable = !isDone;
+        return `<div class="${cls}">
           <span class="gp-time">${g.slot || ''}</span>
           <span class="gp-teams">${g.home}<span class="gp-vs">vs</span>${g.away}</span>
           ${statusHtml}
