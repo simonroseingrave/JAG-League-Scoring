@@ -2170,14 +2170,14 @@
     animation: pulse-badge 1.5s ease infinite;
   }
 
-  /* Compact score band — always visible at top */
+  /* Compact score band */
   .sm-scores-band {
     display: flex;
     align-items: stretch;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    height: 140px;
+    height: 116px;
   }
   .sm-score-side {
     flex: 1;
@@ -2185,45 +2185,29 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 12px 8px;
+    gap: 2px;
+    padding: 10px 6px;
     transition: background 0.25s;
   }
-  .sm-score-side.winner { background: rgba(245,158,11,0.07); }
+  .sm-score-side.winner { background: rgba(245,158,11,0.08); }
   .sm-score-vs {
     width: 1px;
     background: var(--border);
     flex-shrink: 0;
-    position: relative;
-  }
-  .sm-score-vs::after {
-    content: '—';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    background: var(--surface);
-    padding: 3px 4px;
-    white-space: nowrap;
   }
   .sm-team-name {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(14px, 4vw, 20px);
+    font-size: clamp(15px, 4.2vw, 22px);
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     text-align: center;
-    color: var(--text-muted);
+    color: var(--text);
     line-height: 1;
   }
   .sm-score {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(64px, 19vw, 88px);
+    font-size: clamp(58px, 17vw, 80px);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -2233,7 +2217,7 @@
   }
   .sm-score-side.winner .sm-score { color: var(--accent); }
 
-  /* Button area — gets all remaining space */
+  /* Button area — flex:1, type fills the space */
   .sm-body {
     flex: 1;
     display: flex;
@@ -2243,12 +2227,13 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 10px 8px 8px;
-    gap: 7px;
+    padding: 8px 7px 7px;
+    gap: 6px;
     border-right: 1px solid var(--border);
   }
   .sm-btn-col:last-child { border-right: none; }
 
+  /* Scoring buttons — type sized to fill ~40% of button height */
   .sm-btn {
     flex: 1;
     border: none;
@@ -2257,56 +2242,57 @@
     font-weight: 900;
     border-radius: 12px;
     cursor: pointer;
-    transition: opacity 0.08s, transform 0.07s;
-    min-height: 56px;
-    font-size: clamp(28px, 8vw, 42px);
-    letter-spacing: 0.02em;
+    transition: opacity 0.07s, transform 0.06s;
+    min-height: 52px;
+    font-size: clamp(52px, 15vw, 72px);
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .sm-btn:active { transform: scale(0.96); opacity: 0.7; }
+  .sm-btn.pt2 {
+    background: var(--surface-3);
+    border: 1px solid var(--border-light);
+    flex: 1.35;
+  }
+  .sm-btn.pt1 {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    font-size: clamp(42px, 12vw, 58px);
+  }
+
+  /* Auxiliary row: undo + fouls */
+  .sm-aux-row {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    flex-shrink: 0;
+    height: 52px;
+  }
+  .sm-btn.undo {
+    flex: 0 0 52px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 10px;
+    min-height: unset;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .sm-btn:active { transform: scale(0.95); opacity: 0.75; }
-  .sm-btn.pt2 {
-    background: var(--surface-3);
-    color: var(--text);
-    border: 1px solid var(--border-light);
-    flex: 1.4; /* slightly taller — primary action */
-  }
-  .sm-btn.pt1 {
-    background: var(--surface-2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  /* Auxiliary row: undo + fouls side by side */
-  .sm-aux-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-    height: 46px;
-  }
-  .sm-btn.undo {
-    flex: 0 0 auto;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 10px;
-    width: 46px;
-    height: 100%;
-    min-height: unset;
-    flex: unset;
-  }
-  .sm-btn.undo:active { color: var(--danger); border-color: var(--danger); }
+  .sm-btn.undo:active { color: var(--danger); border-color: var(--danger); opacity: 1; }
 
   .sm-fouls-row {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 6px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -2317,7 +2303,7 @@
   .sm-fouls-row:active { border-color: var(--danger); }
   .sm-fouls-dots { display: flex; gap: 5px; }
   .sm-foul-dot {
-    width: 10px; height: 10px;
+    width: 12px; height: 12px;
     border-radius: 50%;
     background: var(--border-light);
     flex-shrink: 0;
@@ -2328,8 +2314,8 @@
     border: none;
     color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     padding: 0;
@@ -2337,12 +2323,13 @@
     flex-shrink: 0;
   }
 
-  /* Clock footer */
+  /* Clock footer — tall and prominent */
   .sm-footer {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 9px 10px;
+    gap: 8px;
+    padding: 0 10px;
+    height: 88px;
     background: var(--surface);
     border-top: 1px solid var(--border);
     flex-shrink: 0;
@@ -2351,37 +2338,39 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    line-height: 1;
+    gap: 1px;
     flex-shrink: 0;
   }
   .sm-clock-label, .sm-shot-label {
-    font-size: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-bottom: 1px;
   }
   .sm-game-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 34px;
+    font-size: 46px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     letter-spacing: 0.01em;
-    min-width: 74px;
+    min-width: 90px;
     text-align: center;
+    line-height: 1;
     transition: color 0.3s;
   }
   .sm-game-clock.urgent { color: var(--danger); }
   .sm-shot-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 34px;
+    font-size: 46px;
     font-weight: 900;
     font-variant-numeric: tabular-nums;
     color: var(--text);
-    min-width: 36px;
+    min-width: 44px;
     text-align: center;
+    line-height: 1;
     transition: color 0.2s;
   }
   .sm-shot-clock.urgent { color: var(--danger); }
@@ -2393,13 +2382,13 @@
     border: none;
     color: #000;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0;
-    height: 52px;
-    border-radius: 10px;
+    height: 64px;
+    border-radius: 12px;
     cursor: pointer;
     transition: opacity 0.1s;
   }
@@ -2411,11 +2400,11 @@
     border: 1px solid var(--border-light);
     color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 800;
-    width: 44px;
-    height: 52px;
-    border-radius: 10px;
+    width: 50px;
+    height: 64px;
+    border-radius: 12px;
     cursor: pointer;
     transition: color 0.1s;
     flex-shrink: 0;
@@ -2435,14 +2424,23 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0 10px;
-    height: 52px;
-    border-radius: 10px;
+    height: 64px;
+    border-radius: 12px;
     cursor: pointer;
     transition: border-color 0.12s, color 0.12s;
     white-space: nowrap;
     flex-shrink: 0;
   }
   .sm-submit-btn:active { border-color: var(--success); color: var(--success); }
+
+  /* Duration picker chips inside the overlay footer */
+  #sm-duration-picker .dur-btn {
+    font-size: 13px;
+    padding: 6px 8px;
+    height: 40px;
+    border-radius: 8px;
+    min-width: 36px;
+  }
 
   /* Compact active-game bar: info side + Score button */
   .gp-active-bar {
