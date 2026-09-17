@@ -1181,21 +1181,32 @@
     color: var(--text-muted);
   }
 
-  .set-teams-select {
+  .set-teams-quickpick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 4px;
+  }
+
+  .qp-btn {
     background: var(--surface-2);
     border: 1px solid var(--border-light);
-    color: var(--text);
+    color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 17px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 9px 12px;
-    border-radius: 8px;
-    outline: none;
-    width: 100%;
+    padding: 4px 10px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: border-color 0.15s;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+  }
+
+  .qp-btn:hover {
+    background: var(--surface-3);
+    color: var(--accent);
+    border-color: var(--accent);
   }
 
   .set-teams-select:focus { border-color: var(--accent); }
@@ -1549,12 +1560,14 @@
     <div class="modal-title">Set Teams</div>
     <div class="set-teams-form">
       <div class="set-teams-row">
-        <div class="set-teams-row-label">Team A (Home)</div>
-        <select class="set-teams-select" id="set-team-a-select"></select>
+        <div class="set-teams-row-label">Home Team</div>
+        <input class="modal-input" id="set-team-a-input" type="text" maxlength="18" placeholder="HOME" autocomplete="off" spellcheck="false" style="margin-bottom:6px;">
+        <div class="set-teams-quickpick" id="set-team-a-quickpick"></div>
       </div>
       <div class="set-teams-row">
-        <div class="set-teams-row-label">Team B (Away)</div>
-        <select class="set-teams-select" id="set-team-b-select"></select>
+        <div class="set-teams-row-label">Away Team</div>
+        <input class="modal-input" id="set-team-b-input" type="text" maxlength="18" placeholder="AWAY" autocomplete="off" spellcheck="false" style="margin-bottom:6px;">
+        <div class="set-teams-quickpick" id="set-team-b-quickpick"></div>
       </div>
     </div>
     <div class="modal-actions" style="margin-top:16px;">
@@ -1807,14 +1820,16 @@
   function loadTeams() {
     try {
       const d = localStorage.getItem('jag3x3_teams');
-      if (d) { teams = JSON.parse(d).map(t => ({ name: t.name })); return; }
+      if (d) {
+        const parsed = JSON.parse(d);
+        // Handle both [{name}] and [{name,w,l,...}] and legacy string arrays
+        teams = parsed
+          .map(t => typeof t === 'string' ? { name: t } : { name: t.name })
+          .filter(t => t.name && typeof t.name === 'string' && t.name.trim());
+        return;
+      }
     } catch(e) {}
-    teams = [
-      { name: 'BALLERS' },
-      { name: 'RUNNERS' },
-      { name: 'HOOPERS' },
-      { name: 'BUCKETS' },
-    ];
+    teams = [];
   }
 
   // Compute standings from completed schedule games
@@ -1895,30 +1910,40 @@
 
   // ── Set Teams ─────────────────────────────────────────────────────
   function openSetTeams() {
-    const selA = document.getElementById('set-team-a-select');
-    const selB = document.getElementById('set-team-b-select');
     const curA = document.getElementById('team-a-name').textContent.trim();
     const curB = document.getElementById('team-b-name').textContent.trim();
+    const inA = document.getElementById('set-team-a-input');
+    const inB = document.getElementById('set-team-b-input');
 
-    const opts = teams.length
-      ? teams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')
-      : '<option value="HOME">HOME</option><option value="AWAY">AWAY</option>';
+    inA.value = (curA === 'HOME') ? '' : curA;
+    inB.value = (curB === 'AWAY') ? '' : curB;
 
-    selA.innerHTML = opts; selB.innerHTML = opts;
-    selA.value = curA; selB.value = curB;
-    if (!selA.value && selA.options.length) selA.selectedIndex = 0;
-    if (!selB.value && selB.options.length) selB.selectedIndex = Math.min(1, selB.options.length - 1);
+    // Quick-pick buttons from registered teams
+    function renderQP(el, inputEl) {
+      el.innerHTML = '';
+      teams.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'qp-btn';
+        btn.textContent = t.name;
+        btn.type = 'button';
+        btn.onclick = () => { inputEl.value = t.name; inputEl.focus(); };
+        el.appendChild(btn);
+      });
+    }
+    renderQP(document.getElementById('set-team-a-quickpick'), inA);
+    renderQP(document.getElementById('set-team-b-quickpick'), inB);
 
     document.getElementById('set-teams-modal').hidden = false;
+    setTimeout(() => inA.focus(), 60);
   }
 
   function closeSetTeams() { document.getElementById('set-teams-modal').hidden = true; }
 
   function confirmSetTeams() {
-    const a = document.getElementById('set-team-a-select').value;
-    const b = document.getElementById('set-team-b-select').value;
-    document.getElementById('team-a-name').textContent = a || 'HOME';
-    document.getElementById('team-b-name').textContent = b || 'AWAY';
+    const a = document.getElementById('set-team-a-input').value.trim().toUpperCase() || 'HOME';
+    const b = document.getElementById('set-team-b-input').value.trim().toUpperCase() || 'AWAY';
+    document.getElementById('team-a-name').textContent = a;
+    document.getElementById('team-b-name').textContent = b;
     // Clear scheduled game link since we manually changed teams
     if (activeScheduledGameId) {
       activeScheduledGameId = null;
@@ -1932,6 +1957,14 @@
 
   document.getElementById('set-teams-modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeSetTeams();
+  });
+
+  // Enter key in set-teams inputs
+  ['set-team-a-input','set-team-b-input'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmSetTeams();
+      if (e.key === 'Escape') closeSetTeams();
+    });
   });
 
   // ── Select Game ───────────────────────────────────────────────────
