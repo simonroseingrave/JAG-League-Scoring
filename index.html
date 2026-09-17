@@ -2103,7 +2103,7 @@
     .score-btn.undo { min-height: 88px; font-size: 19px; padding: 0 12px; }
   }
 
-  /* === FULL-SCREEN PORTRAIT SCORING OVERLAY === */
+  /* === FULL-SCREEN PORTRAIT SCORING OVERLAY — ROW-BASED === */
   #score-mode-screen {
     position: fixed;
     inset: 0;
@@ -2115,34 +2115,44 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  /* Header strip */
-  .sm-header {
+  /* Every row: equal height, full width, no shrink */
+  .smr {
+    flex: 1;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: var(--surface);
+    align-items: stretch;
     border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .smr:last-child { border-bottom: none; }
+
+  /* ── Row 1: Header ── */
+  .smr-header {
+    background: var(--surface);
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    flex: 0 0 52px; /* header slightly smaller */
   }
   .sm-back-btn {
-    background: none;
-    border: 1px solid var(--border-light);
-    color: var(--text-muted);
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.4);
+    color: var(--accent);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 7px 12px;
+    padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
     flex-shrink: 0;
+    white-space: nowrap;
   }
-  .sm-back-btn:active { color: var(--accent); border-color: var(--accent); }
+  .sm-back-btn:active { background: rgba(245,158,11,0.25); }
   .sm-game-info {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-muted);
     letter-spacing: 0.05em;
@@ -2154,15 +2164,16 @@
   }
   .sm-badge {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 4px 10px;
+    padding: 5px 10px;
     border-radius: 4px;
     background: var(--surface-2);
     color: var(--text-muted);
     flex-shrink: 0;
+    white-space: nowrap;
   }
   .sm-badge.live {
     background: rgba(239,68,68,0.15);
@@ -2170,44 +2181,42 @@
     animation: pulse-badge 1.5s ease infinite;
   }
 
-  /* Score band — team names big and white */
-  .sm-scores-band {
-    display: flex;
-    align-items: stretch;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    height: 130px;
-  }
-  .sm-score-side {
+  /* ── Row 2: Team Names ── */
+  .smr-teams { background: var(--surface); }
+  .sm-team-cell {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 10px 6px;
+    padding: 6px 10px;
     transition: background 0.25s;
   }
-  .sm-score-side.winner { background: rgba(245,158,11,0.08); }
-  .sm-score-vs {
-    width: 1px;
-    background: var(--border);
-    flex-shrink: 0;
-  }
+  .sm-team-cell.winner { background: rgba(245,158,11,0.08); }
   .sm-team-name {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(20px, 5.5vw, 30px);
-    font-weight: 800;
-    letter-spacing: 0.08em;
+    font-size: clamp(22px, 6vw, 34px);
+    font-weight: 900;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     text-align: center;
-    color: var(--text);
+    color: var(--accent);
     line-height: 1;
+    text-wrap: balance;
   }
+
+  /* ── Row 3: Scores ── */
+  .smr-scores { background: var(--surface); }
+  .sm-score-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s;
+  }
+  .sm-score-cell.winner { background: rgba(245,158,11,0.08); }
   .sm-score {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(56px, 16vw, 76px);
+    font-size: clamp(52px, 14vw, 80px);
     font-weight: 900;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -2215,250 +2224,227 @@
     letter-spacing: -0.02em;
     transition: color 0.2s;
   }
-  .sm-score-side.winner .sm-score { color: var(--accent); }
+  .sm-score-cell.winner .sm-score { color: var(--accent); }
 
-  /* Button area — fixed-height buttons, space above */
-  .sm-body {
-    flex: 1;
-    display: flex;
-    min-height: 0;
+  /* Vertical divider shared by rows that have two sides */
+  .sm-vdiv {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: stretch;
   }
-  .sm-btn-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* buttons sit at bottom of space */
-    padding: 8px 7px 7px;
-    gap: 6px;
-    border-right: 1px solid var(--border);
-  }
-  .sm-btn-col:last-child { border-right: none; }
 
-  /* Fixed-size scoring buttons — readable, not overwhelming */
-  .sm-btn {
-    flex: 0 0 auto;
+  /* ── Rows 4 & 5: Scoring buttons ── */
+  .smr-btn { gap: 0; }
+  .sm-score-btn {
+    flex: 1;
     border: none;
     color: var(--text);
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 900;
-    border-radius: 12px;
     cursor: pointer;
     transition: opacity 0.07s, transform 0.06s;
-    font-size: 32px;
     letter-spacing: 0.02em;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
   }
-  .sm-btn:active { transform: scale(0.96); opacity: 0.7; }
-  .sm-btn.pt2 {
+  .sm-score-btn:active { transform: scale(0.96); opacity: 0.65; }
+  .sm-score-btn.pt2 {
     background: var(--surface-3);
-    border: 1px solid var(--border-light);
-    height: 76px;
-    font-size: 36px;
+    font-size: clamp(28px, 8vw, 40px);
   }
-  .sm-btn.pt1 {
+  .sm-score-btn.pt1 {
     background: var(--surface-2);
-    border: 1px solid var(--border);
-    height: 64px;
-    font-size: 30px;
+    font-size: clamp(24px, 7vw, 34px);
   }
 
-  /* Auxiliary row: undo + fouls */
-  .sm-aux-row {
-    display: flex;
-    align-items: stretch;
-    gap: 6px;
-    flex-shrink: 0;
-    height: 64px;
-  }
-  .sm-btn.undo {
-    flex: 0 0 52px;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 10px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .sm-btn.undo:active { color: var(--danger); border-color: var(--danger); opacity: 1; }
-
-  .sm-fouls-row {
+  /* ── Row 6: Fouls ── */
+  .smr-fouls { background: var(--surface); gap: 0; }
+  .sm-foul-cell {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background: var(--surface-2);
-    border: 1px solid var(--border-light);
-    border-radius: 10px;
-    padding: 6px 8px;
-    height: 100%;
     cursor: pointer;
+    transition: background 0.15s;
+    padding: 4px 8px;
   }
-  .sm-fouls-row:active { border-color: var(--danger); background: rgba(239,68,68,0.08); }
-  .sm-fouls-dots { display: flex; gap: 6px; align-items: center; }
+  .sm-foul-cell:active { background: rgba(239,68,68,0.1); }
+  .sm-fouls-dots { display: flex; gap: 7px; align-items: center; }
   .sm-foul-dot {
-    width: 16px; height: 16px;
+    width: 14px; height: 14px;
     border-radius: 50%;
     background: var(--border-light);
     flex-shrink: 0;
   }
   .sm-foul-dot.active { background: var(--danger); box-shadow: 0 0 6px rgba(239,68,68,0.5); }
-  .sm-foul-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0;
-    cursor: pointer;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-  /* Show foul count as number alongside dots */
   .sm-foul-count {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px;
+    font-size: clamp(18px, 5vw, 26px);
     font-weight: 900;
     color: var(--text-muted);
     line-height: 1;
+    letter-spacing: 0.05em;
   }
   .sm-foul-count.has-fouls { color: var(--danger); }
-
-  /* Clock footer — dominant, everything at a glance */
-  .sm-footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 10px;
-    height: 100px;
-    background: var(--surface);
-    border-top: 2px solid var(--border);
-    flex-shrink: 0;
-  }
-  .sm-clock-wrap, .sm-shot-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-  .sm-clock-label, .sm-shot-label {
+  .sm-foul-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 9px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    line-height: 1;
+  }
+
+  /* Undo side buttons inside foul row */
+  .sm-undo-btn {
+    flex: 0 0 52px;
+    background: none;
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.1s;
+  }
+  .sm-undo-btn:last-child { border-right: none; border-left: 1px solid var(--border); }
+  .sm-undo-btn:active { color: var(--danger); }
+
+  /* ── Row 7: Game Clock ── */
+  .smr-gameclock { background: var(--surface); align-items: center; padding: 0 16px; gap: 12px; }
+  .sm-row-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--text-dim);
+    flex-shrink: 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
   }
-  /* Game timer — large, white */
   .sm-game-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 52px;
+    font-size: clamp(44px, 13vw, 64px);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--text);
     letter-spacing: 0.01em;
-    min-width: 100px;
     text-align: center;
     line-height: 1;
+    flex: 1;
     transition: color 0.3s;
   }
   .sm-game-clock.urgent { color: var(--danger); }
-  /* Shot clock — large, always amber */
+
+  /* Duration picker chips — horizontal in game clock row */
+  #sm-duration-picker { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+  #sm-duration-picker .dur-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    height: auto;
+    border-radius: 6px;
+    min-width: 36px;
+    flex: none;
+  }
+
+  /* ── Row 8: Shot Clock ── */
+  .smr-shotclock { background: rgba(245,158,11,0.04); border-color: rgba(245,158,11,0.2); align-items: center; padding: 0 10px; gap: 10px; }
   .sm-shot-clock {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 52px;
+    font-size: clamp(44px, 13vw, 64px);
     font-weight: 900;
     font-variant-numeric: tabular-nums;
     color: var(--accent);
-    min-width: 48px;
     text-align: center;
     line-height: 1;
+    flex: 1;
     transition: color 0.2s;
   }
-  .sm-shot-label { color: var(--accent); opacity: 0.7; }
   .sm-shot-clock.urgent { color: var(--danger); }
   .sm-shot-clock.warn { color: var(--accent); }
+  .sm-shot-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.6;
+    flex-shrink: 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .sm-shot-reset-btn {
+    flex-shrink: 0;
+    background: rgba(245,158,11,0.12);
+    border: 1px solid rgba(245,158,11,0.35);
+    color: var(--accent);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0 18px;
+    height: 70%;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.1s;
+  }
+  .sm-shot-reset-btn:active { opacity: 0.65; }
 
-  /* START button — full footer height */
+  /* ── Row 9: Start ── */
+  .smr-start { padding: 8px 10px; background: var(--surface); gap: 8px; align-items: center; }
   .sm-start-btn {
     flex: 1;
+    height: 100%;
     background: var(--accent);
     border: none;
     color: #000;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    font-size: clamp(24px, 7vw, 34px);
+    font-weight: 900;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0;
-    height: 76px;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     transition: opacity 0.1s;
   }
   .sm-start-btn:active { opacity: 0.75; }
   .sm-start-btn:disabled { opacity: 0.35; cursor: default; }
-
-  .sm-shot-reset-btn {
-    background: var(--surface-2);
-    border: 1px solid rgba(245,158,11,0.3);
-    color: var(--accent);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    width: 52px;
-    height: 76px;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: opacity 0.1s;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .sm-shot-reset-btn:active { opacity: 0.7; }
-
   .sm-submit-btn {
+    flex-shrink: 0;
     background: none;
     border: 1px solid var(--border-light);
     color: var(--text-muted);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 0 10px;
-    height: 76px;
-    border-radius: 14px;
+    padding: 0 14px;
+    height: 100%;
+    border-radius: 12px;
     cursor: pointer;
-    transition: border-color 0.12s, color 0.12s;
     white-space: nowrap;
-    flex-shrink: 0;
+    transition: border-color 0.12s, color 0.12s;
   }
   .sm-submit-btn:active { border-color: var(--success); color: var(--success); }
 
-  /* Duration picker chips inside the overlay footer */
-  #sm-duration-picker { flex-direction: column; gap: 3px; flex-shrink: 0; }
-  #sm-duration-picker .dur-btn {
-    font-size: 12px;
-    padding: 4px 7px;
-    height: auto;
-    border-radius: 6px;
-    min-width: 34px;
-    flex: none;
-  }
+  /* IDs referenced by old code still needed */
+  #sm-panel-a { /* mapped to .sm-team-cell */ }
+  #sm-panel-b { /* mapped to .sm-team-cell */ }
 
   /* Compact active-game bar: info side + Score button */
   .gp-active-bar {
@@ -2527,71 +2513,89 @@
   </div>
 </div>
 
-<!-- Full-Screen Portrait Scoring Overlay -->
+<!-- Full-Screen Portrait Scoring Overlay — equal-height rows -->
 <div id="score-mode-screen" hidden>
-  <!-- Header -->
-  <div class="sm-header">
+
+  <!-- Row 1: Navigation / game info -->
+  <div class="smr smr-header">
     <button class="sm-back-btn" onclick="exitScoringMode()">← Games</button>
     <span class="sm-game-info" id="sm-game-info">Select a game</span>
     <span class="sm-badge" id="sm-game-state-badge">Not Started</span>
   </div>
 
-  <!-- Compact score display band -->
-  <div class="sm-scores-band">
-    <div class="sm-score-side" id="sm-panel-a">
+  <!-- Row 2: Team names — gold -->
+  <div class="smr smr-teams">
+    <div class="sm-team-cell" id="sm-panel-a">
       <div class="sm-team-name" id="sm-team-a-name">HOME</div>
+    </div>
+    <div class="sm-vdiv"></div>
+    <div class="sm-team-cell" id="sm-panel-b">
+      <div class="sm-team-name" id="sm-team-b-name">AWAY</div>
+    </div>
+  </div>
+
+  <!-- Row 3: Scores -->
+  <div class="smr smr-scores">
+    <div class="sm-score-cell" id="sm-score-cell-a">
       <div class="sm-score" id="sm-score-a">0</div>
     </div>
-    <div class="sm-score-vs"></div>
-    <div class="sm-score-side" id="sm-panel-b">
-      <div class="sm-team-name" id="sm-team-b-name">AWAY</div>
+    <div class="sm-vdiv"></div>
+    <div class="sm-score-cell" id="sm-score-cell-b">
       <div class="sm-score" id="sm-score-b">0</div>
     </div>
   </div>
 
-  <!-- Big button area — gets all remaining height -->
-  <div class="sm-body">
-    <!-- Team A buttons -->
-    <div class="sm-btn-col">
-      <button class="sm-btn pt2" onclick="addScore('a',2)">+2</button>
-      <button class="sm-btn pt1" onclick="addScore('a',1)">+1</button>
-      <div class="sm-aux-row">
-        <button class="sm-btn undo" onclick="undoScore('a')" title="Undo last score">↩</button>
-        <div class="sm-fouls-row" onclick="addFoul('a')" title="Add foul">
-          <div class="sm-fouls-dots" id="sm-fouls-a-dots"></div>
-          <div class="sm-foul-count" id="sm-foul-count-a">0F</div>
-        </div>
-      </div>
-    </div>
-    <!-- Team B buttons -->
-    <div class="sm-btn-col">
-      <button class="sm-btn pt2" onclick="addScore('b',2)">+2</button>
-      <button class="sm-btn pt1" onclick="addScore('b',1)">+1</button>
-      <div class="sm-aux-row">
-        <div class="sm-fouls-row" onclick="addFoul('b')" title="Add foul">
-          <div class="sm-foul-count" id="sm-foul-count-b">0F</div>
-          <div class="sm-fouls-dots" id="sm-fouls-b-dots"></div>
-        </div>
-        <button class="sm-btn undo" onclick="undoScore('b')" title="Undo last score">↩</button>
-      </div>
-    </div>
+  <!-- Row 4: +2 buttons -->
+  <div class="smr smr-btn">
+    <button class="sm-score-btn pt2" onclick="addScore('a',2)">+2</button>
+    <div class="sm-vdiv"></div>
+    <button class="sm-score-btn pt2" onclick="addScore('b',2)">+2</button>
   </div>
 
-  <!-- Clock footer -->
-  <div class="sm-footer">
-    <div class="sm-clock-wrap">
-      <span class="sm-clock-label">Time</span>
-      <div class="sm-game-clock" id="sm-game-clock">10:00</div>
-    </div>
-    <div id="sm-duration-picker" style="display:flex;gap:4px;flex-shrink:0;"></div>
-    <button class="sm-start-btn" id="sm-start-pause-btn" onclick="toggleClock()">Start</button>
-    <div class="sm-shot-wrap">
-      <span class="sm-shot-label">Shot</span>
-      <div class="sm-shot-clock" id="sm-shot-clock">12</div>
-    </div>
-    <button class="sm-shot-reset-btn" onclick="resetShotClock()" title="Reset shot clock">↺</button>
-    <button class="sm-submit-btn" id="sm-submit-btn" onclick="openSubmitResult()" hidden>Submit</button>
+  <!-- Row 5: +1 buttons -->
+  <div class="smr smr-btn">
+    <button class="sm-score-btn pt1" onclick="addScore('a',1)">+1</button>
+    <div class="sm-vdiv"></div>
+    <button class="sm-score-btn pt1" onclick="addScore('b',1)">+1</button>
   </div>
+
+  <!-- Row 6: Fouls + Undo -->
+  <div class="smr smr-fouls">
+    <button class="sm-undo-btn" onclick="undoScore('a')" title="Undo">↩</button>
+    <div class="sm-foul-cell" onclick="addFoul('a')" title="Add foul">
+      <div class="sm-fouls-dots" id="sm-fouls-a-dots"></div>
+      <div class="sm-foul-count" id="sm-foul-count-a">0F</div>
+      <div class="sm-foul-label">FOULS</div>
+    </div>
+    <div class="sm-vdiv"></div>
+    <div class="sm-foul-cell" onclick="addFoul('b')" title="Add foul">
+      <div class="sm-fouls-dots" id="sm-fouls-b-dots"></div>
+      <div class="sm-foul-count" id="sm-foul-count-b">0F</div>
+      <div class="sm-foul-label">FOULS</div>
+    </div>
+    <button class="sm-undo-btn" onclick="undoScore('b')" title="Undo">↩</button>
+  </div>
+
+  <!-- Row 7: Game clock -->
+  <div class="smr smr-gameclock">
+    <span class="sm-row-label">GAME TIME</span>
+    <div class="sm-game-clock" id="sm-game-clock">12:00</div>
+    <div id="sm-duration-picker"></div>
+  </div>
+
+  <!-- Row 8: Shot clock -->
+  <div class="smr smr-shotclock">
+    <span class="sm-shot-label">SHOT</span>
+    <div class="sm-shot-clock" id="sm-shot-clock">12</div>
+    <button class="sm-shot-reset-btn" onclick="resetShotClock()">↺ Reset</button>
+  </div>
+
+  <!-- Row 9: Start / Pause -->
+  <div class="smr smr-start">
+    <button class="sm-start-btn" id="sm-start-pause-btn" onclick="toggleClock()">START</button>
+    <button class="sm-submit-btn" id="sm-submit-btn" onclick="openSubmitResult()" hidden>Submit Result</button>
+  </div>
+
 </div>
 
 <header class="app-header">
@@ -3553,10 +3557,16 @@
     document.getElementById('sm-score-a').textContent = S.scoreA;
     document.getElementById('sm-score-b').textContent = S.scoreB;
 
-    // Winner highlights
+    // Winner highlights — toggle on both team-name row and score row
     const gameOver = S.gameOver;
-    document.getElementById('sm-panel-a').classList.toggle('winner', gameOver && S.scoreA > S.scoreB);
-    document.getElementById('sm-panel-b').classList.toggle('winner', gameOver && S.scoreB > S.scoreA);
+    const winA = gameOver && S.scoreA > S.scoreB;
+    const winB = gameOver && S.scoreB > S.scoreA;
+    document.getElementById('sm-panel-a').classList.toggle('winner', winA);
+    document.getElementById('sm-panel-b').classList.toggle('winner', winB);
+    const scA = document.getElementById('sm-score-cell-a');
+    const scB = document.getElementById('sm-score-cell-b');
+    if (scA) scA.classList.toggle('winner', winA);
+    if (scB) scB.classList.toggle('winner', winB);
 
     // Clocks
     const gc = document.getElementById('sm-game-clock');
