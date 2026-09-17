@@ -36,6 +36,7 @@
     overflow-x: hidden;
   }
 
+  /* === HEADER === */
   .app-header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -93,6 +94,7 @@
     .brand-sub { font-size: 10px; }
   }
 
+  /* === TABS === */
   .tab-nav {
     display: flex;
     gap: 4px;
@@ -130,15 +132,16 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* === GAME === */
+  /* === SCORE TAB === */
   .game-layout { display: flex; flex-direction: column; gap: 12px; }
 
   .game-status-bar {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
     padding: 6px 0;
+    flex-wrap: wrap;
   }
 
   .period-label {
@@ -169,6 +172,23 @@
   }
 
   @keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+  .status-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .status-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .scoreboard {
     display: grid;
@@ -207,23 +227,6 @@
     line-height: 1.2;
     min-height: 1.4em;
   }
-
-  .set-teams-btn {
-    background: none;
-    border: 1px solid var(--border-light);
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: border-color 0.15s, color 0.15s;
-  }
-
-  .set-teams-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .score-display {
     font-family: 'Barlow Condensed', sans-serif;
@@ -430,7 +433,58 @@
 
   .ctrl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
 
-  /* winner banner */
+  /* Duration picker */
+  .duration-picker-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .dur-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .duration-picker {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .duration-picker[hidden] { display: none !important; }
+
+  .dur-btn {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+  }
+
+  .dur-btn:hover { background: var(--surface-3); color: var(--text); }
+
+  .dur-btn.active {
+    background: rgba(245,158,11,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Winner banner */
   .winner-banner {
     background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04));
     border: 1px solid var(--accent);
@@ -464,10 +518,34 @@
     font-size: 12px;
     color: var(--text-muted);
     margin-top: 4px;
+    margin-bottom: 14px;
   }
 
+  .banner-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .save-draw-btn {
+    background: var(--success);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
+
+  .save-draw-btn:hover { opacity: 0.85; }
+
   .new-game-btn {
-    margin-top: 14px;
     background: var(--accent);
     border: none;
     color: #000;
@@ -483,15 +561,31 @@
 
   .new-game-btn:hover { background: #d97706; }
 
-  /* === STANDINGS === */
-  .standings-header {
+  .active-game-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.35);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--success);
+  }
+
+  /* === TEAMS TAB === */
+  .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
   }
 
-  .standings-title {
+  .section-title {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 22px;
     font-weight: 800;
@@ -591,100 +685,405 @@
 
   .delete-team-btn:hover { color: var(--danger); }
 
-  .record-result-section {
-    margin-top: 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+  .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  .record-result-title {
+  /* === SCHEDULE TAB === */
+  .sched-section {
+    margin-bottom: 24px;
+  }
+
+  .sched-section-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  /* Games per team picker */
+  .gpt-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
     margin-bottom: 14px;
   }
 
-  .result-form { display: flex; flex-direction: column; gap: 10px; }
-
-  .result-row {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
-    align-items: center;
+  .gpt-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 160px;
   }
 
-  .result-select {
+  .gpt-btns {
+    display: flex;
+    gap: 4px;
+  }
+
+  .gpt-btn {
     background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    width: 40px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+  }
+
+  .gpt-btn:hover { background: var(--surface-3); color: var(--text); }
+
+  .gpt-btn.active {
+    background: rgba(245,158,11,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Session builder */
+  .sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .session-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .session-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .session-date {
+    background: var(--surface-3);
     border: 1px solid var(--border-light);
     color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    padding: 8px 10px;
-    border-radius: 7px;
+    padding: 6px 9px;
+    border-radius: 6px;
     outline: none;
-    width: 100%;
+    flex: 1;
+    min-width: 130px;
     cursor: pointer;
     transition: border-color 0.15s;
+    color-scheme: dark;
   }
 
-  .result-select:focus { border-color: var(--accent); }
+  .session-date:focus { border-color: var(--accent); }
 
-  .score-inputs {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
-    align-items: center;
+  .session-time {
+    background: var(--surface-3);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    outline: none;
+    width: 108px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    color-scheme: dark;
   }
 
-  .score-input {
-    background: var(--surface-2);
+  .session-time:focus { border-color: var(--accent); }
+
+  .session-select {
+    background: var(--surface-3);
     border: 1px solid var(--border-light);
     color: var(--text);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 22px;
+    font-size: 14px;
     font-weight: 700;
-    text-align: center;
-    padding: 8px;
-    border-radius: 7px;
+    padding: 6px 8px;
+    border-radius: 6px;
     outline: none;
-    width: 100%;
-    font-variant-numeric: tabular-nums;
+    cursor: pointer;
     transition: border-color 0.15s;
+    color-scheme: dark;
   }
 
-  .score-input:focus { border-color: var(--accent); }
+  .session-select:focus { border-color: var(--accent); }
 
-  .score-sep {
+  .session-sep {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .session-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: color 0.12s;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .session-remove:hover { color: var(--danger); }
+
+  .session-slots-preview {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+  }
+
+  .add-session-btn {
+    background: none;
+    border: 1px dashed var(--border-light);
     color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
     text-align: center;
   }
 
-  .submit-result-btn {
+  .add-session-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .generate-btn {
     background: var(--accent);
     border: none;
     color: #000;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 11px;
+    padding: 11px 24px;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.1s;
+    margin-top: 12px;
+    width: 100%;
   }
 
-  .submit-result-btn:hover { background: #d97706; }
+  .generate-btn:hover { background: #d97706; }
 
-  /* modal */
+  /* Schedule display */
+  .sched-info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  .sched-info-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .pdf-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.1s;
+    flex-shrink: 0;
+  }
+
+  .pdf-btn:hover { background: var(--surface-3); }
+
+  .sched-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .sched-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .sched-block-header {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sched-date-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .sched-game-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sched-games-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sched-game-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .sched-game-row:last-child { border-bottom: none; }
+
+  .sched-game-row.completed {
+    opacity: 0.7;
+  }
+
+  .sched-timeslot {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    width: 72px;
+    flex-shrink: 0;
+  }
+
+  .sched-matchup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sched-team {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sched-team.away { text-align: right; }
+
+  .sched-vs {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .sched-result {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--success);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .sched-score-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+
+  .sched-score-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245,158,11,0.08);
+  }
+
+  /* Standings in schedule tab */
+  .sched-standings-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  /* === MODALS === */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -704,6 +1103,8 @@
     width: 100%;
     max-width: 340px;
   }
+
+  .modal-wide { max-width: 420px; }
 
   .modal-title {
     font-family: 'Barlow Condensed', sans-serif;
@@ -767,70 +1168,10 @@
 
   .modal-confirm:hover { background: #d97706; }
 
-  .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); }
-  .empty-icon { font-size: 36px; margin-bottom: 10px; }
-  .empty-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  /* Duration picker */
-  .duration-picker-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    width: 100%;
-  }
-
-  .dur-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  .duration-picker {
-    display: flex;
-    gap: 4px;
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .duration-picker[hidden] { display: none !important; }
-
-  .dur-btn {
-    flex: 1;
-    min-width: 0;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 5px 2px;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    transition: background 0.1s, color 0.1s, border-color 0.1s;
-  }
-
-  .dur-btn:hover { background: var(--surface-3); color: var(--text); }
-
-  .dur-btn.active {
-    background: rgba(245,158,11,0.15);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
   /* Set Teams modal */
   .set-teams-form { display: flex; flex-direction: column; gap: 14px; }
   .set-teams-row { display: flex; flex-direction: column; gap: 5px; }
+
   .set-teams-row-label {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 10px;
@@ -839,6 +1180,7 @@
     text-transform: uppercase;
     color: var(--text-muted);
   }
+
   .set-teams-select {
     background: var(--surface-2);
     border: 1px solid var(--border-light);
@@ -855,282 +1197,92 @@
     cursor: pointer;
     transition: border-color 0.15s;
   }
+
   .set-teams-select:focus { border-color: var(--accent); }
 
-  @media (max-width: 480px) {
-    .app-header { padding: 10px 14px; }
-    .app-main { padding: 10px 14px; }
-    .app-brand { font-size: 16px; }
-    .scoreboard { grid-template-columns: 1fr 66px 1fr; gap: 5px; }
-    .score-display { font-size: 64px; }
-    .game-clock { font-size: 30px; min-width: 66px; }
-    .shot-clock { font-size: 24px; }
-    .shot-clock-wrap { width: 66px; padding: 4px 6px; }
-    .ctrl-btn { width: 66px; font-size: 10px; padding: 7px 2px; }
-    .ctrl-btn.primary { font-size: 13px; }
-    .team-panel { padding: 10px 7px; }
-    .team-name-display { font-size: 14px; }
-    .score-btn { font-size: 14px; padding: 9px 2px; }
-    .result-row { grid-template-columns: 1fr; }
-    .result-row .score-sep { display: none; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .game-state-badge.live { animation: none; }
-    *, *::before, *::after { transition-duration: 0s !important; }
-  }
-
-  /* === DRAW TAB === */
-  .draw-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .draw-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .draw-settings {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-  }
-
-  .draw-settings-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .draw-settings-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .draw-settings-label em {
-    font-style: normal;
-    color: var(--accent);
-    font-weight: 800;
-  }
-
-  .weeks-input {
-    background: var(--surface-2);
-    border: 1px solid var(--border-light);
-    color: var(--text);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    padding: 7px 10px;
-    border-radius: 7px;
-    outline: none;
-    width: 68px;
-    font-variant-numeric: tabular-nums;
-    transition: border-color 0.15s;
-  }
-
-  .weeks-input:focus { border-color: var(--accent); }
-
-  .generate-btn {
-    background: var(--accent);
-    border: none;
-    color: #000;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 9px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.1s;
-  }
-
-  .generate-btn:hover { background: #d97706; }
-
-  .draw-actions-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    gap: 8px;
-  }
-
-  .draw-info-text {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .pdf-btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border-light);
-    color: var(--text);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    border-radius: 7px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.1s;
-  }
-
-  .pdf-btn:hover { background: var(--surface-3); }
-
-  .draw-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .draw-week-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .week-header {
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--border);
-    padding: 7px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .week-number {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .week-game-count {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .week-games {
-    padding: 8px;
+  /* Select Game modal */
+  .select-game-list {
+    max-height: 50vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
+    margin-bottom: 14px;
   }
 
-  .draw-game {
+  .select-game-date-group { margin-bottom: 8px; }
+
+  .select-game-date-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 4px 0;
+    margin-bottom: 4px;
+  }
+
+  .select-game-item {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 10px;
     background: var(--surface-2);
-    border-radius: 6px;
-    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 4px;
   }
 
-  .draw-team {
+  .select-game-item:hover {
+    border-color: var(--accent);
+    background: rgba(245,158,11,0.06);
+  }
+
+  .select-game-time {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    width: 72px;
+    flex-shrink: 0;
+  }
+
+  .select-game-teams {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text);
     flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
-  .draw-team.away { text-align: right; }
-
-  .draw-vs-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--text-dim);
-    flex-shrink: 0;
-    padding: 0 2px;
-  }
-
-  .swap-btn {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 13px;
-    cursor: pointer;
-    padding: 1px 4px;
-    border-radius: 3px;
-    flex-shrink: 0;
-    transition: color 0.12s;
-    line-height: 1;
-  }
-
-  .swap-btn:hover { color: var(--accent); }
-
-  .draw-empty {
+  .select-game-no-games {
     text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
-  }
-
-  .draw-empty-icon { font-size: 40px; margin-bottom: 12px; }
-
-  .draw-empty-text {
+    padding: 24px 0;
+    color: var(--text-dim);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-bottom: 6px;
   }
 
-  .draw-empty-sub { font-size: 12px; color: var(--text-dim); }
-
-  /* Print-only header */
+  /* Print styles */
   .print-header { display: none; }
 
-  /* === PRINT / PDF === */
   @media print {
     body { background: #fff !important; color: #111 !important; font-size: 12px; }
 
-    .app-header,
-    .tab-nav,
-    .draw-settings,
-    .draw-actions-bar,
-    .swap-btn,
-    #tab-game,
-    #tab-standings { display: none !important; }
+    .app-header, #tab-score, #tab-teams,
+    .sched-section:first-child,
+    .sched-info-bar .pdf-btn,
+    .sched-score-btn { display: none !important; }
 
-    #tab-draw { display: block !important; padding: 0 !important; }
+    #tab-schedule { display: block !important; padding: 0 !important; }
 
     .print-header {
       display: block !important;
@@ -1149,84 +1301,63 @@
       color: #111;
     }
 
-    .print-league-sub {
-      font-size: 13px;
-      color: #555;
-      margin-top: 3px;
-      letter-spacing: 0.05em;
-    }
+    .print-league-sub { font-size: 13px; color: #555; margin-top: 3px; }
 
-    .draw-grid {
-      display: grid !important;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
+    .sched-block { break-inside: avoid; border: 1px solid #ccc !important; background: #fff !important; }
+    .sched-block-header { background: #f5a623 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sched-date-label { color: #000 !important; }
+    .sched-game-count { color: #333 !important; }
+    .sched-game-row { padding: 6px 12px; }
+    .sched-team { color: #111 !important; }
+    .sched-vs { color: #888 !important; }
+    .sched-timeslot { color: #555 !important; }
 
-    .draw-week-card {
-      break-inside: avoid;
-      border: 1px solid #ccc !important;
-      background: #fff !important;
-    }
-
-    .week-header {
-      background: #f5a623 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      border-bottom: 1px solid #d97706 !important;
-      padding: 6px 10px;
-    }
-
-    .week-number { color: #000 !important; }
-    .week-game-count { color: #333 !important; }
-
-    .week-games { padding: 6px; gap: 4px; }
-
-    .draw-game {
-      background: #f6f6f6 !important;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      padding: 5px 8px;
-    }
-
-    .draw-team { color: #111 !important; font-size: 12px; }
-    .draw-vs-label { color: #888 !important; }
+    .sched-standings-wrap, .sched-section:last-child { display: none !important; }
 
     @page { margin: 15mm; size: A4 portrait; }
   }
 
-  @media (max-width: 540px) {
-    .draw-grid { grid-template-columns: 1fr; }
-    .draw-settings-row { flex-direction: column; align-items: flex-start; }
-    .weeks-input { width: 80px; }
+  /* Responsive */
+  @media (max-width: 480px) {
+    .app-header { padding: 10px 14px; }
+    .app-main { padding: 10px 14px; }
+    .scoreboard { grid-template-columns: 1fr 66px 1fr; gap: 5px; }
+    .score-display { font-size: 64px; }
+    .game-clock { font-size: 30px; min-width: 66px; }
+    .shot-clock { font-size: 24px; }
+    .shot-clock-wrap { width: 66px; padding: 4px 6px; }
+    .ctrl-btn { width: 66px; font-size: 10px; padding: 7px 2px; }
+    .ctrl-btn.primary { font-size: 13px; }
+    .team-panel { padding: 10px 7px; }
+    .team-name-display { font-size: 14px; }
+    .score-btn { font-size: 14px; padding: 9px 2px; }
+    .gpt-row { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .game-state-badge.live { animation: none; }
+    *, *::before, *::after { transition-duration: 0s !important; }
   }
 </style>
 
 <header class="app-header">
   <div class="app-brand">
-    <!-- Just a Game badge mark — orange basketball version -->
     <svg class="brand-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Just a Game">
       <defs>
         <clipPath id="badge-clip"><circle cx="50" cy="50" r="46"/></clipPath>
       </defs>
-      <!-- Background -->
       <circle cx="50" cy="50" r="50" fill="#222b3a"/>
-      <!-- Amber ring -->
       <circle cx="50" cy="50" r="46.5" fill="none" stroke="#f59e0b" stroke-width="3.5"/>
       <g clip-path="url(#badge-clip)">
-        <!-- Speed swoosh lines -->
         <path d="M6 50 C20 45 40 47 60 43" stroke="#8fa0bb" stroke-width="2.8" fill="none" stroke-linecap="round"/>
         <path d="M12 55 C28 51 46 53 62 49" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         <path d="M8 60 C25 57 43 58 60 55" stroke="#8fa0bb" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <!-- Basketball 1: silver outline (behind) -->
         <circle cx="67" cy="39" r="17" fill="none" stroke="#8fa0bb" stroke-width="1.8"/>
         <path d="M50 39 C59 31 75 31 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
         <path d="M50 39 C59 47 75 47 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
         <path d="M67 22 C74 31 74 47 67 56" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
-        <!-- Basketball 2: solid warm orange — real ball colour (front) -->
         <circle cx="77" cy="46" r="17" fill="#E07828"/>
-        <!-- subtle highlight -->
         <ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/>
-        <!-- seam lines — dark brown -->
         <path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
         <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
         <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
@@ -1238,22 +1369,24 @@
     </div>
   </div>
   <nav class="tab-nav">
-    <button class="tab-btn active" id="tab-btn-game" onclick="switchTab('game', this)">Game</button>
-    <button class="tab-btn" id="tab-btn-standings" onclick="switchTab('standings', this)">Standings</button>
-    <button class="tab-btn" id="tab-btn-draw" onclick="switchTab('draw', this)">Draw</button>
+    <button class="tab-btn active" id="tab-btn-score" onclick="switchTab('score',this)">Score</button>
+    <button class="tab-btn" id="tab-btn-teams" onclick="switchTab('teams',this)">Teams</button>
+    <button class="tab-btn" id="tab-btn-schedule" onclick="switchTab('schedule',this)">Schedule</button>
   </nav>
 </header>
 
 <main class="app-main">
 
-  <!-- GAME TAB -->
-  <div id="tab-game" class="tab-panel active">
+  <!-- SCORE TAB -->
+  <div id="tab-score" class="tab-panel active">
     <div class="game-layout">
 
       <div class="game-status-bar">
         <span class="period-label" id="period-label">3×3 Basketball · First to 21 or 12 min</span>
         <span class="game-state-badge" id="game-state-badge">Not Started</span>
-        <button class="set-teams-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
+        <span class="active-game-label" id="active-game-label" hidden>● Scheduled</span>
+        <button class="status-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
+        <button class="status-btn" onclick="openSelectGame()" id="select-game-btn" hidden>Select Game</button>
       </div>
 
       <div class="scoreboard">
@@ -1274,7 +1407,7 @@
           </div>
         </div>
 
-        <!-- Center: clocks + controls -->
+        <!-- Center clocks -->
         <div class="clock-column">
           <div class="game-clock" id="game-clock">10:00</div>
           <div class="vs-label">vs</div>
@@ -1316,21 +1449,24 @@
         <div class="winner-banner-title">🏆 Game Over — Winner</div>
         <div class="winner-banner-name" id="winner-name">—</div>
         <div class="winner-banner-sub" id="winner-sub"></div>
-        <button class="new-game-btn" onclick="newGame()">New Game</button>
+        <div class="banner-actions">
+          <button class="save-draw-btn" id="save-draw-btn" onclick="saveGameToSchedule()" hidden>✓ Save to Draw</button>
+          <button class="new-game-btn" onclick="newGame()">New Game</button>
+        </div>
       </div>
 
     </div>
   </div>
 
-  <!-- STANDINGS TAB -->
-  <div id="tab-standings" class="tab-panel">
-    <div class="standings-header">
-      <div class="standings-title">League Standings</div>
+  <!-- TEAMS TAB -->
+  <div id="tab-teams" class="tab-panel">
+    <div class="section-header">
+      <div class="section-title">Teams</div>
       <button class="add-team-btn" onclick="openAddTeam()">+ Add Team</button>
     </div>
 
     <div class="standings-table-wrap">
-      <table id="standings-table">
+      <table id="teams-table">
         <thead>
           <tr>
             <th>#</th>
@@ -1343,61 +1479,63 @@
             <th></th>
           </tr>
         </thead>
-        <tbody id="standings-body"></tbody>
+        <tbody id="teams-body"></tbody>
       </table>
-    </div>
-
-    <div class="record-result-section">
-      <div class="record-result-title">Record Game Result</div>
-      <div class="result-form">
-        <div class="result-row">
-          <select class="result-select" id="result-team-a"></select>
-          <span class="score-sep">vs</span>
-          <select class="result-select" id="result-team-b"></select>
-        </div>
-        <div class="score-inputs">
-          <input class="score-input" id="result-score-a" type="number" min="0" max="99" placeholder="0">
-          <span class="score-sep">—</span>
-          <input class="score-input" id="result-score-b" type="number" min="0" max="99" placeholder="0">
-        </div>
-        <button class="submit-result-btn" onclick="submitResult()">Record Result</button>
-      </div>
     </div>
   </div>
 
-  <!-- DRAW TAB -->
-  <div id="tab-draw" class="tab-panel">
+  <!-- SCHEDULE TAB -->
+  <div id="tab-schedule" class="tab-panel">
 
-    <!-- Print-only header (hidden on screen) -->
+    <!-- Print-only header -->
     <div class="print-header">
       <div class="print-league-name">Just a Game · 3×3 League</div>
       <div class="print-league-sub" id="print-date"></div>
     </div>
 
-    <div class="draw-header">
-      <div class="draw-title">League Draw</div>
-    </div>
+    <!-- Builder section -->
+    <div class="sched-section" id="sched-builder">
+      <div class="sched-section-title">Schedule Builder</div>
 
-    <div class="draw-settings">
-      <div class="draw-settings-row">
-        <div class="draw-settings-label">
-          <em id="draw-team-count">0</em> teams &nbsp;·&nbsp; Weeks:
-        </div>
-        <input class="weeks-input" id="weeks-input" type="number" min="1" max="40" value="8">
-        <button class="generate-btn" onclick="generateDraw()">Generate Draw</button>
+      <div class="gpt-row">
+        <div class="gpt-label">Games per team per session</div>
+        <div class="gpt-btns" id="gpt-btns"></div>
       </div>
+
+      <div class="sessions-list" id="sessions-list"></div>
+      <button class="add-session-btn" onclick="addSession()">+ Add Session</button>
+      <button class="generate-btn" onclick="generateSchedule()">Generate Draw</button>
     </div>
 
-    <div class="draw-actions-bar" id="draw-actions-bar" hidden>
-      <span class="draw-info-text" id="draw-info-text"></span>
-      <button class="pdf-btn" onclick="printDraw()">⬇ Download PDF</button>
+    <!-- Generated schedule -->
+    <div class="sched-section" id="sched-content-section" hidden>
+      <div class="sched-section-title">Draw</div>
+      <div class="sched-info-bar">
+        <span class="sched-info-text" id="sched-info-text"></span>
+        <button class="pdf-btn" onclick="printSchedule()">⬇ PDF</button>
+      </div>
+      <div class="sched-blocks" id="sched-blocks"></div>
     </div>
 
-    <div id="draw-content">
-      <div class="draw-empty">
-        <div class="draw-empty-icon">📋</div>
-        <div class="draw-empty-text">No draw generated yet</div>
-        <div class="draw-empty-sub">Add your teams in Standings, then hit Generate Draw above</div>
+    <!-- Standings section -->
+    <div class="sched-section" id="sched-standings-section" hidden>
+      <div class="sched-section-title">Results Table</div>
+      <div class="sched-standings-wrap">
+        <table id="sched-standings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Team</th>
+              <th class="num">P</th>
+              <th class="num">W</th>
+              <th class="num">L</th>
+              <th class="num">PF</th>
+              <th class="num">PA</th>
+              <th class="num">+/−</th>
+            </tr>
+          </thead>
+          <tbody id="sched-standings-body"></tbody>
+        </table>
       </div>
     </div>
 
@@ -1426,6 +1564,17 @@
   </div>
 </div>
 
+<!-- Select Game Modal -->
+<div class="modal-overlay" id="select-game-modal" hidden>
+  <div class="modal modal-wide">
+    <div class="modal-title">Select Game</div>
+    <div class="select-game-list" id="select-game-list"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSelectGame()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Add Team Modal -->
 <div class="modal-overlay" id="add-team-modal" hidden>
   <div class="modal">
@@ -1440,31 +1589,30 @@
 
 <script>
   // ── Constants ─────────────────────────────────────────────────────
-  const WIN_SCORE   = 21;
-  const SHOT_SECS   = 12;
-  const MAX_FOUL_D  = 5;
+  const WIN_SCORE  = 21;
+  const SHOT_SECS  = 12;
+  const MAX_FOUL_D = 5;
 
-  // Load saved game duration (default 12 min for this league)
+  // ── Game Duration ─────────────────────────────────────────────────
   let gameMins = 12;
-  try { const saved = localStorage.getItem('jag3x3_gamemins'); if (saved) gameMins = parseInt(saved) || 12; } catch(e) {}
+  try { const s = localStorage.getItem('jag3x3_gamemins'); if (s) gameMins = parseInt(s) || 12; } catch(e) {}
 
-  function saveGameMins() {
-    try { localStorage.setItem('jag3x3_gamemins', gameMins); } catch(e) {}
-  }
+  function saveGameMins() { try { localStorage.setItem('jag3x3_gamemins', gameMins); } catch(e) {} }
 
   function setGameMins(m) {
     if (S.running || S.gameOver) return;
-    gameMins = m;
-    saveGameMins();
+    gameMins = m; saveGameMins();
     S.gameTime = gameMins * 60;
-    updateDisplay();
-    updatePeriodLabel();
-    renderDurationPicker();
+    updateDisplay(); updatePeriodLabel(); renderDurationPicker();
   }
 
   function updatePeriodLabel() {
-    document.getElementById('period-label').textContent =
-      `3×3 Basketball · First to 21 or ${gameMins} min`;
+    const lbl = document.getElementById('period-label');
+    if (activeScheduledGameId) {
+      const g = schedule.games.find(x => x.id === activeScheduledGameId);
+      if (g) { lbl.textContent = `${formatDateShort(g.sessionDate)} · ${g.slot}`; return; }
+    }
+    lbl.textContent = `3×3 Basketball · First to 21 or ${gameMins} min`;
   }
 
   function renderDurationPicker() {
@@ -1473,7 +1621,6 @@
     picker.innerHTML = presets.map(m =>
       `<button class="dur-btn${m === gameMins ? ' active' : ''}" onclick="setGameMins(${m})">${m}</button>`
     ).join('');
-    // show only when not started / not running
     picker.hidden = S.running || S.gameOver || S.gameTime !== gameMins * 60;
   }
 
@@ -1489,6 +1636,8 @@
     shotReset: false,
     iv: null,
   };
+
+  let activeScheduledGameId = null;
 
   // ── Fouls ─────────────────────────────────────────────────────────
   function renderFouls(t, n) {
@@ -1512,19 +1661,13 @@
     if (S.gameOver) return;
     if (t === 'a') { S.histA.push(pts); S.scoreA += pts; document.getElementById('score-a').textContent = S.scoreA; }
     else            { S.histB.push(pts); S.scoreB += pts; document.getElementById('score-b').textContent = S.scoreB; }
-    resetShotClock();
-    checkWin();
+    resetShotClock(); checkWin();
   }
 
   function undoScore(t) {
     if (S.gameOver) return;
-    if (t === 'a' && S.histA.length) {
-      S.scoreA = Math.max(0, S.scoreA - S.histA.pop());
-      document.getElementById('score-a').textContent = S.scoreA;
-    } else if (t === 'b' && S.histB.length) {
-      S.scoreB = Math.max(0, S.scoreB - S.histB.pop());
-      document.getElementById('score-b').textContent = S.scoreB;
-    }
+    if (t === 'a' && S.histA.length) { S.scoreA = Math.max(0, S.scoreA - S.histA.pop()); document.getElementById('score-a').textContent = S.scoreA; }
+    else if (t === 'b' && S.histB.length) { S.scoreB = Math.max(0, S.scoreB - S.histB.pop()); document.getElementById('score-b').textContent = S.scoreB; }
     checkWin();
   }
 
@@ -1540,45 +1683,35 @@
   }
 
   // ── Clock ─────────────────────────────────────────────────────────
-  function fmt(s) {
-    return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
-  }
+  function fmt(s) { return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
 
   function updateDisplay() {
     const gc = document.getElementById('game-clock');
     gc.textContent = fmt(S.gameTime);
     gc.classList.toggle('urgent', S.gameTime <= 30 && S.gameTime > 0);
-
     const sc = document.getElementById('shot-clock');
     sc.textContent = S.shotTime;
     sc.classList.toggle('urgent', S.shotTime <= 4);
     sc.classList.toggle('warn', S.shotTime > 4 && S.shotTime <= 7);
   }
 
-  function toggleClock() {
-    if (S.gameOver) return;
-    S.running ? pauseClock() : startClock();
-  }
+  function toggleClock() { if (S.gameOver) return; S.running ? pauseClock() : startClock(); }
 
   function startClock() {
     if (S.running || S.gameOver) return;
     S.running = true;
     document.getElementById('start-pause-btn').textContent = 'Pause';
     const badge = document.getElementById('game-state-badge');
-    badge.textContent = 'Live';
-    badge.className = 'game-state-badge live';
+    badge.textContent = 'Live'; badge.className = 'game-state-badge live';
     document.getElementById('duration-picker').hidden = true;
     S.iv = setInterval(tick, 1000);
   }
 
   function pauseClock() {
-    S.running = false;
-    clearInterval(S.iv);
+    S.running = false; clearInterval(S.iv);
     document.getElementById('start-pause-btn').textContent = 'Resume';
     const badge = document.getElementById('game-state-badge');
-    badge.textContent = 'Paused';
-    badge.className = 'game-state-badge';
-    // don't show picker mid-game
+    badge.textContent = 'Paused'; badge.className = 'game-state-badge';
   }
 
   function tick() {
@@ -1586,27 +1719,16 @@
     if (!S.shotReset) S.shotTime = Math.max(0, S.shotTime - 1);
     S.shotReset = false;
 
-    // Shot clock violation
     if (S.shotTime === 0) {
-      S.shotTime = 0;
-      updateDisplay();
-      clearInterval(S.iv);
-      S.running = false;
-      setTimeout(() => {
-        S.shotTime = SHOT_SECS;
-        updateDisplay();
-        startClock();
-      }, 1500);
+      updateDisplay(); clearInterval(S.iv); S.running = false;
+      setTimeout(() => { S.shotTime = SHOT_SECS; updateDisplay(); startClock(); }, 1500);
       return;
     }
 
-    // Game over by time
     if (S.gameTime === 0) {
-      clearInterval(S.iv); S.running = false;
-      updateDisplay();
-      if (S.scoreA !== S.scoreB) {
-        endGame(S.scoreA > S.scoreB ? 'a' : 'b', 'time expired');
-      } else {
+      clearInterval(S.iv); S.running = false; updateDisplay();
+      if (S.scoreA !== S.scoreB) { endGame(S.scoreA > S.scoreB ? 'a' : 'b', 'time expired'); }
+      else {
         const badge = document.getElementById('game-state-badge');
         badge.textContent = 'OT'; badge.className = 'game-state-badge live';
         document.getElementById('start-pause-btn').textContent = 'Start OT';
@@ -1617,16 +1739,11 @@
     updateDisplay();
   }
 
-  function resetShotClock() {
-    S.shotTime = SHOT_SECS;
-    S.shotReset = true;
-    updateDisplay();
-  }
+  function resetShotClock() { S.shotTime = SHOT_SECS; S.shotReset = true; updateDisplay(); }
 
   function endGame(w, reason) {
     if (S.gameOver) return;
-    pauseClock();
-    S.gameOver = true;
+    pauseClock(); S.gameOver = true;
     document.getElementById('game-state-badge').textContent = 'Final';
     document.getElementById('game-state-badge').className = 'game-state-badge';
     document.getElementById('start-pause-btn').textContent = 'Final';
@@ -1643,6 +1760,9 @@
     document.getElementById('panel-a').classList.remove('winner');
     document.getElementById('panel-b').classList.remove('winner');
     document.getElementById(`panel-${w}`).classList.add('winner');
+
+    // Show "Save to Draw" if a scheduled game is active
+    document.getElementById('save-draw-btn').hidden = !activeScheduledGameId;
   }
 
   function resetGame() {
@@ -1658,8 +1778,13 @@
     document.getElementById('panel-a').classList.remove('winner');
     document.getElementById('panel-b').classList.remove('winner');
     renderFouls('a', 0); renderFouls('b', 0);
-    updateDisplay();
-    renderDurationPicker();
+    updateDisplay(); renderDurationPicker();
+    // Clear active scheduled game
+    activeScheduledGameId = null;
+    document.getElementById('active-game-label').hidden = true;
+    document.getElementById('save-draw-btn').hidden = true;
+    updatePeriodLabel();
+    updateSelectGameBtn();
   }
 
   function newGame() { resetGame(); }
@@ -1670,188 +1795,75 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     btn.classList.add('active');
-    if (name === 'standings') renderStandings();
-    if (name === 'draw') { updateDrawTeamCount(); renderDraw(); }
+    if (name === 'teams') renderTeamsTable();
+    if (name === 'schedule') renderScheduleTab();
   }
 
-  // ── Draw Generator ────────────────────────────────────────────────
-  let currentDraw = [];
-
-  function updateDrawTeamCount() {
-    document.getElementById('draw-team-count').textContent = teams.length;
-  }
-
-  /** Circle-method round-robin. Returns array of rounds, each round = array of {home, away}. */
-  function roundRobin(teamNames) {
-    let t = [...teamNames];
-    if (t.length % 2 !== 0) t.push('BYE');
-    const n = t.length;
-    const rounds = n - 1;
-    const schedule = [];
-
-    for (let r = 0; r < rounds; r++) {
-      const round = [];
-      for (let i = 0; i < n / 2; i++) {
-        const home = t[i];
-        const away = t[n - 1 - i];
-        if (home !== 'BYE' && away !== 'BYE') {
-          round.push({ home, away });
-        }
-      }
-      schedule.push(round);
-      // Rotate: fix t[0], rotate the rest
-      t = [t[0], t[n - 1], ...t.slice(1, n - 1)];
-    }
-    return schedule;
-  }
-
-  function generateDraw() {
-    if (teams.length < 2) {
-      alert('Add at least 2 teams in the Standings tab to generate a draw.');
-      return;
-    }
-    const numWeeks = Math.max(1, parseInt(document.getElementById('weeks-input').value) || 8);
-    document.getElementById('weeks-input').value = numWeeks;
-
-    const teamNames = teams.map(t => t.name);
-    const schedule = roundRobin(teamNames);
-    const rounds = schedule.length;
-
-    currentDraw = [];
-    for (let w = 0; w < numWeeks; w++) {
-      const roundGames = schedule[w % rounds];
-      currentDraw.push({
-        week: w + 1,
-        games: roundGames.map(g => ({ home: g.home, away: g.away }))
-      });
-    }
-
-    // Save to localStorage so it survives page reload
-    try { localStorage.setItem('jag3x3_draw', JSON.stringify(currentDraw)); } catch(e) {}
-    renderDraw();
-  }
-
-  function swapGame(weekIdx, gameIdx) {
-    const g = currentDraw[weekIdx].games[gameIdx];
-    [g.home, g.away] = [g.away, g.home];
-    try { localStorage.setItem('jag3x3_draw', JSON.stringify(currentDraw)); } catch(e) {}
-    renderDraw();
-  }
-
-  function renderDraw() {
-    updateDrawTeamCount();
-    const container = document.getElementById('draw-content');
-
-    if (!currentDraw.length) {
-      container.innerHTML = `<div class="draw-empty">
-        <div class="draw-empty-icon">📋</div>
-        <div class="draw-empty-text">No draw generated yet</div>
-        <div class="draw-empty-sub">Add teams in Standings, set the number of weeks, then hit Generate Draw</div>
-      </div>`;
-      document.getElementById('draw-actions-bar').hidden = true;
-      return;
-    }
-
-    document.getElementById('draw-actions-bar').hidden = false;
-    const totalGames = currentDraw.reduce((s, w) => s + w.games.length, 0);
-    document.getElementById('draw-info-text').textContent =
-      `${currentDraw.length} weeks · ${teams.length} teams · ${totalGames} games`;
-
-    container.innerHTML = '<div class="draw-grid">' +
-      currentDraw.map((week, wi) => `
-        <div class="draw-week-card">
-          <div class="week-header">
-            <span class="week-number">Week ${week.week}</span>
-            <span class="week-game-count">${week.games.length} game${week.games.length !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="week-games">
-            ${week.games.map((g, gi) => `
-              <div class="draw-game">
-                <span class="draw-team home">${g.home}</span>
-                <span class="draw-vs-label">vs</span>
-                <span class="draw-team away">${g.away}</span>
-                <button class="swap-btn" onclick="swapGame(${wi},${gi})" title="Swap home/away">⇄</button>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `).join('') + '</div>';
-  }
-
-  function printDraw() {
-    const d = new Date();
-    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
-    document.getElementById('print-date').textContent =
-      'Generated ' + d.toLocaleDateString('en-NZ', opts);
-    window.print();
-  }
-
-  // Load saved draw on init
-  function loadDraw() {
-    try {
-      const d = localStorage.getItem('jag3x3_draw');
-      if (d) currentDraw = JSON.parse(d);
-    } catch(e) {}
-  }
-
-  // ── Teams / Standings ─────────────────────────────────────────────
+  // ── Teams ─────────────────────────────────────────────────────────
   let teams = [];
 
-  function saveTeams() {
-    try { localStorage.setItem('jag3x3_teams', JSON.stringify(teams)); } catch(e) {}
-  }
+  function saveTeams() { try { localStorage.setItem('jag3x3_teams', JSON.stringify(teams)); } catch(e) {} }
 
   function loadTeams() {
     try {
       const d = localStorage.getItem('jag3x3_teams');
-      if (d) { teams = JSON.parse(d); return; }
+      if (d) { teams = JSON.parse(d).map(t => ({ name: t.name })); return; }
     } catch(e) {}
     teams = [
-      { name:'BALLERS',   w:4, l:1, pf:96, pa:72 },
-      { name:'RUNNERS',   w:3, l:2, pf:80, pa:75 },
-      { name:'HOOPERS',   w:2, l:3, pf:68, pa:82 },
-      { name:'BUCKETS',   w:1, l:4, pf:60, pa:88 },
+      { name: 'BALLERS' },
+      { name: 'RUNNERS' },
+      { name: 'HOOPERS' },
+      { name: 'BUCKETS' },
     ];
   }
 
-  function renderStandings() {
-    const sorted = [...teams].sort((a,b) => {
-      if (b.w !== a.w) return b.w - a.w;
-      return (b.pf - b.pa) - (a.pf - a.pa);
-    });
+  // Compute standings from completed schedule games
+  function computeStandings() {
+    const stats = {};
+    teams.forEach(t => { stats[t.name] = { w: 0, l: 0, pf: 0, pa: 0 }; });
 
-    const tbody = document.getElementById('standings-body');
-    if (!sorted.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-text">No teams yet — add one above</div></div></td></tr>`;
-    } else {
-      tbody.innerHTML = sorted.map((t, i) => {
-        const diff = t.pf - t.pa;
-        const dc = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : 'diff-zero';
-        const ds = diff > 0 ? '+' + diff : '' + diff;
-        const esc = t.name.replace(/'/g, '&#39;');
-        return `<tr>
-          <td class="rank-cell${i < 3 ? ' top' : ''}">${i+1}</td>
-          <td class="team-cell">${esc}</td>
-          <td class="num record-cell">${t.w}</td>
-          <td class="num record-cell">${t.l}</td>
-          <td class="num">${t.pf}</td>
-          <td class="num">${t.pa}</td>
-          <td class="num ${dc}">${ds}</td>
-          <td><button class="delete-team-btn" onclick="deleteTeam('${esc}')" title="Remove">✕</button></td>
-        </tr>`;
-      }).join('');
+    if (schedule && schedule.games) {
+      schedule.games.filter(g => g.completed).forEach(g => {
+        if (!stats[g.home]) stats[g.home] = { w: 0, l: 0, pf: 0, pa: 0 };
+        if (!stats[g.away]) stats[g.away] = { w: 0, l: 0, pf: 0, pa: 0 };
+        const sh = g.scoreHome, sa = g.scoreAway;
+        stats[g.home].pf += sh; stats[g.home].pa += sa;
+        stats[g.away].pf += sa; stats[g.away].pa += sh;
+        if (sh > sa)      { stats[g.home].w++; stats[g.away].l++; }
+        else if (sa > sh) { stats[g.away].w++; stats[g.home].l++; }
+        else              { stats[g.home].w++; stats[g.away].w++; }
+      });
     }
 
-    // Update selects
-    const names = teams.map(t => t.name);
-    ['result-team-a','result-team-b'].forEach(id => {
-      const sel = document.getElementById(id);
-      const cur = sel.value;
-      sel.innerHTML = names.length
-        ? names.map(n => `<option value="${n}">${n}</option>`).join('')
-        : '<option value="">— No teams —</option>';
-      if (names.includes(cur)) sel.value = cur;
-    });
+    return teams.map(t => ({ name: t.name, ...stats[t.name] }))
+      .sort((a, b) => b.w - a.w || (b.pf - b.pa) - (a.pf - a.pa));
+  }
+
+  function renderTeamsTable() {
+    const sorted = computeStandings();
+    const tbody = document.getElementById('teams-body');
+
+    if (!sorted.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-text">No teams yet</div></div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = sorted.map((t, i) => {
+      const diff = t.pf - t.pa;
+      const dc = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : 'diff-zero';
+      const ds = diff > 0 ? '+' + diff : '' + diff;
+      const esc = t.name.replace(/'/g, '&#39;');
+      return `<tr>
+        <td class="rank-cell${i < 3 ? ' top' : ''}">${i+1}</td>
+        <td class="team-cell">${esc}</td>
+        <td class="num record-cell">${t.w}</td>
+        <td class="num record-cell">${t.l}</td>
+        <td class="num">${t.pf}</td>
+        <td class="num">${t.pa}</td>
+        <td class="num ${dc}">${ds}</td>
+        <td><button class="delete-team-btn" onclick="deleteTeam('${esc}')" title="Remove">✕</button></td>
+      </tr>`;
+    }).join('');
   }
 
   function openAddTeam() {
@@ -1868,9 +1880,9 @@
     const name = document.getElementById('new-team-name').value.trim().toUpperCase();
     if (!name) return;
     if (teams.find(t => t.name === name)) { alert('A team with that name already exists.'); return; }
-    teams.push({ name, w:0, l:0, pf:0, pa:0 });
+    teams.push({ name });
     saveTeams();
-    renderStandings();
+    renderTeamsTable();
     closeAddTeam();
   }
 
@@ -1878,28 +1890,7 @@
     if (!confirm(`Remove ${name} from the league?`)) return;
     teams = teams.filter(t => t.name !== name);
     saveTeams();
-    renderStandings();
-  }
-
-  function submitResult() {
-    const nA = document.getElementById('result-team-a').value;
-    const nB = document.getElementById('result-team-b').value;
-    if (!nA || !nB) return;
-    if (nA === nB) { alert('Select two different teams.'); return; }
-    const sA = parseInt(document.getElementById('result-score-a').value) || 0;
-    const sB = parseInt(document.getElementById('result-score-b').value) || 0;
-    const tA = teams.find(t => t.name === nA);
-    const tB = teams.find(t => t.name === nB);
-    if (!tA || !tB) return;
-    tA.pf += sA; tA.pa += sB;
-    tB.pf += sB; tB.pa += sA;
-    if (sA > sB) { tA.w++; tB.l++; }
-    else if (sB > sA) { tB.w++; tA.l++; }
-    else { tA.w++; tB.w++; }
-    saveTeams();
-    renderStandings();
-    document.getElementById('result-score-a').value = '';
-    document.getElementById('result-score-b').value = '';
+    renderTeamsTable();
   }
 
   // ── Set Teams ─────────────────────────────────────────────────────
@@ -1909,33 +1900,33 @@
     const curA = document.getElementById('team-a-name').textContent.trim();
     const curB = document.getElementById('team-b-name').textContent.trim();
 
-    // Build options: registered teams + generic HOME/AWAY fallbacks
     const opts = teams.length
       ? teams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')
       : '<option value="HOME">HOME</option><option value="AWAY">AWAY</option>';
 
-    selA.innerHTML = opts;
-    selB.innerHTML = opts;
-
-    // Try to restore current selections
-    selA.value = curA;
-    selB.value = curB;
-    // If current value isn't in the list, just default to first/second option
+    selA.innerHTML = opts; selB.innerHTML = opts;
+    selA.value = curA; selB.value = curB;
     if (!selA.value && selA.options.length) selA.selectedIndex = 0;
     if (!selB.value && selB.options.length) selB.selectedIndex = Math.min(1, selB.options.length - 1);
 
     document.getElementById('set-teams-modal').hidden = false;
   }
 
-  function closeSetTeams() {
-    document.getElementById('set-teams-modal').hidden = true;
-  }
+  function closeSetTeams() { document.getElementById('set-teams-modal').hidden = true; }
 
   function confirmSetTeams() {
     const a = document.getElementById('set-team-a-select').value;
     const b = document.getElementById('set-team-b-select').value;
     document.getElementById('team-a-name').textContent = a || 'HOME';
     document.getElementById('team-b-name').textContent = b || 'AWAY';
+    // Clear scheduled game link since we manually changed teams
+    if (activeScheduledGameId) {
+      activeScheduledGameId = null;
+      document.getElementById('active-game-label').hidden = true;
+      document.getElementById('save-draw-btn').hidden = true;
+      updatePeriodLabel();
+      updateSelectGameBtn();
+    }
     closeSetTeams();
   }
 
@@ -1943,7 +1934,422 @@
     if (e.target === e.currentTarget) closeSetTeams();
   });
 
-  // ── Keyboard shortcuts for modal ──────────────────────────────────
+  // ── Select Game ───────────────────────────────────────────────────
+  function updateSelectGameBtn() {
+    const hasGames = schedule.games && schedule.games.some(g => !g.completed);
+    document.getElementById('select-game-btn').hidden = !hasGames;
+  }
+
+  function openSelectGame() {
+    const list = document.getElementById('select-game-list');
+    const upcoming = (schedule.games || []).filter(g => !g.completed);
+
+    if (!upcoming.length) {
+      list.innerHTML = '<div class="select-game-no-games">No upcoming games in the schedule</div>';
+    } else {
+      // Group by date
+      const byDate = {};
+      upcoming.forEach(g => {
+        if (!byDate[g.sessionDate]) byDate[g.sessionDate] = [];
+        byDate[g.sessionDate].push(g);
+      });
+
+      const sortedDates = Object.keys(byDate).sort();
+      list.innerHTML = sortedDates.map(date => {
+        const games = byDate[date];
+        return `<div class="select-game-date-group">
+          <div class="select-game-date-label">${formatDate(date)}</div>
+          ${games.map(g => `
+            <div class="select-game-item" onclick="selectScheduledGame('${g.id}')">
+              <span class="select-game-time">${g.slot}</span>
+              <span class="select-game-teams">${g.home} <span style="color:var(--text-dim);font-size:11px;font-weight:600"> vs </span> ${g.away}</span>
+            </div>
+          `).join('')}
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('select-game-modal').hidden = false;
+  }
+
+  function closeSelectGame() { document.getElementById('select-game-modal').hidden = true; }
+
+  function selectScheduledGame(id) {
+    const g = schedule.games.find(x => x.id === id);
+    if (!g) return;
+
+    // Reset game first, then load teams
+    resetGame();
+    document.getElementById('team-a-name').textContent = g.home;
+    document.getElementById('team-b-name').textContent = g.away;
+    activeScheduledGameId = id;
+
+    // Show active game indicator
+    const lbl = document.getElementById('active-game-label');
+    lbl.textContent = `● ${formatDateShort(g.sessionDate)} · ${g.slot}`;
+    lbl.hidden = false;
+
+    updatePeriodLabel();
+    updateSelectGameBtn();
+    closeSelectGame();
+  }
+
+  document.getElementById('select-game-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeSelectGame();
+  });
+
+  function saveGameToSchedule() {
+    if (!activeScheduledGameId) return;
+    const g = schedule.games.find(x => x.id === activeScheduledGameId);
+    if (!g) return;
+
+    g.scoreHome = S.scoreA;
+    g.scoreAway = S.scoreB;
+    g.completed = true;
+
+    saveSchedule();
+
+    // Update button
+    const btn = document.getElementById('save-draw-btn');
+    btn.textContent = '✓ Saved!';
+    btn.disabled = true;
+    setTimeout(() => { btn.hidden = true; }, 1800);
+
+    activeScheduledGameId = null;
+    document.getElementById('active-game-label').hidden = true;
+    updateSelectGameBtn();
+  }
+
+  // ── Schedule ──────────────────────────────────────────────────────
+  let schedule = {
+    gamesPerTeam: 2,
+    sessions: [],
+    games: []
+  };
+
+  function saveSchedule() {
+    try { localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule)); } catch(e) {}
+  }
+
+  function loadSchedule() {
+    try {
+      const d = localStorage.getItem('jag3x3_schedule');
+      if (d) { schedule = JSON.parse(d); }
+    } catch(e) {}
+  }
+
+  // Date helpers
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function formatDateShort(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+
+  // Compute timeslot strings for a session
+  function getSlotTimes(session) {
+    if (!session.startTime) return [];
+    const [h, m] = session.startTime.split(':').map(Number);
+    const slots = [];
+    for (let i = 0; i < session.numSlots; i++) {
+      const totalMins = h * 60 + m + i * session.slotInterval;
+      const sh = Math.floor(totalMins / 60) % 24;
+      const sm = totalMins % 60;
+      const ampm = sh >= 12 ? 'PM' : 'AM';
+      const h12 = sh % 12 || 12;
+      slots.push(`${h12}:${String(sm).padStart(2,'0')} ${ampm}`);
+    }
+    return slots;
+  }
+
+  // Session builder
+  function addSession() {
+    schedule.sessions.push({ date: '', startTime: '18:00', numSlots: 3, slotInterval: 30 });
+    saveSchedule();
+    renderSessionBuilder();
+  }
+
+  function removeSession(i) {
+    schedule.sessions.splice(i, 1);
+    saveSchedule();
+    renderSessionBuilder();
+  }
+
+  function updateSessionField(i, field, value) {
+    schedule.sessions[i][field] = value;
+    saveSchedule();
+    renderSessionBuilder();
+  }
+
+  function renderSessionBuilder() {
+    const list = document.getElementById('sessions-list');
+    if (!schedule.sessions.length) {
+      list.innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = schedule.sessions.map((s, i) => {
+      const slots = s.date && s.startTime ? getSlotTimes(s) : [];
+      const preview = slots.join(' · ');
+
+      return `<div class="session-card">
+        <div class="session-row">
+          <input type="date" class="session-date" value="${s.date}"
+            onchange="updateSessionField(${i},'date',this.value)">
+          <input type="time" class="session-time" value="${s.startTime}"
+            onchange="updateSessionField(${i},'startTime',this.value)">
+          <select class="session-select" onchange="updateSessionField(${i},'numSlots',+this.value)">
+            ${[1,2,3,4,5,6,7,8].map(n =>
+              `<option value="${n}"${n === s.numSlots ? ' selected' : ''}>${n} game${n !== 1 ? 's' : ''}</option>`
+            ).join('')}
+          </select>
+          <span class="session-sep">every</span>
+          <select class="session-select" onchange="updateSessionField(${i},'slotInterval',+this.value)">
+            ${[15,20,30,45,60].map(n =>
+              `<option value="${n}"${n === s.slotInterval ? ' selected' : ''}>${n}min</option>`
+            ).join('')}
+          </select>
+          <button class="session-remove" onclick="removeSession(${i})" title="Remove session">✕</button>
+        </div>
+        ${preview ? `<div class="session-slots-preview">${preview}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Games-per-team picker
+  function renderGptPicker() {
+    const wrap = document.getElementById('gpt-btns');
+    wrap.innerHTML = [1,2,3,4].map(n =>
+      `<button class="gpt-btn${n === schedule.gamesPerTeam ? ' active' : ''}" onclick="setGamesPerTeam(${n})">${n}</button>`
+    ).join('');
+  }
+
+  function setGamesPerTeam(n) {
+    schedule.gamesPerTeam = n;
+    saveSchedule();
+    renderGptPicker();
+  }
+
+  // Round-robin generator (circle method)
+  function roundRobin(teamNames) {
+    let t = [...teamNames];
+    if (t.length % 2 !== 0) t.push('BYE');
+    const n = t.length;
+    const rounds = [];
+    for (let r = 0; r < n - 1; r++) {
+      const round = [];
+      for (let i = 0; i < n / 2; i++) {
+        const home = t[i], away = t[n - 1 - i];
+        if (home !== 'BYE' && away !== 'BYE') round.push({ home, away });
+      }
+      rounds.push(round);
+      t = [t[0], t[n - 1], ...t.slice(1, n - 1)];
+    }
+    return rounds;
+  }
+
+  function generateSchedule() {
+    if (teams.length < 2) {
+      alert('Add at least 2 teams in the Teams tab first.');
+      return;
+    }
+    const validSessions = schedule.sessions.filter(s => s.date);
+    if (!validSessions.length) {
+      alert('Add at least one session with a date selected.');
+      return;
+    }
+    if (schedule.games && schedule.games.some(g => g.completed)) {
+      if (!confirm('Regenerating will clear all recorded scores. Continue?')) return;
+    }
+
+    // Sort by date
+    const sessions = [...validSessions].sort((a, b) => a.date.localeCompare(b.date));
+
+    // Build matchup pool: cycle through rounds until we have plenty
+    const teamNames = teams.map(t => t.name);
+    const rounds = roundRobin(teamNames);
+    const totalSlots = sessions.reduce((s, sess) => s + sess.numSlots, 0);
+    const pool = [];
+    const gamesPerRound = rounds.reduce((s, r) => s + r.length, 0);
+    const copies = gamesPerRound > 0 ? Math.ceil((totalSlots * 3) / gamesPerRound) + 1 : 1;
+    for (let c = 0; c < copies; c++) {
+      for (const round of rounds) {
+        for (const m of round) pool.push({ home: m.home, away: m.away });
+      }
+    }
+
+    const games = [];
+    let gId = 1;
+
+    for (const session of sessions) {
+      const slots = getSlotTimes(session);
+      const teamCountInSession = {};
+      const usedIndices = new Set();
+      const sessionMatchups = [];
+
+      for (let slotIdx = 0; slotIdx < slots.length; slotIdx++) {
+        // Find next valid matchup from pool
+        for (let j = 0; j < pool.length; j++) {
+          if (usedIndices.has(j)) continue;
+          const m = pool[j];
+          const hc = teamCountInSession[m.home] || 0;
+          const ac = teamCountInSession[m.away] || 0;
+          if (hc < schedule.gamesPerTeam && ac < schedule.gamesPerTeam) {
+            usedIndices.add(j);
+            teamCountInSession[m.home] = hc + 1;
+            teamCountInSession[m.away] = ac + 1;
+            sessionMatchups.push({ slot: slots[slotIdx], matchup: m });
+            break;
+          }
+        }
+      }
+
+      // Remove used matchups from pool (high → low to preserve indices)
+      [...usedIndices].sort((a, b) => b - a).forEach(idx => pool.splice(idx, 1));
+
+      for (const sg of sessionMatchups) {
+        games.push({
+          id: 'g' + gId++,
+          sessionDate: session.date,
+          slot: sg.slot,
+          home: sg.matchup.home,
+          away: sg.matchup.away,
+          scoreHome: null,
+          scoreAway: null,
+          completed: false
+        });
+      }
+    }
+
+    schedule.games = games;
+    saveSchedule();
+    renderScheduleTab();
+    updateSelectGameBtn();
+  }
+
+  function renderScheduleTab() {
+    renderGptPicker();
+    renderSessionBuilder();
+    renderScheduleGames();
+    renderScheduleStandings();
+  }
+
+  function renderScheduleGames() {
+    const contentSection = document.getElementById('sched-content-section');
+    const blocksEl = document.getElementById('sched-blocks');
+
+    if (!schedule.games || !schedule.games.length) {
+      contentSection.hidden = true;
+      return;
+    }
+
+    contentSection.hidden = false;
+
+    // Summary
+    const total = schedule.games.length;
+    const done = schedule.games.filter(g => g.completed).length;
+    const sessionCount = [...new Set(schedule.games.map(g => g.sessionDate))].length;
+    document.getElementById('sched-info-text').textContent =
+      `${sessionCount} session${sessionCount !== 1 ? 's' : ''} · ${total} games · ${done} played`;
+
+    // Group by date
+    const byDate = {};
+    schedule.games.forEach(g => {
+      if (!byDate[g.sessionDate]) byDate[g.sessionDate] = [];
+      byDate[g.sessionDate].push(g);
+    });
+
+    const sortedDates = Object.keys(byDate).sort();
+    blocksEl.innerHTML = sortedDates.map(date => {
+      const games = byDate[date];
+      const allDone = games.every(g => g.completed);
+      return `<div class="sched-block">
+        <div class="sched-block-header">
+          <span class="sched-date-label">${formatDate(date)}</span>
+          <span class="sched-game-count">${games.filter(g => g.completed).length}/${games.length} played</span>
+        </div>
+        <div class="sched-games-list">
+          ${games.map(g => {
+            if (g.completed) {
+              const homeWon = g.scoreHome > g.scoreAway;
+              const awayWon = g.scoreAway > g.scoreHome;
+              return `<div class="sched-game-row completed">
+                <span class="sched-timeslot">${g.slot}</span>
+                <div class="sched-matchup">
+                  <span class="sched-team home" style="${homeWon ? 'color:var(--accent)' : ''}">${g.home}</span>
+                  <span class="sched-vs">vs</span>
+                  <span class="sched-team away" style="${awayWon ? 'color:var(--accent)' : ''}">${g.away}</span>
+                </div>
+                <span class="sched-result">${g.scoreHome} – ${g.scoreAway}</span>
+              </div>`;
+            } else {
+              return `<div class="sched-game-row">
+                <span class="sched-timeslot">${g.slot}</span>
+                <div class="sched-matchup">
+                  <span class="sched-team home">${g.home}</span>
+                  <span class="sched-vs">vs</span>
+                  <span class="sched-team away">${g.away}</span>
+                </div>
+                <button class="sched-score-btn" onclick="loadGameForScoring('${g.id}')">Score</button>
+              </div>`;
+            }
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function loadGameForScoring(id) {
+    selectScheduledGame(id);
+    // Switch to Score tab
+    const scoreBtn = document.getElementById('tab-btn-score');
+    switchTab('score', scoreBtn);
+  }
+
+  function renderScheduleStandings() {
+    const section = document.getElementById('sched-standings-section');
+    const hasCompleted = schedule.games && schedule.games.some(g => g.completed);
+
+    if (!hasCompleted) {
+      section.hidden = true;
+      return;
+    }
+
+    section.hidden = false;
+    const sorted = computeStandings();
+    const tbody = document.getElementById('sched-standings-body');
+
+    tbody.innerHTML = sorted.map((t, i) => {
+      const diff = t.pf - t.pa;
+      const played = t.w + t.l;
+      const dc = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : 'diff-zero';
+      const ds = diff > 0 ? '+' + diff : '' + diff;
+      return `<tr>
+        <td class="rank-cell${i < 3 ? ' top' : ''}">${i+1}</td>
+        <td class="team-cell">${t.name}</td>
+        <td class="num">${played}</td>
+        <td class="num record-cell">${t.w}</td>
+        <td class="num record-cell">${t.l}</td>
+        <td class="num">${t.pf}</td>
+        <td class="num">${t.pa}</td>
+        <td class="num ${dc}">${ds}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function printSchedule() {
+    const d = new Date();
+    document.getElementById('print-date').textContent =
+      'Generated ' + d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' });
+    window.print();
+  }
+
+  // ── Keyboard / modal click-outside ────────────────────────────────
   document.getElementById('new-team-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') confirmAddTeam();
     if (e.key === 'Escape') closeAddTeam();
@@ -1955,11 +2361,12 @@
 
   // ── Init ──────────────────────────────────────────────────────────
   loadTeams();
-  loadDraw();
+  loadSchedule();
   renderFouls('a', 0);
   renderFouls('b', 0);
   updateDisplay();
   updatePeriodLabel();
   renderDurationPicker();
-  renderStandings();
+  renderTeamsTable();
+  updateSelectGameBtn();
 </script>
