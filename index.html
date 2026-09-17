@@ -1488,6 +1488,36 @@
     color: var(--success);
   }
 
+  .embed-btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .embed-png-btn {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.3);
+    color: var(--accent);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .embed-png-btn:hover {
+    background: rgba(245,158,11,0.16);
+    border-color: var(--accent);
+  }
+  .embed-png-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
   .embed-instructions {
     background: rgba(245,158,11,0.04);
     border: 1px solid rgba(245,158,11,0.15);
@@ -3058,7 +3088,10 @@
         <div class="embed-code-wrap">
           <textarea class="embed-code-area" id="embed-code-draw" readonly spellcheck="false"></textarea>
         </div>
-        <button class="embed-copy-btn" onclick="copyEmbedCode('draw')">Copy Code</button>
+        <div class="embed-btn-row">
+          <button class="embed-copy-btn" onclick="copyEmbedCode('draw')">Copy Code</button>
+          <button class="embed-png-btn" onclick="downloadSharePNG('draw')">⬇ Download PNG</button>
+        </div>
       </div>
 
       <div class="embed-widget-card">
@@ -3072,7 +3105,10 @@
         <div class="embed-code-wrap">
           <textarea class="embed-code-area" id="embed-code-results" readonly spellcheck="false"></textarea>
         </div>
-        <button class="embed-copy-btn" onclick="copyEmbedCode('results')">Copy Code</button>
+        <div class="embed-btn-row">
+          <button class="embed-copy-btn" onclick="copyEmbedCode('results')">Copy Code</button>
+          <button class="embed-png-btn" onclick="downloadSharePNG('results')">⬇ Download PNG</button>
+        </div>
       </div>
 
       <div class="embed-widget-card">
@@ -3086,7 +3122,10 @@
         <div class="embed-code-wrap">
           <textarea class="embed-code-area" id="embed-code-standings" readonly spellcheck="false"></textarea>
         </div>
-        <button class="embed-copy-btn" onclick="copyEmbedCode('standings')">Copy Code</button>
+        <div class="embed-btn-row">
+          <button class="embed-copy-btn" onclick="copyEmbedCode('standings')">Copy Code</button>
+          <button class="embed-png-btn" onclick="downloadSharePNG('standings')">⬇ Download PNG</button>
+        </div>
       </div>
 
       <div class="embed-instructions">
@@ -4729,6 +4768,438 @@
     document.getElementById('header-right').hidden = false;
     if (!isAdmin) switchTab('score', document.getElementById('tab-btn-score'));
     if (isAdmin) buildEmbedCodes();
+  }
+
+  // ── PNG Share Image Generator ──────────────────────────────────────
+
+  function pngRoundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
+
+  function pngDrawHeader(ctx, W, typeLabel) {
+    // Dark header bar
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, W, 190);
+    // Gold accent line
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(0, 190, W, 4);
+    // Left gold stripe
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(0, 0, 8, 190);
+  }
+
+  function pngDrawLogo(ctx, logoImg, x, y, size) {
+    ctx.drawImage(logoImg, x, y, size, size);
+  }
+
+  function pngDrawStandings(ctx, teamsData, pad, startY, W) {
+    const sorted = [...teamsData]
+      .filter(t => t.name && t.name.trim())
+      .sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return ((b.ptsFor||0)-(b.ptsAgainst||0)) - ((a.ptsFor||0)-(a.ptsAgainst||0));
+      });
+
+    if (!sorted.length) {
+      ctx.fillStyle = '#3d5080';
+      ctx.font = '600 32px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No teams yet', W/2, startY + 60);
+      ctx.textAlign = 'left';
+      return;
+    }
+
+    // Column x positions
+    const cPos = pad;
+    const cTeam = pad + 80;
+    const cP   = W - 370;
+    const cW   = W - 295;
+    const cL   = W - 220;
+    const cPF  = W - 145;
+    const cPA  = W - 70;
+    const cD   = W - pad;
+
+    let y = startY;
+
+    // Header row
+    ctx.fillStyle = '#3d5080';
+    ctx.font = '700 24px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('#', cPos, y);
+    ctx.fillText('TEAM', cTeam, y);
+    ctx.textAlign = 'center';
+    ['P','W','L','PF','PA','+/−'].forEach((h, i) => {
+      const x = [cP, cW, cL, cPF, cPA, cD][i];
+      ctx.fillText(h, x, y);
+    });
+    ctx.textAlign = 'left';
+
+    y += 12;
+    ctx.strokeStyle = '#1e2d50';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+    y += 20;
+
+    const maxRows = Math.min(sorted.length, 10);
+    const ROW_H = maxRows > 7 ? 72 : 84;
+
+    for (let i = 0; i < maxRows; i++) {
+      const team = sorted[i];
+      const isFirst = i === 0;
+      const rowTop = y + i * ROW_H - 26;
+
+      // Row background
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(28,37,64,0.55)' : 'rgba(17,24,39,0.4)';
+      ctx.fillRect(pad - 14, rowTop, W - 2*pad + 28, ROW_H);
+
+      // Gold left pip for leader
+      if (isFirst) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(pad - 14, rowTop, 4, ROW_H);
+      }
+
+      const textY = y + i * ROW_H + 10;
+
+      // Position
+      ctx.fillStyle = isFirst ? '#f59e0b' : '#6b7fa8';
+      ctx.font = `${isFirst ? 900 : 700} ${isFirst ? 36 : 30}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.fillText(String(i + 1), cPos, textY);
+
+      // Team name (truncate if needed)
+      ctx.fillStyle = isFirst ? '#f8faff' : '#c8d4f0';
+      ctx.font = `${isFirst ? 800 : 600} ${isFirst ? 38 : 32}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
+      const maxW = cP - cTeam - 20;
+      let name = team.name.toUpperCase();
+      while (ctx.measureText(name).width > maxW && name.length > 2) name = name.slice(0, -1);
+      if (name !== team.name.toUpperCase()) name += '…';
+      ctx.fillText(name, cTeam, textY);
+
+      // Stats
+      ctx.font = '600 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#8fa0bb';
+      ctx.fillText(String(team.played||0), cP, textY);
+
+      ctx.fillStyle = isFirst ? '#f59e0b' : '#f8faff';
+      ctx.font = `${isFirst ? 800 : 700} ${isFirst ? 34 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
+      ctx.fillText(String(team.wins||0), cW, textY);
+
+      ctx.fillStyle = '#8fa0bb';
+      ctx.font = '600 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.fillText(String(team.losses||0), cL, textY);
+      ctx.fillText(String(team.ptsFor||0), cPF, textY);
+      ctx.fillText(String(team.ptsAgainst||0), cPA, textY);
+
+      const diff = (team.ptsFor||0) - (team.ptsAgainst||0);
+      ctx.fillStyle = diff > 0 ? '#22c55e' : diff < 0 ? '#ef4444' : '#6b7fa8';
+      ctx.font = '700 28px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.fillText((diff > 0 ? '+' : '') + diff, cD, textY);
+      ctx.textAlign = 'left';
+
+      // Row divider
+      if (i < maxRows - 1) {
+        ctx.strokeStyle = '#1e2d50';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad, rowTop + ROW_H);
+        ctx.lineTo(W - pad, rowTop + ROW_H);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function pngDrawDraw(ctx, sched, pad, startY, W, H) {
+    const blocks = (sched || {}).blocks || [];
+    if (!blocks.length) {
+      ctx.fillStyle = '#3d5080';
+      ctx.font = '600 32px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No draw yet', W/2, startY + 60);
+      ctx.textAlign = 'left';
+      return;
+    }
+
+    let y = startY;
+    const GAME_H = 74;
+    const DATE_H = 60;
+
+    for (const block of blocks) {
+      if (y > H - 120) break;
+      const d = new Date(block.date + 'T12:00:00');
+      const dateLabel = d.toLocaleDateString('en-NZ', {weekday: 'short', day: 'numeric', month: 'long'}).toUpperCase();
+
+      // Date chip
+      ctx.fillStyle = 'rgba(245,158,11,0.12)';
+      pngRoundRect(ctx, pad, y - 6, 420, 38, 6);
+      ctx.fill();
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 24px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.fillText(dateLabel, pad + 14, y + 20);
+
+      // Gold underline
+      ctx.strokeStyle = 'rgba(245,158,11,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(pad, y + 38); ctx.lineTo(W - pad, y + 38); ctx.stroke();
+      y += DATE_H;
+
+      for (const g of (block.games || [])) {
+        if (y > H - 100) break;
+        // Game card
+        ctx.fillStyle = 'rgba(28,37,64,0.65)';
+        pngRoundRect(ctx, pad, y - 28, W - 2*pad, GAME_H - 6, 8);
+        ctx.fill();
+
+        // Time slot
+        ctx.fillStyle = '#6b7fa8';
+        ctx.font = '600 22px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+        ctx.fillText(g.slot || '', pad + 16, y + 10);
+
+        // Team names
+        ctx.fillStyle = '#f8faff';
+        ctx.font = '700 30px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+        const teamsStr = (g.teamA || '') + '  vs  ' + (g.teamB || '');
+        ctx.fillText(teamsStr, pad + 110, y + 10);
+
+        // Score (if completed)
+        if (g.result && g.result.scoreA != null) {
+          const wA = g.result.scoreA > g.result.scoreB;
+          const wB = g.result.scoreB > g.result.scoreA;
+          const scoreStr = g.result.scoreA + '  –  ' + g.result.scoreB;
+          ctx.font = '800 30px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+          ctx.fillStyle = '#f59e0b';
+          ctx.textAlign = 'right';
+          ctx.fillText(scoreStr, W - pad - 16, y + 10);
+          ctx.textAlign = 'left';
+        }
+
+        y += GAME_H;
+      }
+      y += 22;
+    }
+  }
+
+  function pngDrawResults(ctx, sched, pad, startY, W, H) {
+    const blocks = (sched || {}).blocks || [];
+    let played = [];
+    blocks.forEach(b => {
+      (b.games || []).forEach(g => {
+        if (g.result && g.result.scoreA != null) played.push({date: b.date, game: g});
+      });
+    });
+    played.reverse();
+
+    if (!played.length) {
+      ctx.fillStyle = '#3d5080';
+      ctx.font = '600 32px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No results yet', W/2, startY + 60);
+      ctx.textAlign = 'left';
+      return;
+    }
+
+    const byDate = {};
+    const dateOrder = [];
+    played.forEach(p => {
+      if (!byDate[p.date]) { byDate[p.date] = []; dateOrder.push(p.date); }
+      byDate[p.date].push(p.game);
+    });
+
+    let y = startY;
+    const GAME_H = 88;
+    const DATE_H = 60;
+    const MID = W / 2;
+
+    for (const dt of dateOrder) {
+      if (y > H - 120) break;
+      const d = new Date(dt + 'T12:00:00');
+      const dateLabel = d.toLocaleDateString('en-NZ', {weekday: 'short', day: 'numeric', month: 'long'}).toUpperCase();
+
+      ctx.fillStyle = 'rgba(245,158,11,0.12)';
+      pngRoundRect(ctx, pad, y - 6, 420, 38, 6);
+      ctx.fill();
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 24px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.fillText(dateLabel, pad + 14, y + 20);
+      ctx.strokeStyle = 'rgba(245,158,11,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(pad, y + 38); ctx.lineTo(W - pad, y + 38); ctx.stroke();
+      y += DATE_H;
+
+      for (const g of byDate[dt]) {
+        if (y > H - 100) break;
+        const wA = g.result.scoreA > g.result.scoreB;
+        const wB = g.result.scoreB > g.result.scoreA;
+
+        ctx.fillStyle = 'rgba(28,37,64,0.65)';
+        pngRoundRect(ctx, pad, y - 32, W - 2*pad, GAME_H - 4, 8);
+        ctx.fill();
+
+        // Team A (right-aligned toward centre)
+        ctx.font = `${wA ? 800 : 600} ${wA ? 32 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
+        ctx.fillStyle = wA ? '#f8faff' : '#6b7fa8';
+        ctx.textAlign = 'right';
+        let nameA = (g.teamA || '').toUpperCase();
+        const maxTW = MID - 130 - pad;
+        while (ctx.measureText(nameA).width > maxTW && nameA.length > 2) nameA = nameA.slice(0,-1);
+        if (nameA !== (g.teamA||'').toUpperCase()) nameA += '…';
+        ctx.fillText(nameA, MID - 120, y + 14);
+
+        // Score A
+        ctx.font = '900 52px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+        ctx.fillStyle = wA ? '#f59e0b' : '#f8faff';
+        ctx.fillText(String(g.result.scoreA), MID - 20, y + 18);
+
+        // Dash
+        ctx.fillStyle = '#3d5080';
+        ctx.font = '400 32px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('–', MID, y + 14);
+
+        // Score B
+        ctx.font = '900 52px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+        ctx.fillStyle = wB ? '#f59e0b' : '#f8faff';
+        ctx.textAlign = 'left';
+        ctx.fillText(String(g.result.scoreB), MID + 22, y + 18);
+
+        // Team B
+        ctx.font = `${wB ? 800 : 600} ${wB ? 32 : 28}px "Barlow Condensed", "Arial Narrow", Arial, sans-serif`;
+        ctx.fillStyle = wB ? '#f8faff' : '#6b7fa8';
+        let nameB = (g.teamB || '').toUpperCase();
+        while (ctx.measureText(nameB).width > maxTW && nameB.length > 2) nameB = nameB.slice(0,-1);
+        if (nameB !== (g.teamB||'').toUpperCase()) nameB += '…';
+        ctx.fillText(nameB, MID + 120, y + 14);
+        ctx.textAlign = 'left';
+
+        y += GAME_H;
+      }
+      y += 18;
+    }
+  }
+
+  async function downloadSharePNG(type) {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+
+    try {
+      // Load logo from the SVG in the header
+      const svgEl = document.querySelector('.brand-mark');
+      const svgStr = new XMLSerializer().serializeToString(svgEl);
+      const svgBlob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const logo = await new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => res(img);
+        img.onerror = rej;
+        img.src = svgUrl;
+      });
+      URL.revokeObjectURL(svgUrl);
+
+      // Ensure web fonts are painted
+      try { await document.fonts.load('900 60px "Barlow Condensed"'); } catch(e) {}
+
+      const W = 1080, H = 1080;
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // === BACKGROUND ===
+      ctx.fillStyle = '#080d1a';
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle grid texture
+      ctx.strokeStyle = 'rgba(30,45,80,0.4)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= W; x += 54) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = 0; y <= H; y += 54) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // === HEADER ===
+      ctx.fillStyle = '#0f1929';
+      ctx.fillRect(0, 0, W, 190);
+      // Gold left accent bar
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, 0, 8, 190);
+      // Gold bottom border
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, 190, W, 3);
+
+      // Logo
+      pngDrawLogo(ctx, logo, 36, 48, 96);
+
+      // "JUST A GAME"
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '900 72px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textBaseline = 'alphabetic';
+      ctx.textAlign = 'left';
+      ctx.fillText('JUST A GAME', 154, 120);
+
+      // "3×3 LEAGUE"
+      ctx.fillStyle = '#6b7fa8';
+      ctx.font = '600 30px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.fillText('3×3 LEAGUE', 156, 158);
+
+      // Type badge (top right)
+      const typeLabel = type === 'draw' ? 'DRAW' : type === 'results' ? 'RESULTS' : 'STANDINGS';
+      ctx.font = '800 26px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      const bw = ctx.measureText(typeLabel).width + 36;
+      const bx = W - bw - 44, by = 72;
+      ctx.fillStyle = 'rgba(245,158,11,0.12)';
+      pngRoundRect(ctx, bx, by, bw, 46, 8); ctx.fill();
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5;
+      pngRoundRect(ctx, bx, by, bw, 46, 8); ctx.stroke();
+      ctx.fillStyle = '#f59e0b';
+      ctx.textAlign = 'center';
+      ctx.fillText(typeLabel, bx + bw/2, by + 33);
+      ctx.textAlign = 'left';
+
+      // === CONTENT ===
+      const PAD = 60;
+      const contentY = 224;
+
+      if (type === 'standings') pngDrawStandings(ctx, teams, PAD, contentY, W);
+      else if (type === 'draw')  pngDrawDraw(ctx, schedule, PAD, contentY, W, H);
+      else                       pngDrawResults(ctx, schedule, PAD, contentY, W, H);
+
+      // === FOOTER ===
+      ctx.fillStyle = '#1e2d50';
+      ctx.fillRect(0, H - 64, W, 1);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(0, H - 8, W, 8);
+      ctx.fillStyle = '#3d5080';
+      ctx.font = '600 22px "Barlow Condensed", "Arial Narrow", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('leaguescoring.justagame.co.nz', W/2, H - 22);
+      ctx.textAlign = 'left';
+
+      // === DOWNLOAD ===
+      const link = document.createElement('a');
+      const today = new Date().toISOString().slice(0, 10);
+      link.download = 'jag-' + type + '-' + today + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+    } catch(e) {
+      console.error('PNG generation failed:', e);
+      alert('PNG generation failed. Please try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '⬇ Download PNG';
   }
 
   // ── Embed Code Builder ─────────────────────────────────────────────
