@@ -2253,26 +2253,9 @@
     .winner-banner { margin: 0 10px; border-radius: 12px; padding: 20px 16px; }
     .winner-banner-name { font-size: 40px; }
 
-    /* ── FILL THE SCREEN WHEN SCORING ─────────────────────────────────
-       Chain: app-main (flex col) → #tab-score (flex:1 col) →
-       game-layout (flex:1 col) → scoreboard (flex:1, stretch) →
-       team-panel (space-between) → score-display (flex:1, centred)
-    ────────────────────────────────────────────────────────────────── */
-    .app-main { display: flex; flex-direction: column; }
-    #tab-score.active { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-    #tab-teams.active, #tab-schedule.active, #tab-embed.active { flex: 1; overflow-y: auto; }
-    .game-layout { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
-    .scoreboard { flex: 1; align-items: stretch; min-height: 0; }
-    .team-panel { justify-content: space-between; min-height: 0; }
-    .score-display {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
-      font-size: clamp(80px, 22vw, 140px);
-    }
-    .clock-column { justify-content: center; }
+    /* Scoring now uses a fixed full-screen overlay — no flex chain needed.
+       app-main (flex:1, overflow-y:auto) scrolls all tab content naturally. */
+    .game-layout { display: flex; flex-direction: column; }
     /* Bigger tap targets — primary action during a fast 3×3 game */
     .score-btn { min-height: 88px; font-size: 26px; padding: 0 4px; }
     .score-btn.undo { min-height: 88px; font-size: 19px; padding: 0 12px; }
