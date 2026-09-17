@@ -2734,6 +2734,7 @@
       if (error) throw error;
       const incoming = data && data.data;
       if (incoming && Array.isArray(incoming.teams) && incoming.teams.length) {
+        // Cloud has data — use it
         teams    = incoming.teams;
         schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...incoming.schedule };
         try {
@@ -2743,8 +2744,19 @@
         renderTeamsTable();
         renderScheduleTab();
         renderGamePicker();
+        setSyncDot('ok');
+      } else if (teams.length || (schedule.blocks && schedule.blocks.length)) {
+        // Cloud is empty but this device has local data — push it up now
+        setSyncDot('busy');
+        await sb.from('league_data').upsert({
+          id: SB_ROW,
+          data: { teams, schedule },
+          updated_at: new Date().toISOString()
+        });
+        setSyncDot('ok');
+      } else {
+        setSyncDot('ok');
       }
-      setSyncDot('ok');
     } catch(e) {
       console.warn('Cloud load failed, using local data:', e);
       setSyncDot('err');
