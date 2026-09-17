@@ -1967,10 +1967,11 @@
   @media (max-width: 640px) {
 
     /* HEADER: ultra-compact — hide brand text, shrink logo */
-    .app-header { padding: 8px 12px; }
+    .app-header { padding: 8px 12px; flex-wrap: nowrap; }
     .brand-mark { width: 30px; height: 30px; }
     .brand-text { display: none; }
-    .tab-btn { font-size: 12px; padding: 5px 11px; }
+    .tab-nav { gap: 2px; }
+    .tab-btn { font-size: 11px; padding: 5px 9px; }
     .logout-btn { font-size: 11px; padding: 4px 8px; }
     .role-badge { font-size: 10px; padding: 3px 7px; }
 
@@ -2480,6 +2481,7 @@
       <span class="sm-shot-label">Shot</span>
       <div class="sm-shot-clock" id="sm-shot-clock">12</div>
     </div>
+    <div id="sm-duration-picker" style="display:flex;gap:4px;flex-shrink:0;"></div>
     <button class="sm-start-btn" id="sm-start-pause-btn" onclick="toggleClock()">Start</button>
     <button class="sm-shot-reset-btn" onclick="resetShotClock()" title="Reset shot clock">↺</button>
     <button class="sm-submit-btn" id="sm-submit-btn" onclick="openSubmitResult()" hidden>Submit</button>
@@ -2532,17 +2534,22 @@
   <div id="tab-score" class="tab-panel active">
     <div class="game-layout">
 
-      <div class="game-status-bar">
+      <div class="game-status-bar" id="game-status-bar" hidden>
         <span class="period-label" id="period-label">3×3 Basketball · First to 21 or 12 min</span>
         <span class="game-state-badge" id="game-state-badge">Not Started</span>
         <span class="active-game-label" id="active-game-label" hidden>● Scheduled</span>
         <button class="status-btn" onclick="openSetTeams()" id="set-teams-btn">Set Teams</button>
       </div>
 
+      <div id="no-game-msg" style="text-align:center;padding:48px 20px 24px;color:var(--text-muted);">
+        <div style="font-size:36px;margin-bottom:12px;">🏀</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Select a game to start scoring</div>
+      </div>
+
       <!-- Inline game picker accordion -->
       <div id="game-picker" class="game-picker" hidden></div>
 
-      <div class="scoreboard">
+      <div class="scoreboard" id="scoreboard-legacy" hidden>
 
         <!-- Team A -->
         <div class="team-panel" id="panel-a">
@@ -2903,12 +2910,21 @@
   }
 
   function renderDurationPicker() {
-    const picker = document.getElementById('duration-picker');
     const presets = [8, 10, 12, 15];
-    picker.innerHTML = presets.map(m =>
+    const btns = presets.map(m =>
       `<button class="dur-btn${m === gameMins ? ' active' : ''}" onclick="setGameMins(${m})">${m}</button>`
     ).join('');
-    picker.hidden = S.running || S.gameOver || S.gameTime !== gameMins * 60;
+    const shouldHide = S.running || S.gameOver || S.gameTime !== gameMins * 60;
+
+    const picker = document.getElementById('duration-picker');
+    picker.innerHTML = btns;
+    picker.hidden = shouldHide;
+
+    const smPicker = document.getElementById('sm-duration-picker');
+    if (smPicker) {
+      smPicker.innerHTML = btns;
+      smPicker.hidden = shouldHide;
+    }
   }
 
   // ── Game State ────────────────────────────────────────────────────
@@ -2994,6 +3010,7 @@
     const badge = document.getElementById('game-state-badge');
     badge.textContent = 'Live'; badge.className = 'game-state-badge live';
     document.getElementById('duration-picker').hidden = true;
+    const smdp = document.getElementById('sm-duration-picker'); if (smdp) smdp.hidden = true;
     S.iv = setInterval(tick, 1000);
     refreshOverlay();
   }
@@ -3072,6 +3089,7 @@
     document.getElementById('panel-b').classList.remove('winner');
     renderFouls('a', 0); renderFouls('b', 0);
     updateDisplay(); renderDurationPicker();
+    const smdp = document.getElementById('sm-duration-picker'); if (smdp) smdp.hidden = false;
     // Clear active scheduled game
     activeScheduledGameId = null;
     document.getElementById('active-game-label').hidden = true;
@@ -3079,6 +3097,9 @@
     document.getElementById('submit-result-wrap').hidden = true;
     updatePeriodLabel();
     updateSelectGameBtn();
+    // Show no-game-msg if there are blocks
+    const noGameMsg = document.getElementById('no-game-msg');
+    if (noGameMsg) noGameMsg.hidden = !((schedule.blocks || []).some(b => b.games && b.games.length));
   }
 
   function newGame() { resetGame(); }
@@ -3455,9 +3476,16 @@
 
   function renderGamePicker() {
     const picker = document.getElementById('game-picker');
+    const noGameMsg = document.getElementById('no-game-msg');
     const blocks = (schedule.blocks || []).filter(b => b.games && b.games.length);
-    if (!blocks.length) { picker.hidden = true; return; }
+    if (!blocks.length) {
+      picker.hidden = true;
+      if (noGameMsg) noGameMsg.hidden = true;
+      return;
+    }
     picker.hidden = false;
+    // Show no-game-msg only when blocks exist but no game is active
+    if (noGameMsg) noGameMsg.hidden = !!activeScheduledGameId;
 
     // COMPACT BAR: when a game is actively being scored, collapse to one line + Score button
     if (activeScheduledGameId && !gpForceExpanded) {
@@ -3559,6 +3587,8 @@
 
     document.getElementById('submit-result-wrap').hidden = false;
     gpForceExpanded = false; // collapse picker back to compact bar
+    const noGameMsg = document.getElementById('no-game-msg');
+    if (noGameMsg) noGameMsg.hidden = true;
     updatePeriodLabel();
     renderGamePicker(); // refresh picker to show compact active bar
     refreshOverlay();
@@ -4236,6 +4266,8 @@
     const isAdmin = role === 'admin';
     document.getElementById('tab-btn-teams').hidden = !isAdmin;
     document.getElementById('tab-btn-schedule').hidden = !isAdmin;
+    // Hide the entire tab nav for scorers (they only see the score tab)
+    document.querySelector('.tab-nav').style.display = isAdmin ? '' : 'none';
     document.getElementById('role-badge').textContent = isAdmin ? 'Admin' : 'Scorer';
     document.getElementById('header-right').hidden = false;
     if (!isAdmin) switchTab('score', document.getElementById('tab-btn-score'));
@@ -4247,6 +4279,7 @@
     selectedLoginRole = 'admin';
     document.getElementById('tab-btn-teams').hidden = false;
     document.getElementById('tab-btn-schedule').hidden = false;
+    document.querySelector('.tab-nav').style.display = '';
     document.getElementById('header-right').hidden = true;
     document.getElementById('login-screen').hidden = false;
     document.body.classList.add('login-open');
