@@ -1,0 +1,1862 @@
+<title>Just a Game 3×3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #080d1a;
+    --surface: #111827;
+    --surface-2: #1c2540;
+    --surface-3: #253060;
+    --accent: #f59e0b;
+    --accent-glow: rgba(245,158,11,0.3);
+    --danger: #ef4444;
+    --success: #22c55e;
+    --text: #f8faff;
+    --text-muted: #6b7fa8;
+    --text-dim: #3d5080;
+    --border: #1e2d50;
+    --border-light: #2a3f6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 10;
+  }
+
+  .app-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px rgba(245,158,11,0.25));
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .brand-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+
+  .brand-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 380px) {
+    .brand-mark { width: 34px; height: 34px; }
+    .brand-name { font-size: 16px; }
+    .brand-sub { font-size: 10px; }
+  }
+
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-2);
+    padding: 3px;
+    border-radius: 8px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+
+  .app-main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* === GAME === */
+  .game-layout { display: flex; flex-direction: column; gap: 12px; }
+
+  .game-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 6px 0;
+  }
+
+  .period-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .game-state-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+
+  .game-state-badge.live {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    animation: pulse-badge 1.5s ease infinite;
+  }
+
+  @keyframes pulse-badge { 0%,100%{opacity:1} 50%{opacity:0.55} }
+
+  .scoreboard {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .team-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .team-panel.winner {
+    border-color: var(--accent);
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+
+  .team-name-input {
+    background: none;
+    border: none;
+    border-bottom: 1px dashed var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    padding: 2px 4px;
+    transition: border-color 0.15s;
+  }
+
+  .team-name-input:focus { border-bottom-color: var(--accent); }
+  .team-name-input::placeholder { color: var(--text-dim); }
+
+  .score-display {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 92px;
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    transition: color 0.2s;
+  }
+
+  .team-panel.winner .score-display { color: var(--accent); }
+
+  .score-buttons {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+  }
+
+  .score-btn {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 10px 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s, transform 0.07s;
+    text-transform: uppercase;
+  }
+
+  .score-btn:active { transform: scale(0.94); }
+  .score-btn.pt1:hover, .score-btn.pt2:hover { background: var(--surface-3); }
+
+  .score-btn.undo {
+    background: none;
+    border-color: var(--border);
+    color: var(--text-muted);
+    font-size: 14px;
+    flex: 0 0 auto;
+    padding: 10px 10px;
+  }
+
+  .score-btn.undo:hover { color: var(--danger); border-color: var(--danger); }
+
+  .fouls-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .fouls-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex: 1;
+    text-align: left;
+  }
+
+  .foul-dots { display: flex; gap: 4px; }
+
+  .foul-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-light);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .foul-dot.active { background: var(--danger); }
+
+  .foul-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+  }
+
+  .foul-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* clock column */
+  .clock-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding-top: 2px;
+  }
+
+  .game-clock {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-align: center;
+    min-width: 82px;
+    transition: color 0.3s;
+  }
+
+  .game-clock.urgent { color: var(--danger); }
+
+  .shot-clock-wrap {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 8px;
+    text-align: center;
+    width: 82px;
+  }
+
+  .shot-clock-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  .shot-clock {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .shot-clock.urgent { color: var(--danger); }
+  .shot-clock.warn { color: var(--accent); }
+
+  .vs-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .clock-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+  }
+
+  .ctrl-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 8px 4px;
+    border-radius: 7px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s;
+    width: 82px;
+  }
+
+  .ctrl-btn:hover { background: var(--surface-3); }
+
+  .ctrl-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .ctrl-btn.primary:hover { background: #d97706; }
+
+  .ctrl-btn.danger {
+    border-color: var(--border);
+    color: var(--text-muted);
+    font-size: 10px;
+    background: none;
+  }
+
+  .ctrl-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* winner banner */
+  .winner-banner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04));
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 20px;
+    text-align: center;
+    display: none;
+  }
+
+  .winner-banner.visible { display: block; }
+
+  .winner-banner-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .winner-banner-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .winner-banner-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .new-game-btn {
+    margin-top: 14px;
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .new-game-btn:hover { background: #d97706; }
+
+  /* === STANDINGS === */
+  .standings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .standings-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .add-team-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--accent);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .add-team-btn:hover { background: var(--surface-3); }
+
+  .standings-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: var(--surface-2); }
+
+  th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+
+  .rank-cell {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-dim);
+    width: 28px;
+  }
+
+  .rank-cell.top { color: var(--accent); }
+
+  .team-cell {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .record-cell {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .diff-positive { color: var(--success); }
+  .diff-negative { color: var(--danger); }
+  .diff-zero { color: var(--text-muted); }
+
+  .delete-team-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.12s;
+  }
+
+  .delete-team-btn:hover { color: var(--danger); }
+
+  .record-result-section {
+    margin-top: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .record-result-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .result-form { display: flex; flex-direction: column; gap: 10px; }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .result-select {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .result-select:focus { border-color: var(--accent); }
+
+  .score-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .score-input {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    padding: 8px;
+    border-radius: 7px;
+    outline: none;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.15s;
+  }
+
+  .score-input:focus { border-color: var(--accent); }
+
+  .score-sep {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .submit-result-btn {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .submit-result-btn:hover { background: #d97706; }
+
+  /* modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .modal-input {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 8px;
+    outline: none;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+
+  .modal-input:focus { border-color: var(--accent); }
+
+  .modal-actions { display: flex; gap: 8px; }
+
+  .modal-cancel {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .modal-confirm {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .modal-confirm:hover { background: #d97706; }
+
+  .empty-state { text-align: center; padding: 36px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Duration picker */
+  .duration-picker-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .dur-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .duration-picker {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .duration-picker[hidden] { display: none !important; }
+
+  .dur-btn {
+    flex: 1;
+    min-width: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+  }
+
+  .dur-btn:hover { background: var(--surface-3); color: var(--text); }
+
+  .dur-btn.active {
+    background: rgba(245,158,11,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
+    .app-header { padding: 10px 14px; }
+    .app-main { padding: 10px 14px; }
+    .app-brand { font-size: 16px; }
+    .scoreboard { grid-template-columns: 1fr 66px 1fr; gap: 5px; }
+    .score-display { font-size: 64px; }
+    .game-clock { font-size: 30px; min-width: 66px; }
+    .shot-clock { font-size: 24px; }
+    .shot-clock-wrap { width: 66px; padding: 4px 6px; }
+    .ctrl-btn { width: 66px; font-size: 10px; padding: 7px 2px; }
+    .ctrl-btn.primary { font-size: 13px; }
+    .team-panel { padding: 10px 7px; }
+    .team-name-input { font-size: 14px; }
+    .score-btn { font-size: 14px; padding: 9px 2px; }
+    .result-row { grid-template-columns: 1fr; }
+    .result-row .score-sep { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .game-state-badge.live { animation: none; }
+    *, *::before, *::after { transition-duration: 0s !important; }
+  }
+
+  /* === DRAW TAB === */
+  .draw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .draw-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .draw-settings {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+
+  .draw-settings-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .draw-settings-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .draw-settings-label em {
+    font-style: normal;
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  .weeks-input {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    padding: 7px 10px;
+    border-radius: 7px;
+    outline: none;
+    width: 68px;
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.15s;
+  }
+
+  .weeks-input:focus { border-color: var(--accent); }
+
+  .generate-btn {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .generate-btn:hover { background: #d97706; }
+
+  .draw-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  .draw-info-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .pdf-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.1s;
+  }
+
+  .pdf-btn:hover { background: var(--surface-3); }
+
+  .draw-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .draw-week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .week-header {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .week-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .week-game-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .week-games {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .draw-game {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+
+  .draw-team {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .draw-team.away { text-align: right; }
+
+  .draw-vs-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    padding: 0 2px;
+  }
+
+  .swap-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 1px 4px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    transition: color 0.12s;
+    line-height: 1;
+  }
+
+  .swap-btn:hover { color: var(--accent); }
+
+  .draw-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+
+  .draw-empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .draw-empty-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .draw-empty-sub { font-size: 12px; color: var(--text-dim); }
+
+  /* Print-only header */
+  .print-header { display: none; }
+
+  /* === PRINT / PDF === */
+  @media print {
+    body { background: #fff !important; color: #111 !important; font-size: 12px; }
+
+    .app-header,
+    .tab-nav,
+    .draw-settings,
+    .draw-actions-bar,
+    .swap-btn,
+    #tab-game,
+    #tab-standings { display: none !important; }
+
+    #tab-draw { display: block !important; padding: 0 !important; }
+
+    .print-header {
+      display: block !important;
+      text-align: center;
+      padding: 0 0 16px;
+      border-bottom: 2px solid #d97706;
+      margin-bottom: 18px;
+    }
+
+    .print-league-name {
+      font-family: 'Barlow Condensed', Arial Narrow, sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #111;
+    }
+
+    .print-league-sub {
+      font-size: 13px;
+      color: #555;
+      margin-top: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .draw-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .draw-week-card {
+      break-inside: avoid;
+      border: 1px solid #ccc !important;
+      background: #fff !important;
+    }
+
+    .week-header {
+      background: #f5a623 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      border-bottom: 1px solid #d97706 !important;
+      padding: 6px 10px;
+    }
+
+    .week-number { color: #000 !important; }
+    .week-game-count { color: #333 !important; }
+
+    .week-games { padding: 6px; gap: 4px; }
+
+    .draw-game {
+      background: #f6f6f6 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 5px 8px;
+    }
+
+    .draw-team { color: #111 !important; font-size: 12px; }
+    .draw-vs-label { color: #888 !important; }
+
+    @page { margin: 15mm; size: A4 portrait; }
+  }
+
+  @media (max-width: 540px) {
+    .draw-grid { grid-template-columns: 1fr; }
+    .draw-settings-row { flex-direction: column; align-items: flex-start; }
+    .weeks-input { width: 80px; }
+  }
+</style>
+
+<header class="app-header">
+  <div class="app-brand">
+    <!-- Just a Game badge mark — orange basketball version -->
+    <svg class="brand-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Just a Game">
+      <defs>
+        <clipPath id="badge-clip"><circle cx="50" cy="50" r="46"/></clipPath>
+      </defs>
+      <!-- Background -->
+      <circle cx="50" cy="50" r="50" fill="#222b3a"/>
+      <!-- Amber ring -->
+      <circle cx="50" cy="50" r="46.5" fill="none" stroke="#f59e0b" stroke-width="3.5"/>
+      <g clip-path="url(#badge-clip)">
+        <!-- Speed swoosh lines -->
+        <path d="M6 50 C20 45 40 47 60 43" stroke="#8fa0bb" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M12 55 C28 51 46 53 62 49" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M8 60 C25 57 43 58 60 55" stroke="#8fa0bb" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <!-- Basketball 1: silver outline (behind) -->
+        <circle cx="67" cy="39" r="17" fill="none" stroke="#8fa0bb" stroke-width="1.8"/>
+        <path d="M50 39 C59 31 75 31 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+        <path d="M50 39 C59 47 75 47 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+        <path d="M67 22 C74 31 74 47 67 56" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+        <!-- Basketball 2: solid warm orange — real ball colour (front) -->
+        <circle cx="77" cy="46" r="17" fill="#E07828"/>
+        <!-- subtle highlight -->
+        <ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/>
+        <!-- seam lines — dark brown -->
+        <path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+        <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+        <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+      </g>
+    </svg>
+    <div class="brand-text">
+      <span class="brand-name">Just a Game</span>
+      <span class="brand-sub">3×3 League</span>
+    </div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tab-btn-game" onclick="switchTab('game', this)">Game</button>
+    <button class="tab-btn" id="tab-btn-standings" onclick="switchTab('standings', this)">Standings</button>
+    <button class="tab-btn" id="tab-btn-draw" onclick="switchTab('draw', this)">Draw</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- GAME TAB -->
+  <div id="tab-game" class="tab-panel active">
+    <div class="game-layout">
+
+      <div class="game-status-bar">
+        <span class="period-label" id="period-label">3×3 Basketball · First to 21 or 12 min</span>
+        <span class="game-state-badge" id="game-state-badge">Not Started</span>
+      </div>
+
+      <div class="scoreboard">
+
+        <!-- Team A -->
+        <div class="team-panel" id="panel-a">
+          <input class="team-name-input" id="team-a-name" type="text" maxlength="12" placeholder="Team A" value="HOME" autocomplete="off" spellcheck="false">
+          <div class="score-display" id="score-a">0</div>
+          <div class="score-buttons">
+            <button class="score-btn pt1" onclick="addScore('a',1)">+1</button>
+            <button class="score-btn pt2" onclick="addScore('a',2)">+2</button>
+            <button class="score-btn undo" onclick="undoScore('a')" title="Undo last">↩</button>
+          </div>
+          <div class="fouls-row">
+            <span class="fouls-label">Fouls</span>
+            <div class="foul-dots" id="fouls-a-dots"></div>
+            <button class="foul-btn" onclick="addFoul('a')">+F</button>
+          </div>
+        </div>
+
+        <!-- Center: clocks + controls -->
+        <div class="clock-column">
+          <div class="game-clock" id="game-clock">10:00</div>
+          <div class="vs-label">vs</div>
+          <div class="shot-clock-wrap">
+            <span class="shot-clock-label">Shot</span>
+            <div class="shot-clock" id="shot-clock">12</div>
+          </div>
+          <div class="clock-controls">
+            <button class="ctrl-btn primary" id="start-pause-btn" onclick="toggleClock()">Start</button>
+            <button class="ctrl-btn" onclick="resetShotClock()" title="Reset shot clock">Shot ↺</button>
+            <button class="ctrl-btn danger" onclick="resetGame()">Reset</button>
+          </div>
+          <div class="duration-picker-wrap">
+            <div class="dur-label">Game time</div>
+            <div id="duration-picker" class="duration-picker"></div>
+          </div>
+        </div>
+
+        <!-- Team B -->
+        <div class="team-panel" id="panel-b">
+          <input class="team-name-input" id="team-b-name" type="text" maxlength="12" placeholder="Team B" value="AWAY" autocomplete="off" spellcheck="false">
+          <div class="score-display" id="score-b">0</div>
+          <div class="score-buttons">
+            <button class="score-btn pt1" onclick="addScore('b',1)">+1</button>
+            <button class="score-btn pt2" onclick="addScore('b',2)">+2</button>
+            <button class="score-btn undo" onclick="undoScore('b')" title="Undo last">↩</button>
+          </div>
+          <div class="fouls-row">
+            <span class="fouls-label">Fouls</span>
+            <div class="foul-dots" id="fouls-b-dots"></div>
+            <button class="foul-btn" onclick="addFoul('b')">+F</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Winner banner -->
+      <div class="winner-banner" id="winner-banner">
+        <div class="winner-banner-title">🏆 Game Over — Winner</div>
+        <div class="winner-banner-name" id="winner-name">—</div>
+        <div class="winner-banner-sub" id="winner-sub"></div>
+        <button class="new-game-btn" onclick="newGame()">New Game</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STANDINGS TAB -->
+  <div id="tab-standings" class="tab-panel">
+    <div class="standings-header">
+      <div class="standings-title">League Standings</div>
+      <button class="add-team-btn" onclick="openAddTeam()">+ Add Team</button>
+    </div>
+
+    <div class="standings-table-wrap">
+      <table id="standings-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th class="num">W</th>
+            <th class="num">L</th>
+            <th class="num">PF</th>
+            <th class="num">PA</th>
+            <th class="num">+/−</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="standings-body"></tbody>
+      </table>
+    </div>
+
+    <div class="record-result-section">
+      <div class="record-result-title">Record Game Result</div>
+      <div class="result-form">
+        <div class="result-row">
+          <select class="result-select" id="result-team-a"></select>
+          <span class="score-sep">vs</span>
+          <select class="result-select" id="result-team-b"></select>
+        </div>
+        <div class="score-inputs">
+          <input class="score-input" id="result-score-a" type="number" min="0" max="99" placeholder="0">
+          <span class="score-sep">—</span>
+          <input class="score-input" id="result-score-b" type="number" min="0" max="99" placeholder="0">
+        </div>
+        <button class="submit-result-btn" onclick="submitResult()">Record Result</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAW TAB -->
+  <div id="tab-draw" class="tab-panel">
+
+    <!-- Print-only header (hidden on screen) -->
+    <div class="print-header">
+      <div class="print-league-name">Just a Game · 3×3 League</div>
+      <div class="print-league-sub" id="print-date"></div>
+    </div>
+
+    <div class="draw-header">
+      <div class="draw-title">League Draw</div>
+    </div>
+
+    <div class="draw-settings">
+      <div class="draw-settings-row">
+        <div class="draw-settings-label">
+          <em id="draw-team-count">0</em> teams &nbsp;·&nbsp; Weeks:
+        </div>
+        <input class="weeks-input" id="weeks-input" type="number" min="1" max="40" value="8">
+        <button class="generate-btn" onclick="generateDraw()">Generate Draw</button>
+      </div>
+    </div>
+
+    <div class="draw-actions-bar" id="draw-actions-bar" hidden>
+      <span class="draw-info-text" id="draw-info-text"></span>
+      <button class="pdf-btn" onclick="printDraw()">⬇ Download PDF</button>
+    </div>
+
+    <div id="draw-content">
+      <div class="draw-empty">
+        <div class="draw-empty-icon">📋</div>
+        <div class="draw-empty-text">No draw generated yet</div>
+        <div class="draw-empty-sub">Add your teams in Standings, then hit Generate Draw above</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Add Team Modal -->
+<div class="modal-overlay" id="add-team-modal" hidden>
+  <div class="modal">
+    <div class="modal-title">Add Team</div>
+    <input class="modal-input" id="new-team-name" type="text" maxlength="18" placeholder="TEAM NAME" autocomplete="off" spellcheck="false">
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeAddTeam()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmAddTeam()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Constants ─────────────────────────────────────────────────────
+  const WIN_SCORE   = 21;
+  const SHOT_SECS   = 12;
+  const MAX_FOUL_D  = 5;
+
+  // Load saved game duration (default 12 min for this league)
+  let gameMins = 12;
+  try { const saved = localStorage.getItem('jag3x3_gamemins'); if (saved) gameMins = parseInt(saved) || 12; } catch(e) {}
+
+  function saveGameMins() {
+    try { localStorage.setItem('jag3x3_gamemins', gameMins); } catch(e) {}
+  }
+
+  function setGameMins(m) {
+    if (S.running || S.gameOver) return;
+    gameMins = m;
+    saveGameMins();
+    S.gameTime = gameMins * 60;
+    updateDisplay();
+    updatePeriodLabel();
+    renderDurationPicker();
+  }
+
+  function updatePeriodLabel() {
+    document.getElementById('period-label').textContent =
+      `3×3 Basketball · First to 21 or ${gameMins} min`;
+  }
+
+  function renderDurationPicker() {
+    const picker = document.getElementById('duration-picker');
+    const presets = [8, 10, 12, 15];
+    picker.innerHTML = presets.map(m =>
+      `<button class="dur-btn${m === gameMins ? ' active' : ''}" onclick="setGameMins(${m})">${m}</button>`
+    ).join('');
+    // show only when not started / not running
+    picker.hidden = S.running || S.gameOver || S.gameTime !== gameMins * 60;
+  }
+
+  // ── Game State ────────────────────────────────────────────────────
+  const S = {
+    scoreA: 0, scoreB: 0,
+    histA: [], histB: [],
+    foulsA: 0, foulsB: 0,
+    gameTime: gameMins * 60,
+    shotTime: SHOT_SECS,
+    running: false,
+    gameOver: false,
+    shotReset: false,
+    iv: null,
+  };
+
+  // ── Fouls ─────────────────────────────────────────────────────────
+  function renderFouls(t, n) {
+    const el = document.getElementById(`fouls-${t}-dots`);
+    el.innerHTML = '';
+    for (let i = 0; i < MAX_FOUL_D; i++) {
+      const d = document.createElement('div');
+      d.className = 'foul-dot' + (i < n ? ' active' : '');
+      el.appendChild(d);
+    }
+  }
+
+  function addFoul(t) {
+    if (S.gameOver) return;
+    if (t === 'a') { S.foulsA = Math.min(S.foulsA + 1, 9); renderFouls('a', S.foulsA); }
+    else            { S.foulsB = Math.min(S.foulsB + 1, 9); renderFouls('b', S.foulsB); }
+  }
+
+  // ── Scoring ───────────────────────────────────────────────────────
+  function addScore(t, pts) {
+    if (S.gameOver) return;
+    if (t === 'a') { S.histA.push(pts); S.scoreA += pts; document.getElementById('score-a').textContent = S.scoreA; }
+    else            { S.histB.push(pts); S.scoreB += pts; document.getElementById('score-b').textContent = S.scoreB; }
+    resetShotClock();
+    checkWin();
+  }
+
+  function undoScore(t) {
+    if (S.gameOver) return;
+    if (t === 'a' && S.histA.length) {
+      S.scoreA = Math.max(0, S.scoreA - S.histA.pop());
+      document.getElementById('score-a').textContent = S.scoreA;
+    } else if (t === 'b' && S.histB.length) {
+      S.scoreB = Math.max(0, S.scoreB - S.histB.pop());
+      document.getElementById('score-b').textContent = S.scoreB;
+    }
+    checkWin();
+  }
+
+  function checkWin() {
+    let w = null;
+    if (S.scoreA >= WIN_SCORE) w = 'a';
+    else if (S.scoreB >= WIN_SCORE) w = 'b';
+    if (w) endGame(w, 'reached 21 points');
+    if (!S.gameOver) {
+      document.getElementById('panel-a').classList.toggle('winner', S.scoreA > S.scoreB);
+      document.getElementById('panel-b').classList.toggle('winner', S.scoreB > S.scoreA);
+    }
+  }
+
+  // ── Clock ─────────────────────────────────────────────────────────
+  function fmt(s) {
+    return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+  }
+
+  function updateDisplay() {
+    const gc = document.getElementById('game-clock');
+    gc.textContent = fmt(S.gameTime);
+    gc.classList.toggle('urgent', S.gameTime <= 30 && S.gameTime > 0);
+
+    const sc = document.getElementById('shot-clock');
+    sc.textContent = S.shotTime;
+    sc.classList.toggle('urgent', S.shotTime <= 4);
+    sc.classList.toggle('warn', S.shotTime > 4 && S.shotTime <= 7);
+  }
+
+  function toggleClock() {
+    if (S.gameOver) return;
+    S.running ? pauseClock() : startClock();
+  }
+
+  function startClock() {
+    if (S.running || S.gameOver) return;
+    S.running = true;
+    document.getElementById('start-pause-btn').textContent = 'Pause';
+    const badge = document.getElementById('game-state-badge');
+    badge.textContent = 'Live';
+    badge.className = 'game-state-badge live';
+    document.getElementById('duration-picker').hidden = true;
+    S.iv = setInterval(tick, 1000);
+  }
+
+  function pauseClock() {
+    S.running = false;
+    clearInterval(S.iv);
+    document.getElementById('start-pause-btn').textContent = 'Resume';
+    const badge = document.getElementById('game-state-badge');
+    badge.textContent = 'Paused';
+    badge.className = 'game-state-badge';
+    // don't show picker mid-game
+  }
+
+  function tick() {
+    S.gameTime = Math.max(0, S.gameTime - 1);
+    if (!S.shotReset) S.shotTime = Math.max(0, S.shotTime - 1);
+    S.shotReset = false;
+
+    // Shot clock violation
+    if (S.shotTime === 0) {
+      S.shotTime = 0;
+      updateDisplay();
+      clearInterval(S.iv);
+      S.running = false;
+      setTimeout(() => {
+        S.shotTime = SHOT_SECS;
+        updateDisplay();
+        startClock();
+      }, 1500);
+      return;
+    }
+
+    // Game over by time
+    if (S.gameTime === 0) {
+      clearInterval(S.iv); S.running = false;
+      updateDisplay();
+      if (S.scoreA !== S.scoreB) {
+        endGame(S.scoreA > S.scoreB ? 'a' : 'b', 'time expired');
+      } else {
+        const badge = document.getElementById('game-state-badge');
+        badge.textContent = 'OT'; badge.className = 'game-state-badge live';
+        document.getElementById('start-pause-btn').textContent = 'Start OT';
+      }
+      return;
+    }
+
+    updateDisplay();
+  }
+
+  function resetShotClock() {
+    S.shotTime = SHOT_SECS;
+    S.shotReset = true;
+    updateDisplay();
+  }
+
+  function endGame(w, reason) {
+    if (S.gameOver) return;
+    pauseClock();
+    S.gameOver = true;
+    document.getElementById('game-state-badge').textContent = 'Final';
+    document.getElementById('game-state-badge').className = 'game-state-badge';
+    document.getElementById('start-pause-btn').textContent = 'Final';
+
+    const nA = document.getElementById('team-a-name').value.trim() || 'Team A';
+    const nB = document.getElementById('team-b-name').value.trim() || 'Team B';
+    const wName = w === 'a' ? nA : nB;
+    const wS = w === 'a' ? S.scoreA : S.scoreB;
+    const lS = w === 'a' ? S.scoreB : S.scoreA;
+
+    document.getElementById('winner-name').textContent = wName.toUpperCase();
+    document.getElementById('winner-sub').textContent = `${wS} – ${lS} · ${reason}`;
+    document.getElementById('winner-banner').classList.add('visible');
+    document.getElementById('panel-a').classList.remove('winner');
+    document.getElementById('panel-b').classList.remove('winner');
+    document.getElementById(`panel-${w}`).classList.add('winner');
+  }
+
+  function resetGame() {
+    clearInterval(S.iv);
+    Object.assign(S, { scoreA:0, scoreB:0, histA:[], histB:[], foulsA:0, foulsB:0,
+                       gameTime: gameMins * 60, shotTime: SHOT_SECS, running:false, gameOver:false, shotReset:false });
+    document.getElementById('score-a').textContent = '0';
+    document.getElementById('score-b').textContent = '0';
+    document.getElementById('start-pause-btn').textContent = 'Start';
+    document.getElementById('game-state-badge').textContent = 'Not Started';
+    document.getElementById('game-state-badge').className = 'game-state-badge';
+    document.getElementById('winner-banner').classList.remove('visible');
+    document.getElementById('panel-a').classList.remove('winner');
+    document.getElementById('panel-b').classList.remove('winner');
+    renderFouls('a', 0); renderFouls('b', 0);
+    updateDisplay();
+    renderDurationPicker();
+  }
+
+  function newGame() { resetGame(); }
+
+  // ── Tab switching ─────────────────────────────────────────────────
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'standings') renderStandings();
+    if (name === 'draw') { updateDrawTeamCount(); renderDraw(); }
+  }
+
+  // ── Draw Generator ────────────────────────────────────────────────
+  let currentDraw = [];
+
+  function updateDrawTeamCount() {
+    document.getElementById('draw-team-count').textContent = teams.length;
+  }
+
+  /** Circle-method round-robin. Returns array of rounds, each round = array of {home, away}. */
+  function roundRobin(teamNames) {
+    let t = [...teamNames];
+    if (t.length % 2 !== 0) t.push('BYE');
+    const n = t.length;
+    const rounds = n - 1;
+    const schedule = [];
+
+    for (let r = 0; r < rounds; r++) {
+      const round = [];
+      for (let i = 0; i < n / 2; i++) {
+        const home = t[i];
+        const away = t[n - 1 - i];
+        if (home !== 'BYE' && away !== 'BYE') {
+          round.push({ home, away });
+        }
+      }
+      schedule.push(round);
+      // Rotate: fix t[0], rotate the rest
+      t = [t[0], t[n - 1], ...t.slice(1, n - 1)];
+    }
+    return schedule;
+  }
+
+  function generateDraw() {
+    if (teams.length < 2) {
+      alert('Add at least 2 teams in the Standings tab to generate a draw.');
+      return;
+    }
+    const numWeeks = Math.max(1, parseInt(document.getElementById('weeks-input').value) || 8);
+    document.getElementById('weeks-input').value = numWeeks;
+
+    const teamNames = teams.map(t => t.name);
+    const schedule = roundRobin(teamNames);
+    const rounds = schedule.length;
+
+    currentDraw = [];
+    for (let w = 0; w < numWeeks; w++) {
+      const roundGames = schedule[w % rounds];
+      currentDraw.push({
+        week: w + 1,
+        games: roundGames.map(g => ({ home: g.home, away: g.away }))
+      });
+    }
+
+    // Save to localStorage so it survives page reload
+    try { localStorage.setItem('jag3x3_draw', JSON.stringify(currentDraw)); } catch(e) {}
+    renderDraw();
+  }
+
+  function swapGame(weekIdx, gameIdx) {
+    const g = currentDraw[weekIdx].games[gameIdx];
+    [g.home, g.away] = [g.away, g.home];
+    try { localStorage.setItem('jag3x3_draw', JSON.stringify(currentDraw)); } catch(e) {}
+    renderDraw();
+  }
+
+  function renderDraw() {
+    updateDrawTeamCount();
+    const container = document.getElementById('draw-content');
+
+    if (!currentDraw.length) {
+      container.innerHTML = `<div class="draw-empty">
+        <div class="draw-empty-icon">📋</div>
+        <div class="draw-empty-text">No draw generated yet</div>
+        <div class="draw-empty-sub">Add teams in Standings, set the number of weeks, then hit Generate Draw</div>
+      </div>`;
+      document.getElementById('draw-actions-bar').hidden = true;
+      return;
+    }
+
+    document.getElementById('draw-actions-bar').hidden = false;
+    const totalGames = currentDraw.reduce((s, w) => s + w.games.length, 0);
+    document.getElementById('draw-info-text').textContent =
+      `${currentDraw.length} weeks · ${teams.length} teams · ${totalGames} games`;
+
+    container.innerHTML = '<div class="draw-grid">' +
+      currentDraw.map((week, wi) => `
+        <div class="draw-week-card">
+          <div class="week-header">
+            <span class="week-number">Week ${week.week}</span>
+            <span class="week-game-count">${week.games.length} game${week.games.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="week-games">
+            ${week.games.map((g, gi) => `
+              <div class="draw-game">
+                <span class="draw-team home">${g.home}</span>
+                <span class="draw-vs-label">vs</span>
+                <span class="draw-team away">${g.away}</span>
+                <button class="swap-btn" onclick="swapGame(${wi},${gi})" title="Swap home/away">⇄</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('') + '</div>';
+  }
+
+  function printDraw() {
+    const d = new Date();
+    const opts = { day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('print-date').textContent =
+      'Generated ' + d.toLocaleDateString('en-NZ', opts);
+    window.print();
+  }
+
+  // Load saved draw on init
+  function loadDraw() {
+    try {
+      const d = localStorage.getItem('jag3x3_draw');
+      if (d) currentDraw = JSON.parse(d);
+    } catch(e) {}
+  }
+
+  // ── Teams / Standings ─────────────────────────────────────────────
+  let teams = [];
+
+  function saveTeams() {
+    try { localStorage.setItem('jag3x3_teams', JSON.stringify(teams)); } catch(e) {}
+  }
+
+  function loadTeams() {
+    try {
+      const d = localStorage.getItem('jag3x3_teams');
+      if (d) { teams = JSON.parse(d); return; }
+    } catch(e) {}
+    teams = [
+      { name:'BALLERS',   w:4, l:1, pf:96, pa:72 },
+      { name:'RUNNERS',   w:3, l:2, pf:80, pa:75 },
+      { name:'HOOPERS',   w:2, l:3, pf:68, pa:82 },
+      { name:'BUCKETS',   w:1, l:4, pf:60, pa:88 },
+    ];
+  }
+
+  function renderStandings() {
+    const sorted = [...teams].sort((a,b) => {
+      if (b.w !== a.w) return b.w - a.w;
+      return (b.pf - b.pa) - (a.pf - a.pa);
+    });
+
+    const tbody = document.getElementById('standings-body');
+    if (!sorted.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-text">No teams yet — add one above</div></div></td></tr>`;
+    } else {
+      tbody.innerHTML = sorted.map((t, i) => {
+        const diff = t.pf - t.pa;
+        const dc = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : 'diff-zero';
+        const ds = diff > 0 ? '+' + diff : '' + diff;
+        const esc = t.name.replace(/'/g, '&#39;');
+        return `<tr>
+          <td class="rank-cell${i < 3 ? ' top' : ''}">${i+1}</td>
+          <td class="team-cell">${esc}</td>
+          <td class="num record-cell">${t.w}</td>
+          <td class="num record-cell">${t.l}</td>
+          <td class="num">${t.pf}</td>
+          <td class="num">${t.pa}</td>
+          <td class="num ${dc}">${ds}</td>
+          <td><button class="delete-team-btn" onclick="deleteTeam('${esc}')" title="Remove">✕</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Update selects
+    const names = teams.map(t => t.name);
+    ['result-team-a','result-team-b'].forEach(id => {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      sel.innerHTML = names.length
+        ? names.map(n => `<option value="${n}">${n}</option>`).join('')
+        : '<option value="">— No teams —</option>';
+      if (names.includes(cur)) sel.value = cur;
+    });
+  }
+
+  function openAddTeam() {
+    document.getElementById('add-team-modal').hidden = false;
+    setTimeout(() => document.getElementById('new-team-name').focus(), 60);
+  }
+
+  function closeAddTeam() {
+    document.getElementById('add-team-modal').hidden = true;
+    document.getElementById('new-team-name').value = '';
+  }
+
+  function confirmAddTeam() {
+    const name = document.getElementById('new-team-name').value.trim().toUpperCase();
+    if (!name) return;
+    if (teams.find(t => t.name === name)) { alert('A team with that name already exists.'); return; }
+    teams.push({ name, w:0, l:0, pf:0, pa:0 });
+    saveTeams();
+    renderStandings();
+    closeAddTeam();
+  }
+
+  function deleteTeam(name) {
+    if (!confirm(`Remove ${name} from the league?`)) return;
+    teams = teams.filter(t => t.name !== name);
+    saveTeams();
+    renderStandings();
+  }
+
+  function submitResult() {
+    const nA = document.getElementById('result-team-a').value;
+    const nB = document.getElementById('result-team-b').value;
+    if (!nA || !nB) return;
+    if (nA === nB) { alert('Select two different teams.'); return; }
+    const sA = parseInt(document.getElementById('result-score-a').value) || 0;
+    const sB = parseInt(document.getElementById('result-score-b').value) || 0;
+    const tA = teams.find(t => t.name === nA);
+    const tB = teams.find(t => t.name === nB);
+    if (!tA || !tB) return;
+    tA.pf += sA; tA.pa += sB;
+    tB.pf += sB; tB.pa += sA;
+    if (sA > sB) { tA.w++; tB.l++; }
+    else if (sB > sA) { tB.w++; tA.l++; }
+    else { tA.w++; tB.w++; }
+    saveTeams();
+    renderStandings();
+    document.getElementById('result-score-a').value = '';
+    document.getElementById('result-score-b').value = '';
+  }
+
+  // Keyboard shortcuts for modal
+  document.getElementById('new-team-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmAddTeam();
+    if (e.key === 'Escape') closeAddTeam();
+  });
+
+  document.getElementById('add-team-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAddTeam();
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────
+  loadTeams();
+  loadDraw();
+  renderFouls('a', 0);
+  renderFouls('b', 0);
+  updateDisplay();
+  updatePeriodLabel();
+  renderDurationPicker();
+  renderStandings();
+</script>

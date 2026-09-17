@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: jag-3x3-league
+    env: static
+    staticPublishPath: .
+    buildCommand: ""
+    pullRequestPreviewsEnabled: false
