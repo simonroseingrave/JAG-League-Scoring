@@ -1635,6 +1635,32 @@
 
   .sched-add-btn.auto:hover { background: rgba(245,158,11,0.14); }
 
+  .sched-add-btn.sync {
+    border-style: solid;
+    border-color: var(--border-light);
+    color: var(--text-dim);
+  }
+  .sched-add-btn.sync:hover { border-color: var(--text-muted); color: var(--text-muted); background: var(--surface-2); }
+
+  /* Sync modal textarea */
+  .sync-textarea {
+    width: 100%;
+    height: 80px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    resize: none;
+    word-break: break-all;
+    margin-bottom: 4px;
+  }
+  .sync-textarea:focus { outline: none; border-color: var(--accent); }
+  .sync-textarea[readonly] { color: var(--text-muted); }
+  .sync-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
+
   .sched-block-controls {
     display: flex;
     align-items: center;
@@ -1895,6 +1921,75 @@
   .gp-status { font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
   .gp-status.scoring { color: var(--accent); font-weight: 700; letter-spacing: 0.04em; }
   .gp-status.done { color: var(--success); font-variant-numeric: tabular-nums; }
+
+  /* ===================================================
+     MOBILE ENHANCEMENTS — login legibility + score fill
+     =================================================== */
+  @media (max-width: 640px) {
+
+    /* --- LOGIN: much larger, easier to tap and read --- */
+    .login-screen { padding: 16px; align-items: flex-start; padding-top: max(40px, env(safe-area-inset-top, 40px)); }
+    .login-card {
+      padding: 32px 24px 36px;
+      gap: 20px;
+      border-radius: 20px;
+      max-width: 100%;
+    }
+    .login-header svg { width: 72px; height: 72px; }
+    .login-title { font-size: 32px; margin-top: 10px; }
+    .login-sub { font-size: 15px; margin-top: 4px; }
+    .login-error { font-size: 15px; padding: 10px 14px; }
+    .login-field-label { font-size: 13px; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .login-role-btn { font-size: 18px; padding: 14px 10px; border-radius: 10px; }
+    .login-pin { font-size: 20px; padding: 15px 16px; border-radius: 11px; }
+    .login-submit { font-size: 18px; font-weight: 800; padding: 16px; border-radius: 11px; margin-top: 4px; }
+
+    /* --- SCORE TAB: tight gutters, bigger targets --- */
+    .app-main { padding-left: 10px; padding-right: 10px; }
+
+    /* Smaller status bar to save vertical space */
+    .game-status-bar { padding: 4px 0; gap: 6px; }
+    .period-label { font-size: 11px; }
+    .game-state-badge { font-size: 10px; padding: 2px 8px; }
+    .status-btn { font-size: 10px; padding: 3px 8px; }
+    .active-game-label { font-size: 10px; padding: 2px 8px; }
+
+    /* Tighter game picker rows — easier to tap */
+    .gp-block-header { padding: 11px 12px; }
+    .gp-block-name { font-size: 13px; }
+    .gp-game { padding: 13px 14px; }
+    .gp-teams { font-size: 16px; }
+    .gp-time { font-size: 15px; }
+
+    /* SCOREBOARD: bigger names, scores, buttons */
+    .scoreboard { gap: 6px; }
+    .team-panel { padding: 12px 8px; gap: 10px; border-radius: 14px; }
+    .team-name-display { font-size: 20px; }
+    .score-display { font-size: 108px; }
+    .score-btn { font-size: 20px; font-weight: 800; padding: 15px 4px; border-radius: 10px; }
+    .score-btn.undo { font-size: 17px; padding: 15px 12px; }
+    .fouls-label { font-size: 10px; }
+    .foul-dot { width: 11px; height: 11px; }
+    .foul-btn { font-size: 11px; padding: 4px 9px; }
+
+    /* CLOCK COLUMN: bigger digits, bigger controls */
+    .clock-column { gap: 7px; }
+    .game-clock { font-size: 48px; min-width: 88px; }
+    .shot-clock-wrap { width: 88px; padding: 6px 8px; }
+    .shot-clock { font-size: 36px; }
+    .ctrl-btn { width: 88px; font-size: 13px; padding: 10px 4px; }
+    .ctrl-btn.primary { font-size: 17px; padding: 12px 4px; }
+    .ctrl-btn.shot-reset { font-size: 18px; padding: 14px 4px; }
+    .ctrl-btn.danger { font-size: 11px; padding: 8px 4px; }
+    .dur-btn { font-size: 13px; padding: 7px 2px; }
+
+    /* Submit button larger */
+    .submit-result-btn { font-size: 15px; padding: 11px 28px; }
+
+    /* Winner banner */
+    .winner-banner { padding: 20px 16px; }
+    .winner-banner-name { font-size: 40px; }
+  }
 </style>
 
 <!-- Login Screen -->
@@ -2103,6 +2198,8 @@
       <button class="sched-add-btn auto" onclick="openAutoRoundModal()">⚡ Auto Round</button>
       <div style="flex:1;"></div>
       <span class="sched-info-text" id="sched-info-text" style="font-size:12px;color:var(--text-dim);"></span>
+      <button class="sched-add-btn sync" onclick="openExportModal()" title="Copy draw code to share with scoring devices">↑ Export</button>
+      <button class="sched-add-btn sync" onclick="openImportModal()" title="Paste draw code from another device">↓ Import</button>
       <div id="sched-pdf-wrap" hidden>
         <button class="pdf-btn" onclick="printSchedule()">⬇ PDF</button>
       </div>
@@ -2192,6 +2289,19 @@
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeSubmitResult()">Cancel</button>
       <button class="modal-confirm" onclick="confirmSubmitResult()">Save Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export / Import Sync Modal -->
+<div class="modal-overlay" id="sync-modal" hidden>
+  <div class="modal">
+    <div class="modal-title" id="sync-title">Export Draw</div>
+    <p class="sync-desc" id="sync-desc"></p>
+    <textarea class="sync-textarea" id="sync-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeSyncModal()">Cancel</button>
+      <button class="modal-confirm" id="sync-confirm-btn">Copy</button>
     </div>
   </div>
 </div>
@@ -2859,6 +2969,71 @@
   function saveSchedule() {
     try { localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule)); } catch(e) {}
   }
+
+  // ── Export / Import ───────────────────────────────────────────────
+  function openExportModal() {
+    const payload = btoa(encodeURIComponent(JSON.stringify({ teams, schedule })));
+    document.getElementById('sync-title').textContent = 'Export Draw';
+    document.getElementById('sync-desc').textContent = 'Copy this code and paste it on each scoring device (Schedule → Import) to sync the full draw.';
+    const ta = document.getElementById('sync-textarea');
+    ta.value = payload;
+    ta.readOnly = true;
+    const btn = document.getElementById('sync-confirm-btn');
+    btn.textContent = 'Copy Code';
+    btn.onclick = () => {
+      try {
+        navigator.clipboard.writeText(payload).catch(() => { ta.select(); document.execCommand('copy'); });
+      } catch(e) { ta.select(); document.execCommand('copy'); }
+      btn.textContent = '✓ Copied!';
+      setTimeout(closeSyncModal, 1400);
+    };
+    document.getElementById('sync-modal').hidden = false;
+    setTimeout(() => { ta.select(); }, 60);
+  }
+
+  function openImportModal() {
+    document.getElementById('sync-title').textContent = 'Import Draw';
+    document.getElementById('sync-desc').textContent = 'Paste the export code from your admin device to load the full teams and schedule here.';
+    const ta = document.getElementById('sync-textarea');
+    ta.value = '';
+    ta.readOnly = false;
+    const btn = document.getElementById('sync-confirm-btn');
+    btn.textContent = 'Load Draw';
+    btn.onclick = doImport;
+    document.getElementById('sync-modal').hidden = false;
+    setTimeout(() => ta.focus(), 60);
+  }
+
+  function doImport() {
+    const code = document.getElementById('sync-textarea').value.trim();
+    if (!code) { alert('Paste a code first.'); return; }
+    try {
+      const data = JSON.parse(decodeURIComponent(atob(code)));
+      if (!Array.isArray(data.teams) || !data.schedule) throw new Error('bad');
+      teams = data.teams;
+      schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...data.schedule };
+      saveTeams();
+      saveSchedule();
+      renderTeamsTable();
+      renderScheduleTab();
+      renderGamePicker();
+      updateTeamsDatalist && updateTeamsDatalist();
+      closeSyncModal();
+      const info = document.getElementById('sched-info-text');
+      info.textContent = '✓ Draw loaded!';
+      setTimeout(() => renderScheduleBlocks(), 2500);
+    } catch(e) {
+      alert('Could not read that code — make sure you copied the full export code.');
+    }
+  }
+
+  function closeSyncModal() {
+    document.getElementById('sync-modal').hidden = true;
+  }
+
+  document.getElementById('sync-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeSyncModal();
+  });
 
   function loadSchedule() {
     try {
