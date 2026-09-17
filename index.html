@@ -1948,8 +1948,6 @@
     background: rgba(34,197,94,0.06);
     border: 1px solid rgba(34,197,94,0.18);
     border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
   }
   .gp-active-dot { color: var(--success); font-size: 9px; flex-shrink: 0; }
   .gp-active-matchup {
@@ -2069,6 +2067,320 @@
     .score-btn { min-height: 88px; font-size: 26px; padding: 0 4px; }
     .score-btn.undo { min-height: 88px; font-size: 19px; padding: 0 12px; }
   }
+
+  /* === FULL-SCREEN PORTRAIT SCORING OVERLAY === */
+  #score-mode-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .sm-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sm-back-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .sm-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .sm-game-info {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sm-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .sm-badge.live {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    animation: pulse-badge 1.5s ease infinite;
+  }
+
+  .sm-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  .sm-team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 8px 10px;
+    border-right: 1px solid var(--border);
+    transition: background 0.25s;
+  }
+  .sm-team:last-child { border-right: none; }
+  .sm-team.winner { background: rgba(245,158,11,0.05); }
+
+  .sm-team-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(16px, 4.5vw, 26px);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text);
+    line-height: 1.2;
+    padding-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  .sm-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(100px, 30vw, 190px);
+    font-weight: 900;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    min-height: 0;
+    transition: color 0.2s;
+  }
+  .sm-team.winner .sm-score { color: var(--accent); }
+
+  .sm-buttons {
+    display: flex;
+    gap: 5px;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .sm-btn {
+    flex: 1;
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.1s, transform 0.07s;
+    min-height: 76px;
+    font-size: clamp(20px, 5.5vw, 30px);
+    letter-spacing: 0.03em;
+  }
+  .sm-btn:active { transform: scale(0.94); }
+  .sm-btn.pt1 { background: var(--surface-2); }
+  .sm-btn.pt2 { background: var(--surface-3); }
+  .sm-btn.pt1:hover, .sm-btn.pt2:hover { background: var(--border-light); }
+  .sm-btn.undo {
+    background: none;
+    border-color: var(--border);
+    color: var(--text-muted);
+    font-size: clamp(18px, 4.5vw, 24px);
+    flex: 0 0 auto;
+    min-width: 52px;
+  }
+  .sm-btn.undo:hover { color: var(--danger); border-color: var(--danger); }
+
+  .sm-fouls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .sm-fouls-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .sm-fouls-dots { display: flex; gap: 4px; }
+  .sm-foul-dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: var(--border-light);
+  }
+  .sm-foul-dot.active { background: var(--danger); }
+  .sm-foul-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .sm-foul-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  .sm-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sm-clock-wrap, .sm-shot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .sm-clock-label, .sm-shot-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .sm-game-clock {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    min-width: 80px;
+    text-align: center;
+    transition: color 0.3s;
+  }
+  .sm-game-clock.urgent { color: var(--danger); }
+  .sm-shot-clock {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 38px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    min-width: 40px;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .sm-shot-clock.urgent { color: var(--danger); }
+  .sm-shot-clock.warn { color: var(--accent); }
+
+  .sm-start-btn {
+    flex: 1;
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 12px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .sm-start-btn:hover { background: #d97706; }
+  .sm-start-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .sm-shot-reset-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .sm-shot-reset-btn:hover { background: var(--surface-3); }
+
+  .sm-submit-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.12s, color 0.12s;
+    white-space: nowrap;
+  }
+  .sm-submit-btn:hover { border-color: var(--success); color: var(--success); }
+
+  /* Compact active-game bar: info side + Score button */
+  .gp-active-bar {
+    cursor: default; /* bar itself not clickable; children handle clicks */
+  }
+  .gp-active-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    cursor: pointer;
+    user-select: none;
+  }
+  .gp-score-btn {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 9px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: background 0.1s;
+  }
+  .gp-score-btn:hover { background: #d97706; }
 </style>
 
 <!-- Login Screen -->
@@ -2104,6 +2416,60 @@
         onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-submit" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- Full-Screen Portrait Scoring Overlay -->
+<div id="score-mode-screen" hidden>
+  <div class="sm-header">
+    <button class="sm-back-btn" onclick="exitScoringMode()">← Games</button>
+    <span class="sm-game-info" id="sm-game-info">Select a game</span>
+    <span class="sm-badge" id="sm-game-state-badge">Not Started</span>
+  </div>
+  <div class="sm-body">
+    <!-- Team A -->
+    <div class="sm-team" id="sm-panel-a">
+      <div class="sm-team-name" id="sm-team-a-name">HOME</div>
+      <div class="sm-score" id="sm-score-a">0</div>
+      <div class="sm-buttons">
+        <button class="sm-btn pt2" onclick="addScore('a',2)">+2</button>
+        <button class="sm-btn pt1" onclick="addScore('a',1)">+1</button>
+        <button class="sm-btn undo" onclick="undoScore('a')" title="Undo">↩</button>
+      </div>
+      <div class="sm-fouls-row">
+        <span class="sm-fouls-label">Fouls</span>
+        <div class="sm-fouls-dots" id="sm-fouls-a-dots"></div>
+        <button class="sm-foul-btn" onclick="addFoul('a')">+F</button>
+      </div>
+    </div>
+    <!-- Team B -->
+    <div class="sm-team" id="sm-panel-b">
+      <div class="sm-team-name" id="sm-team-b-name">AWAY</div>
+      <div class="sm-score" id="sm-score-b">0</div>
+      <div class="sm-buttons">
+        <button class="sm-btn undo" onclick="undoScore('b')" title="Undo">↩</button>
+        <button class="sm-btn pt1" onclick="addScore('b',1)">+1</button>
+        <button class="sm-btn pt2" onclick="addScore('b',2)">+2</button>
+      </div>
+      <div class="sm-fouls-row">
+        <button class="sm-foul-btn" onclick="addFoul('b')">+F</button>
+        <div class="sm-fouls-dots" id="sm-fouls-b-dots"></div>
+        <span class="sm-fouls-label">Fouls</span>
+      </div>
+    </div>
+  </div>
+  <div class="sm-footer">
+    <div class="sm-clock-wrap">
+      <span class="sm-clock-label">Time</span>
+      <div class="sm-game-clock" id="sm-game-clock">10:00</div>
+    </div>
+    <div class="sm-shot-wrap">
+      <span class="sm-shot-label">Shot</span>
+      <div class="sm-shot-clock" id="sm-shot-clock">12</div>
+    </div>
+    <button class="sm-start-btn" id="sm-start-pause-btn" onclick="toggleClock()">Start</button>
+    <button class="sm-shot-reset-btn" onclick="resetShotClock()" title="Reset shot clock">↺</button>
+    <button class="sm-submit-btn" id="sm-submit-btn" onclick="openSubmitResult()" hidden>Submit</button>
   </div>
 </div>
 
@@ -2557,6 +2923,7 @@
       d.className = 'foul-dot' + (i < n ? ' active' : '');
       el.appendChild(d);
     }
+    renderSmFouls(t, n);
   }
 
   function addFoul(t) {
@@ -2570,14 +2937,14 @@
     if (S.gameOver) return;
     if (t === 'a') { S.histA.push(pts); S.scoreA += pts; document.getElementById('score-a').textContent = S.scoreA; }
     else            { S.histB.push(pts); S.scoreB += pts; document.getElementById('score-b').textContent = S.scoreB; }
-    resetShotClock(); checkWin();
+    resetShotClock(); checkWin(); refreshOverlay();
   }
 
   function undoScore(t) {
     if (S.gameOver) return;
     if (t === 'a' && S.histA.length) { S.scoreA = Math.max(0, S.scoreA - S.histA.pop()); document.getElementById('score-a').textContent = S.scoreA; }
     else if (t === 'b' && S.histB.length) { S.scoreB = Math.max(0, S.scoreB - S.histB.pop()); document.getElementById('score-b').textContent = S.scoreB; }
-    checkWin();
+    checkWin(); refreshOverlay();
   }
 
   function checkWin() {
@@ -2602,6 +2969,7 @@
     sc.textContent = S.shotTime;
     sc.classList.toggle('urgent', S.shotTime <= 4);
     sc.classList.toggle('warn', S.shotTime > 4 && S.shotTime <= 7);
+    refreshOverlay();
   }
 
   function toggleClock() { if (S.gameOver) return; S.running ? pauseClock() : startClock(); }
@@ -2614,6 +2982,7 @@
     badge.textContent = 'Live'; badge.className = 'game-state-badge live';
     document.getElementById('duration-picker').hidden = true;
     S.iv = setInterval(tick, 1000);
+    refreshOverlay();
   }
 
   function pauseClock() {
@@ -2621,6 +2990,7 @@
     document.getElementById('start-pause-btn').textContent = 'Resume';
     const badge = document.getElementById('game-state-badge');
     badge.textContent = 'Paused'; badge.className = 'game-state-badge';
+    refreshOverlay();
   }
 
   function tick() {
@@ -2672,6 +3042,7 @@
 
     // Show "Save to Draw" if a scheduled game is active
     document.getElementById('save-draw-btn').hidden = !activeScheduledGameId;
+    refreshOverlay();
   }
 
   function resetGame() {
@@ -2982,6 +3353,89 @@
   });
 
   // ── Game Picker (inline accordion on Score tab) ───────────────────
+  // ── Full-screen scoring overlay ───────────────────────────────────
+  function enterScoringMode() {
+    document.getElementById('score-mode-screen').hidden = false;
+    document.body.classList.add('login-open'); // freeze body scroll behind overlay
+    renderSmFouls('a', S.foulsA);
+    renderSmFouls('b', S.foulsB);
+    refreshOverlay();
+  }
+
+  function exitScoringMode() {
+    const ov = document.getElementById('score-mode-screen');
+    if (ov) ov.hidden = true;
+    // Only remove login-open if the login screen is also hidden
+    if (document.getElementById('login-screen').hidden) {
+      document.body.classList.remove('login-open');
+    }
+    // Mirror scores back to the main scoreboard (should already match)
+    document.getElementById('score-a').textContent = S.scoreA;
+    document.getElementById('score-b').textContent = S.scoreB;
+  }
+
+  function renderSmFouls(t, n) {
+    const el = document.getElementById(`sm-fouls-${t}-dots`);
+    if (!el) return;
+    el.innerHTML = '';
+    for (let i = 0; i < MAX_FOUL_D; i++) {
+      const d = document.createElement('div');
+      d.className = 'sm-foul-dot' + (i < n ? ' active' : '');
+      el.appendChild(d);
+    }
+  }
+
+  function refreshOverlay() {
+    const ov = document.getElementById('score-mode-screen');
+    if (!ov || ov.hidden) return;
+
+    // Scores
+    document.getElementById('sm-score-a').textContent = S.scoreA;
+    document.getElementById('sm-score-b').textContent = S.scoreB;
+
+    // Winner highlights
+    const gameOver = S.gameOver;
+    document.getElementById('sm-panel-a').classList.toggle('winner', gameOver && S.scoreA > S.scoreB);
+    document.getElementById('sm-panel-b').classList.toggle('winner', gameOver && S.scoreB > S.scoreA);
+
+    // Clocks
+    const gc = document.getElementById('sm-game-clock');
+    gc.textContent = fmt(S.gameTime);
+    gc.classList.toggle('urgent', S.gameTime <= 30 && S.gameTime > 0);
+    const sc = document.getElementById('sm-shot-clock');
+    sc.textContent = S.shotTime;
+    sc.classList.toggle('urgent', S.shotTime <= 4);
+    sc.classList.toggle('warn', S.shotTime > 4 && S.shotTime <= 7);
+
+    // Start/Pause button mirrors main
+    const mainBtn = document.getElementById('start-pause-btn');
+    const smBtn = document.getElementById('sm-start-pause-btn');
+    if (mainBtn && smBtn) { smBtn.textContent = mainBtn.textContent; smBtn.disabled = S.gameOver; }
+
+    // Badge mirrors main
+    const mainBadge = document.getElementById('game-state-badge');
+    const smBadge = document.getElementById('sm-game-state-badge');
+    if (mainBadge && smBadge) {
+      smBadge.textContent = mainBadge.textContent;
+      smBadge.className = 'sm-badge' + (mainBadge.classList.contains('live') ? ' live' : '');
+    }
+
+    // Team names
+    const na = document.getElementById('team-a-name');
+    const nb = document.getElementById('team-b-name');
+    if (na) document.getElementById('sm-team-a-name').textContent = na.textContent;
+    if (nb) document.getElementById('sm-team-b-name').textContent = nb.textContent;
+
+    // Game info label
+    const lbl = document.getElementById('active-game-label');
+    const smInfo = document.getElementById('sm-game-info');
+    if (lbl && smInfo) smInfo.textContent = lbl.hidden ? 'Scoring' : lbl.textContent;
+
+    // Submit button — only show when a scheduled game is active
+    const smSub = document.getElementById('sm-submit-btn');
+    if (smSub) smSub.hidden = !activeScheduledGameId;
+  }
+
   function updateSelectGameBtn() { renderGamePicker(); } // legacy shim — all callers preserved
 
   let gpForceExpanded = false;
@@ -2992,16 +3446,19 @@
     if (!blocks.length) { picker.hidden = true; return; }
     picker.hidden = false;
 
-    // COMPACT BAR: when a game is actively being scored, collapse to one line
+    // COMPACT BAR: when a game is actively being scored, collapse to one line + Score button
     if (activeScheduledGameId && !gpForceExpanded) {
       const g = allGames().find(x => x.id === activeScheduledGameId);
       if (g) {
         const block = (schedule.blocks || []).find(b => b.games && b.games.some(x => x.id === g.id));
-        picker.innerHTML = `<div class="gp-active-bar" onclick="gpToggleExpand()">
-          <span class="gp-active-dot">●</span>
-          <span class="gp-active-matchup">${g.home}<span class="gp-vs">vs</span>${g.away}</span>
-          ${block ? `<span class="gp-active-round">${block.label}</span>` : ''}
-          <span class="gp-active-change">change ▾</span>
+        picker.innerHTML = `<div class="gp-active-bar">
+          <div class="gp-active-info" onclick="gpToggleExpand()">
+            <span class="gp-active-dot">●</span>
+            <span class="gp-active-matchup">${g.home}<span class="gp-vs">vs</span>${g.away}</span>
+            ${block ? `<span class="gp-active-round">${block.label}</span>` : ''}
+            <span class="gp-active-change">change ▾</span>
+          </div>
+          <button class="gp-score-btn" onclick="enterScoringMode()">▶ Score</button>
         </div>`;
         return;
       }
@@ -3091,6 +3548,7 @@
     gpForceExpanded = false; // collapse picker back to compact bar
     updatePeriodLabel();
     renderGamePicker(); // refresh picker to show compact active bar
+    refreshOverlay();
   }
 
   // ── Submit Result ─────────────────────────────────────────────────
@@ -3147,6 +3605,8 @@
     document.getElementById('submit-result-wrap').hidden = true;
     updatePeriodLabel();
     closeSubmitResult();
+    // Exit scoring overlay if it's open
+    exitScoringMode();
   }
 
   document.getElementById('submit-result-modal').addEventListener('click', e => {
