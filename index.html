@@ -1371,6 +1371,171 @@
     text-transform: uppercase;
   }
 
+  /* === EMBED TAB === */
+  .embed-tab-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .embed-tab-header {}
+  .embed-tab-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .embed-tab-desc {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .embed-tab-desc strong { color: var(--text); }
+
+  .embed-widget-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .embed-widget-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .embed-widget-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .embed-widget-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .embed-widget-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .embed-code-wrap {
+    position: relative;
+  }
+
+  .embed-code-area {
+    width: 100%;
+    height: 120px;
+    background: #060b15;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #7dd3aa;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    resize: none;
+    outline: none;
+    cursor: text;
+    box-sizing: border-box;
+  }
+
+  .embed-code-area:focus {
+    border-color: var(--border-light);
+  }
+
+  .embed-copy-btn {
+    align-self: flex-end;
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .embed-copy-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245,158,11,0.06);
+  }
+  .embed-copy-btn.copied {
+    background: rgba(34,197,94,0.1);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  .embed-instructions {
+    background: rgba(245,158,11,0.04);
+    border: 1px solid rgba(245,158,11,0.15);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .embed-inst-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .embed-inst-list {
+    list-style: none;
+    counter-reset: inst;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .embed-inst-list li {
+    counter-increment: inst;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .embed-inst-list li::before {
+    content: counter(inst);
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    background: rgba(245,158,11,0.15);
+    color: var(--accent);
+    border-radius: 50%;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .embed-inst-list li strong { color: var(--text); }
+
   /* Print styles */
   .print-header { display: none; }
 
@@ -2712,6 +2877,7 @@
     <button class="tab-btn active" id="tab-btn-score" onclick="switchTab('score',this)">Score</button>
     <button class="tab-btn" id="tab-btn-teams" onclick="switchTab('teams',this)">Teams</button>
     <button class="tab-btn" id="tab-btn-schedule" onclick="switchTab('schedule',this)">Schedule</button>
+    <button class="tab-btn" id="tab-btn-embed" onclick="switchTab('embed',this)">Website</button>
   </nav>
   <div class="header-right" id="header-right" hidden>
     <span class="sync-dot" id="sync-dot" title="Cloud sync status"></span>
@@ -2888,6 +3054,69 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- EMBED TAB -->
+  <div id="tab-embed" class="tab-panel">
+    <div class="embed-tab-wrap">
+      <div class="embed-tab-header">
+        <h2 class="embed-tab-title">Website Embed Codes</h2>
+        <p class="embed-tab-desc">Paste these into a <strong>Code Block</strong> on your Squarespace page. Each widget auto-updates every 60 seconds when new results are added.</p>
+      </div>
+
+      <div class="embed-widget-card">
+        <div class="embed-widget-meta">
+          <div class="embed-widget-icon">📅</div>
+          <div>
+            <div class="embed-widget-name">Draw / Schedule</div>
+            <div class="embed-widget-hint">Shows upcoming games grouped by round date. Completed games show their score.</div>
+          </div>
+        </div>
+        <div class="embed-code-wrap">
+          <textarea class="embed-code-area" id="embed-code-draw" readonly spellcheck="false"></textarea>
+        </div>
+        <button class="embed-copy-btn" onclick="copyEmbedCode('draw')">Copy Code</button>
+      </div>
+
+      <div class="embed-widget-card">
+        <div class="embed-widget-meta">
+          <div class="embed-widget-icon">🏆</div>
+          <div>
+            <div class="embed-widget-name">Results</div>
+            <div class="embed-widget-hint">Shows completed games with final scores, newest first.</div>
+          </div>
+        </div>
+        <div class="embed-code-wrap">
+          <textarea class="embed-code-area" id="embed-code-results" readonly spellcheck="false"></textarea>
+        </div>
+        <button class="embed-copy-btn" onclick="copyEmbedCode('results')">Copy Code</button>
+      </div>
+
+      <div class="embed-widget-card">
+        <div class="embed-widget-meta">
+          <div class="embed-widget-icon">📊</div>
+          <div>
+            <div class="embed-widget-name">Standings / Ladder</div>
+            <div class="embed-widget-hint">Shows the current league ladder with W/L record and point differential.</div>
+          </div>
+        </div>
+        <div class="embed-code-wrap">
+          <textarea class="embed-code-area" id="embed-code-standings" readonly spellcheck="false"></textarea>
+        </div>
+        <button class="embed-copy-btn" onclick="copyEmbedCode('standings')">Copy Code</button>
+      </div>
+
+      <div class="embed-instructions">
+        <div class="embed-inst-title">How to add to Squarespace</div>
+        <ol class="embed-inst-list">
+          <li>In your Squarespace editor, click <strong>+</strong> to add a block</li>
+          <li>Choose <strong>Code</strong> from the block list</li>
+          <li>Paste the copied code into the code block</li>
+          <li>Click <strong>Apply</strong> then <strong>Save</strong></li>
+          <li>The widget will automatically update whenever scores or the draw change</li>
+        </ol>
+      </div>
+    </div>
   </div>
 
 </main>
@@ -4510,11 +4739,216 @@
     const isAdmin = role === 'admin';
     document.getElementById('tab-btn-teams').hidden = !isAdmin;
     document.getElementById('tab-btn-schedule').hidden = !isAdmin;
+    document.getElementById('tab-btn-embed').hidden = !isAdmin;
     // Hide the entire tab nav for scorers (they only see the score tab)
     document.querySelector('.tab-nav').style.display = isAdmin ? '' : 'none';
     document.getElementById('role-badge').textContent = isAdmin ? 'Admin' : 'Scorer';
     document.getElementById('header-right').hidden = false;
     if (!isAdmin) switchTab('score', document.getElementById('tab-btn-score'));
+    if (isAdmin) buildEmbedCodes();
+  }
+
+  // ── Embed Code Builder ─────────────────────────────────────────────
+  function buildEmbedCodes() {
+    const SB_URL_E = 'https://frkvpkfuewwtmyefbstf.supabase.co';
+    const SB_KEY_E = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZya3Zwa2Z1ZXd3dG15ZWZic3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MzE1MjAsImV4cCI6MjEwNTIwNzUyMH0.8yJKlEaHeBNUKK3Vokwfz6NIYkNSwp7om5NwmP_o0Zg';
+
+    const drawCode = `<div id="jag-draw-widget" style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:680px;margin:0 auto;"></div>
+<style>
+.jag-w{font-family:system-ui,-apple-system,sans-serif;color:#111;max-width:680px;margin:0 auto;}
+.jag-w-loading{text-align:center;padding:32px;color:#888;font-size:14px;}
+.jag-block{margin-bottom:24px;}
+.jag-block-date{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;padding:6px 0 8px;border-bottom:2px solid #f59e0b22;margin-bottom:12px;}
+.jag-game{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f7f7f7;border-radius:8px;margin-bottom:6px;flex-wrap:wrap;}
+.jag-game-time{font-size:12px;font-weight:600;color:#888;flex:0 0 58px;}
+.jag-game-teams{flex:1;font-size:14px;font-weight:600;color:#111;min-width:120px;}
+.jag-game-vs{margin:0 6px;color:#bbb;font-weight:400;}
+.jag-game-score{flex:0 0 auto;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#f59e0b;}
+.jag-no-data{text-align:center;padding:24px;color:#999;font-size:14px;}
+</style>
+<script>
+(function(){
+  var el=document.getElementById('jag-draw-widget');
+  function load(){
+    el.innerHTML='<div class="jag-w"><div class="jag-w-loading">Loading draw…</div></div>';
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-w"><div class="jag-no-data">No schedule yet.</div></div>';return;}
+      var blocks=(rows[0].data.schedule||{}).blocks||[];
+      if(!blocks.length){el.innerHTML='<div class="jag-w"><div class="jag-no-data">No schedule yet.</div></div>';return;}
+      var html='<div class="jag-w">';
+      blocks.forEach(function(b){
+        var d=new Date(b.date+'T12:00:00');
+        var label=d.toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long'});
+        html+='<div class="jag-block"><div class="jag-block-date">'+label+'</div>';
+        (b.games||[]).forEach(function(g){
+          var scoreHtml='';
+          if(g.result&&g.result.scoreA!=null){scoreHtml='<span class="jag-game-score">'+g.result.scoreA+' – '+g.result.scoreB+'</span>';}
+          html+='<div class="jag-game"><span class="jag-game-time">'+(g.slot||'')+'</span><span class="jag-game-teams">'+g.teamA+'<span class="jag-game-vs">vs</span>'+g.teamB+'</span>'+scoreHtml+'</div>';
+        });
+        html+='</div>';
+      });
+      html+='</div>';
+      el.innerHTML=html;
+    })
+    .catch(function(){el.innerHTML='<div class="jag-w"><div class="jag-no-data">Unable to load draw.</div></div>';});
+  }
+  load();
+  setInterval(load,60000);
+})();
+<\/script>`;
+
+    const resultsCode = `<div id="jag-results-widget" style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:680px;margin:0 auto;"></div>
+<style>
+.jag-r{font-family:system-ui,-apple-system,sans-serif;color:#111;max-width:680px;margin:0 auto;}
+.jag-r-loading{text-align:center;padding:32px;color:#888;font-size:14px;}
+.jag-r-block{margin-bottom:24px;}
+.jag-r-date{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;padding:6px 0 8px;border-bottom:2px solid #f59e0b22;margin-bottom:12px;}
+.jag-r-game{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f7f7f7;border-radius:8px;margin-bottom:6px;}
+.jag-r-teams{flex:1;font-size:14px;color:#111;}
+.jag-r-team{font-weight:600;}
+.jag-r-team.winner{color:#1a8f3c;}
+.jag-r-score-wrap{display:flex;gap:8px;align-items:center;font-variant-numeric:tabular-nums;}
+.jag-r-score{font-size:20px;font-weight:800;min-width:28px;text-align:center;}
+.jag-r-score.winner{color:#1a8f3c;}
+.jag-r-sep{color:#ccc;font-size:14px;}
+.jag-no-data{text-align:center;padding:24px;color:#999;font-size:14px;}
+</style>
+<script>
+(function(){
+  var el=document.getElementById('jag-results-widget');
+  function load(){
+    el.innerHTML='<div class="jag-r"><div class="jag-r-loading">Loading results…</div></div>';
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-r"><div class="jag-no-data">No results yet.</div></div>';return;}
+      var blocks=(rows[0].data.schedule||{}).blocks||[];
+      var played=[];
+      blocks.forEach(function(b){
+        (b.games||[]).forEach(function(g){
+          if(g.result&&g.result.scoreA!=null)played.push({date:b.date,game:g});
+        });
+      });
+      if(!played.length){el.innerHTML='<div class="jag-r"><div class="jag-no-data">No results yet.</div></div>';return;}
+      played.reverse();
+      var byDate={},dateOrder=[];
+      played.forEach(function(p){
+        if(!byDate[p.date]){byDate[p.date]=[];dateOrder.push(p.date);}
+        byDate[p.date].push(p.game);
+      });
+      var html='<div class="jag-r">';
+      dateOrder.forEach(function(dt){
+        var d=new Date(dt+'T12:00:00');
+        var label=d.toLocaleDateString('en-NZ',{weekday:'long',day:'numeric',month:'long'});
+        html+='<div class="jag-r-block"><div class="jag-r-date">'+label+'</div>';
+        byDate[dt].forEach(function(g){
+          var wA=g.result.scoreA>g.result.scoreB,wB=g.result.scoreB>g.result.scoreA;
+          html+='<div class="jag-r-game">';
+          html+='<div class="jag-r-teams"><span class="jag-r-team'+(wA?' winner':'')+'">'+g.teamA+'</span> <span style="color:#bbb;font-weight:400;font-size:12px;">vs</span> <span class="jag-r-team'+(wB?' winner':'')+'">'+g.teamB+'</span></div>';
+          html+='<div class="jag-r-score-wrap"><span class="jag-r-score'+(wA?' winner':'')+'">'+g.result.scoreA+'</span><span class="jag-r-sep">–</span><span class="jag-r-score'+(wB?' winner':'')+'">'+g.result.scoreB+'</span></div>';
+          html+='</div>';
+        });
+        html+='</div>';
+      });
+      html+='</div>';
+      el.innerHTML=html;
+    })
+    .catch(function(){el.innerHTML='<div class="jag-r"><div class="jag-no-data">Unable to load results.</div></div>';});
+  }
+  load();
+  setInterval(load,60000);
+})();
+<\/script>`;
+
+    const standingsCode = `<div id="jag-standings-widget" style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:680px;margin:0 auto;"></div>
+<style>
+.jag-s{font-family:system-ui,-apple-system,sans-serif;color:#111;max-width:680px;margin:0 auto;}
+.jag-s-loading{text-align:center;padding:32px;color:#888;font-size:14px;}
+.jag-s table{width:100%;border-collapse:collapse;font-size:14px;}
+.jag-s th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;padding:6px 10px;border-bottom:2px solid #eee;}
+.jag-s th.num,.jag-s td.num{text-align:center;}
+.jag-s td{padding:10px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;font-variant-numeric:tabular-nums;}
+.jag-s tr:last-child td{border-bottom:none;}
+.jag-s tr.top-row td{font-weight:700;}
+.jag-s td.pos{font-weight:800;color:#888;width:28px;}
+.jag-s td.team-name{font-weight:600;color:#111;}
+.jag-s td.diff-pos{color:#1a8f3c;font-weight:700;}
+.jag-s td.diff-neg{color:#cc2200;font-weight:700;}
+.jag-s-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;padding-bottom:8px;border-bottom:2px solid #f59e0b22;margin-bottom:12px;}
+.jag-no-data{text-align:center;padding:24px;color:#999;font-size:14px;}
+</style>
+<script>
+(function(){
+  var el=document.getElementById('jag-standings-widget');
+  function load(){
+    el.innerHTML='<div class="jag-s"><div class="jag-s-loading">Loading standings…</div></div>';
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No standings yet.</div></div>';return;}
+      var teams=(rows[0].data.teams||[]).filter(function(t){return t.name&&t.name.trim();});
+      if(!teams.length){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No teams yet.</div></div>';return;}
+      teams.sort(function(a,b){
+        if(b.wins!==a.wins)return b.wins-a.wins;
+        var dA=(a.ptsFor||0)-(a.ptsAgainst||0),dB=(b.ptsFor||0)-(b.ptsAgainst||0);
+        return dB-dA;
+      });
+      var html='<div class="jag-s"><div class="jag-s-title">League Standings</div><table><thead><tr><th class="num">#</th><th>Team</th><th class="num">P</th><th class="num">W</th><th class="num">L</th><th class="num">PF</th><th class="num">PA</th><th class="num">+/−</th></tr></thead><tbody>';
+      teams.forEach(function(t,i){
+        var diff=(t.ptsFor||0)-(t.ptsAgainst||0);
+        var diffStr=(diff>0?'+':'')+diff;
+        var diffCls=diff>0?'diff-pos':diff<0?'diff-neg':'';
+        html+='<tr class="'+(i===0?'top-row':'')+'"><td class="pos num">'+(i+1)+'</td><td class="team-name">'+t.name+'</td><td class="num">'+(t.played||0)+'</td><td class="num">'+(t.wins||0)+'</td><td class="num">'+(t.losses||0)+'</td><td class="num">'+(t.ptsFor||0)+'</td><td class="num">'+(t.ptsAgainst||0)+'</td><td class="num '+diffCls+'">'+diffStr+'</td></tr>';
+      });
+      html+='</tbody></table></div>';
+      el.innerHTML=html;
+    })
+    .catch(function(){el.innerHTML='<div class="jag-s"><div class="jag-no-data">Unable to load standings.</div></div>';});
+  }
+  load();
+  setInterval(load,60000);
+})();
+<\/script>`;
+
+    document.getElementById('embed-code-draw').value = drawCode;
+    document.getElementById('embed-code-results').value = resultsCode;
+    document.getElementById('embed-code-standings').value = standingsCode;
+  }
+
+  function copyEmbedCode(which) {
+    const ta = document.getElementById('embed-code-' + which);
+    const btn = ta.closest('.embed-widget-card').querySelector('.embed-copy-btn');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value).then(function() {
+          flashCopied(btn);
+        }).catch(function() {
+          fallbackCopy(ta, btn);
+        });
+      } else {
+        fallbackCopy(ta, btn);
+      }
+    } catch(e) {
+      fallbackCopy(ta, btn);
+    }
+  }
+
+  function fallbackCopy(ta, btn) {
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    try { document.execCommand('copy'); flashCopied(btn); } catch(e) {}
+  }
+
+  function flashCopied(btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
   }
 
   function doLogout() {
@@ -4523,6 +4957,7 @@
     selectedLoginRole = 'admin';
     document.getElementById('tab-btn-teams').hidden = false;
     document.getElementById('tab-btn-schedule').hidden = false;
+    document.getElementById('tab-btn-embed').hidden = false;
     document.querySelector('.tab-nav').style.display = '';
     document.getElementById('header-right').hidden = true;
     document.getElementById('login-screen').hidden = false;
