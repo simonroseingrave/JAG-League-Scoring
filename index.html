@@ -4278,6 +4278,7 @@
       try { sessionStorage.setItem('jag3x3_role', currentRole); } catch(e) {}
       document.getElementById('login-screen').hidden = true;
       document.body.classList.remove('login-open');
+      window.scrollTo(0, 0);
       err.hidden = true;
       applyRole(currentRole);
     } else {
@@ -4322,6 +4323,7 @@
         currentRole = r;
         document.getElementById('login-screen').hidden = true;
         document.body.classList.remove('login-open');
+        window.scrollTo(0, 0);
         applyRole(r);
         return true;
       }
