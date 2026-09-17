@@ -1,3 +1,6 @@
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Just a Game 3×3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap">
@@ -1446,6 +1449,9 @@
     justify-content: center;
     z-index: 200;
     padding: 20px;
+    /* Ensure it always fills the actual device width */
+    width: 100vw;
+    box-sizing: border-box;
   }
 
   .login-card {
@@ -1454,7 +1460,7 @@
     border-radius: 16px;
     padding: 32px 28px;
     width: 100%;
-    max-width: 340px;
+    max-width: 420px;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1997,6 +2003,9 @@
       padding: 0;
       flex-direction: column;
       align-items: stretch;
+      width: 100%;
+      left: 0;
+      right: 0;
     }
     .login-card {
       flex: 1;
@@ -2004,13 +2013,14 @@
       border: none;
       max-width: 100%;
       width: 100%;
-      padding: max(52px, env(safe-area-inset-top, 52px)) 28px max(44px, env(safe-area-inset-bottom, 44px));
-      gap: 20px;
+      padding: max(48px, env(safe-area-inset-top, 48px)) 28px max(40px, env(safe-area-inset-bottom, 40px));
+      gap: 22px;
       justify-content: center;
+      box-sizing: border-box;
     }
-    .login-header svg { width: 84px; height: 84px; }
-    .login-title { font-size: 38px; margin-top: 12px; }
-    .login-sub { font-size: 17px; margin-top: 6px; }
+    .login-header svg { width: 80px; height: 80px; }
+    .login-title { font-size: 36px; margin-top: 10px; }
+    .login-sub { font-size: 16px; margin-top: 6px; }
     .login-error { font-size: 15px; padding: 13px 14px; }
     .login-field-label { font-size: 15px; letter-spacing: 0.1em; margin-bottom: 8px; }
     .login-roles { gap: 10px; }
