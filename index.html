@@ -1352,7 +1352,418 @@
     .game-state-badge.live { animation: none; }
     *, *::before, *::after { transition-duration: 0s !important; }
   }
+
+  /* === LOGIN SCREEN === */
+  .login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .login-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-top: 8px;
+  }
+
+  .login-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .login-roles {
+    display: flex;
+    gap: 8px;
+  }
+
+  .login-role-btn {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+
+  .login-role-btn.active {
+    background: rgba(245,158,11,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .login-field-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .login-pin {
+    background: var(--surface-2);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    color-scheme: dark;
+    letter-spacing: 0.12em;
+  }
+
+  .login-pin:focus { border-color: var(--accent); }
+
+  .login-submit {
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background 0.12s;
+    width: 100%;
+  }
+
+  .login-submit:hover { background: #d97706; }
+
+  .login-error {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.35);
+    color: var(--danger);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* Role badge in header */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .role-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 8px;
+  }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color 0.12s, border-color 0.12s;
+  }
+
+  .logout-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+  /* === BLOCK-BASED SCHEDULE === */
+  .sched-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .sched-add-btn {
+    background: var(--surface-2);
+    border: 1px dashed var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .sched-add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.06); }
+
+  .sched-add-btn.auto {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(245,158,11,0.06);
+    border-style: solid;
+  }
+
+  .sched-add-btn.auto:hover { background: rgba(245,158,11,0.14); }
+
+  .sched-block-controls {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .block-ctrl-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.12s, border-color 0.12s, background 0.12s;
+    padding: 0;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .block-ctrl-btn:hover { color: var(--text); border-color: var(--text-muted); background: var(--surface-2); }
+  .block-ctrl-btn.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.08); }
+  .block-ctrl-btn.edit:hover { color: var(--accent); border-color: var(--accent); background: rgba(245,158,11,0.08); }
+  .block-ctrl-btn:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+
+  .sched-block-type-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: var(--surface-3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+
+  .sched-block-type-tag.auto { color: rgba(245,158,11,0.75); background: rgba(245,158,11,0.1); }
+
+  /* Block editor modal */
+  .block-field-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .block-field-row {
+    margin-bottom: 10px;
+  }
+
+  .block-field-row-3 {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .block-field-row-3 > div { flex: 1; min-width: 90px; }
+
+  .block-field-row-3 .session-date,
+  .block-field-row-3 .session-time,
+  .block-field-row-3 .session-select { width: 100%; }
+
+  .block-games-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 14px 0 6px;
+  }
+
+  .block-add-game-btn {
+    background: none;
+    border: 1px dashed var(--border-light);
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .block-add-game-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .block-games-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 38vh;
+    overflow-y: auto;
+  }
+
+  .block-game-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 10px;
+  }
+
+  .block-game-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    width: 68px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .block-team-input {
+    background: var(--surface-3);
+    border: 1px solid var(--border-light);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 6px 8px;
+    border-radius: 6px;
+    outline: none;
+    flex: 1;
+    min-width: 50px;
+    width: 0;
+    transition: border-color 0.15s;
+    color-scheme: dark;
+  }
+
+  .block-team-input:focus { border-color: var(--accent); }
+
+  .block-vs-sep {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .auto-round-preview {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    min-height: 40px;
+  }
+
+  .auto-round-game-line {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 2px 0;
+  }
+
+  .auto-round-game-line .at { color: var(--accent); margin-right: 10px; font-variant-numeric: tabular-nums; }
+  .auto-round-empty { font-size: 12px; color: var(--text-dim); text-align: center; padding: 6px 0; }
 </style>
+
+<!-- Login Screen -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-header">
+      <svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="lc"><circle cx="50" cy="50" r="46"/></clipPath></defs>
+        <circle cx="50" cy="50" r="50" fill="#222b3a"/>
+        <circle cx="50" cy="50" r="46.5" fill="none" stroke="#f59e0b" stroke-width="3.5"/>
+        <g clip-path="url(#lc)">
+          <circle cx="77" cy="46" r="17" fill="#E07828"/>
+          <ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/>
+          <path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+          <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+          <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+        </g>
+      </svg>
+      <div class="login-title">Just a Game · 3×3</div>
+      <div class="login-sub">League Scoring</div>
+    </div>
+    <div class="login-error" id="login-error" hidden>Incorrect password — try again</div>
+    <div>
+      <label class="login-field-label">Sign in as</label>
+      <div class="login-roles">
+        <button class="login-role-btn active" id="role-admin-btn" onclick="selectLoginRole('admin')">Admin</button>
+        <button class="login-role-btn" id="role-scorer-btn" onclick="selectLoginRole('scorer')">Scorer</button>
+      </div>
+    </div>
+    <div>
+      <label class="login-field-label" for="login-pin">Password</label>
+      <input class="login-pin" id="login-pin" type="password" placeholder="Enter password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-submit" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
 
 <header class="app-header">
   <div class="app-brand">
@@ -1387,6 +1798,10 @@
     <button class="tab-btn" id="tab-btn-teams" onclick="switchTab('teams',this)">Teams</button>
     <button class="tab-btn" id="tab-btn-schedule" onclick="switchTab('schedule',this)">Schedule</button>
   </nav>
+  <div class="header-right" id="header-right" hidden>
+    <span class="role-badge" id="role-badge">—</span>
+    <button class="logout-btn" onclick="doLogout()">Sign out</button>
+  </div>
 </header>
 
 <main class="app-main">
@@ -1507,29 +1922,19 @@
       <div class="print-league-sub" id="print-date"></div>
     </div>
 
-    <!-- Builder section -->
-    <div class="sched-section" id="sched-builder">
-      <div class="sched-section-title">Schedule Builder</div>
-
-      <div class="gpt-row">
-        <div class="gpt-label">Games per team per session</div>
-        <div class="gpt-btns" id="gpt-btns"></div>
-      </div>
-
-      <div class="sessions-list" id="sessions-list"></div>
-      <button class="add-session-btn" onclick="addSession()">+ Add Session</button>
-      <button class="generate-btn" onclick="generateSchedule()">Generate Draw</button>
-    </div>
-
-    <!-- Generated schedule -->
-    <div class="sched-section" id="sched-content-section" hidden>
-      <div class="sched-section-title">Draw</div>
-      <div class="sched-info-bar">
-        <span class="sched-info-text" id="sched-info-text"></span>
+    <!-- Action bar -->
+    <div class="sched-top-bar">
+      <button class="sched-add-btn" onclick="openManualBlockEditor(null)">+ Manual Round</button>
+      <button class="sched-add-btn auto" onclick="openAutoRoundModal()">⚡ Auto Round</button>
+      <div style="flex:1;"></div>
+      <span class="sched-info-text" id="sched-info-text" style="font-size:12px;color:var(--text-dim);"></span>
+      <div id="sched-pdf-wrap" hidden>
         <button class="pdf-btn" onclick="printSchedule()">⬇ PDF</button>
       </div>
-      <div class="sched-blocks" id="sched-blocks"></div>
     </div>
+
+    <!-- Blocks list -->
+    <div class="sched-blocks" id="sched-blocks-container"></div>
 
     <!-- Standings section -->
     <div class="sched-section" id="sched-standings-section" hidden>
@@ -1603,6 +2008,93 @@
   </div>
 </div>
 
+<!-- Block Editor Modal (manual rounds + edit any block) -->
+<div class="modal-overlay" id="block-editor-modal" hidden>
+  <div class="modal modal-wide">
+    <div class="modal-title" id="block-editor-title">Add Manual Round</div>
+
+    <div class="block-field-row">
+      <label class="block-field-label">Round Name</label>
+      <input class="modal-input" id="block-label-input" type="text" maxlength="30" placeholder="e.g. Week 1">
+    </div>
+    <div class="block-field-row block-field-row-3">
+      <div>
+        <label class="block-field-label">Date</label>
+        <input class="session-date" id="block-date-input" type="date" onchange="renderBlockEditorGames()">
+      </div>
+      <div>
+        <label class="block-field-label">Start Time</label>
+        <input class="session-time" id="block-time-input" type="time" value="18:00" oninput="renderBlockEditorGames()">
+      </div>
+      <div>
+        <label class="block-field-label">Interval</label>
+        <select class="session-select" id="block-interval-input" onchange="renderBlockEditorGames()">
+          <option value="15">15 min</option>
+          <option value="20">20 min</option>
+          <option value="30" selected>30 min</option>
+          <option value="45">45 min</option>
+          <option value="60">60 min</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="block-games-header">
+      <label class="block-field-label" style="margin:0;">Games</label>
+      <button class="block-add-game-btn" type="button" onclick="addBlockGame()">+ Add Game</button>
+    </div>
+    <div class="block-games-list" id="block-games-list"></div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="modal-cancel" onclick="closeBlockEditor()">Cancel</button>
+      <button class="modal-confirm" onclick="saveBlockEditor()">Save Round</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auto Round Modal -->
+<div class="modal-overlay" id="auto-round-modal" hidden>
+  <div class="modal">
+    <div class="modal-title">Auto Round</div>
+
+    <div class="block-field-row">
+      <label class="block-field-label">Round Name</label>
+      <input class="modal-input" id="auto-label-input" type="text" maxlength="30" placeholder="e.g. Round 2">
+    </div>
+    <div class="block-field-row">
+      <label class="block-field-label">Date</label>
+      <input class="session-date" id="auto-date-input" type="date" style="width:100%;" onchange="previewAutoRound()">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <div style="flex:1;">
+        <label class="block-field-label">Start Time</label>
+        <input class="session-time" id="auto-time-input" type="time" value="18:00" style="width:100%;" oninput="previewAutoRound()">
+      </div>
+      <div style="flex:1;">
+        <label class="block-field-label">Interval</label>
+        <select class="session-select" id="auto-interval-input" style="width:100%;" onchange="previewAutoRound()">
+          <option value="15">15 min</option>
+          <option value="20">20 min</option>
+          <option value="30" selected>30 min</option>
+          <option value="45">45 min</option>
+          <option value="60">60 min</option>
+        </select>
+      </div>
+    </div>
+    <label class="block-field-label">Matchups (auto-generated)</label>
+    <div class="auto-round-preview" id="auto-round-preview">
+      <div class="auto-round-empty">Loading…</div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="modal-cancel" onclick="closeAutoRoundModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmAutoRound()">Add Round</button>
+    </div>
+  </div>
+</div>
+
+<!-- Teams datalist for block editor -->
+<datalist id="teams-datalist"></datalist>
+
 <script>
   // ── Constants ─────────────────────────────────────────────────────
   const WIN_SCORE  = 21;
@@ -1625,8 +2117,9 @@
   function updatePeriodLabel() {
     const lbl = document.getElementById('period-label');
     if (activeScheduledGameId) {
-      const g = schedule.games.find(x => x.id === activeScheduledGameId);
-      if (g) { lbl.textContent = `${formatDateShort(g.sessionDate)} · ${g.slot}`; return; }
+      const g = allGames().find(x => x.id === activeScheduledGameId);
+      const block = g ? (schedule.blocks || []).find(b => b.games && b.games.some(x => x.id === activeScheduledGameId)) : null;
+      if (g) { lbl.textContent = `${block ? formatDateShort(block.date) + ' · ' : ''}${g.slot}`; return; }
     }
     lbl.textContent = `3×3 Basketball · First to 21 or ${gameMins} min`;
   }
@@ -1840,8 +2333,7 @@
     const stats = {};
     teams.forEach(t => { stats[t.name] = { w: 0, l: 0, pf: 0, pa: 0 }; });
 
-    if (schedule && schedule.games) {
-      schedule.games.filter(g => g.completed).forEach(g => {
+    allGames().filter(g => g.completed).forEach(g => {
         if (!stats[g.home]) stats[g.home] = { w: 0, l: 0, pf: 0, pa: 0 };
         if (!stats[g.away]) stats[g.away] = { w: 0, l: 0, pf: 0, pa: 0 };
         const sh = g.scoreHome, sa = g.scoreAway;
@@ -1851,7 +2343,6 @@
         else if (sa > sh) { stats[g.away].w++; stats[g.home].l++; }
         else              { stats[g.home].w++; stats[g.away].w++; }
       });
-    }
 
     return teams.map(t => ({ name: t.name, ...stats[t.name] }))
       .sort((a, b) => b.w - a.w || (b.pf - b.pa) - (a.pf - a.pa));
@@ -1972,37 +2463,30 @@
 
   // ── Select Game ───────────────────────────────────────────────────
   function updateSelectGameBtn() {
-    const hasGames = schedule.games && schedule.games.some(g => !g.completed);
+    const hasGames = allGames().some(g => !g.completed);
     document.getElementById('select-game-btn').hidden = !hasGames;
   }
 
   function openSelectGame() {
     const list = document.getElementById('select-game-list');
-    const upcoming = (schedule.games || []).filter(g => !g.completed);
+    const hasUpcoming = allGames().some(g => !g.completed);
 
-    if (!upcoming.length) {
+    if (!hasUpcoming) {
       list.innerHTML = '<div class="select-game-no-games">No upcoming games in the schedule</div>';
     } else {
-      // Group by date
-      const byDate = {};
-      upcoming.forEach(g => {
-        if (!byDate[g.sessionDate]) byDate[g.sessionDate] = [];
-        byDate[g.sessionDate].push(g);
-      });
-
-      const sortedDates = Object.keys(byDate).sort();
-      list.innerHTML = sortedDates.map(date => {
-        const games = byDate[date];
+      list.innerHTML = (schedule.blocks || []).map(block => {
+        const blockUpcoming = (block.games || []).filter(g => !g.completed);
+        if (!blockUpcoming.length) return '';
         return `<div class="select-game-date-group">
-          <div class="select-game-date-label">${formatDate(date)}</div>
-          ${games.map(g => `
+          <div class="select-game-date-label">${block.label} — ${formatDate(block.date)}</div>
+          ${blockUpcoming.map(g => `
             <div class="select-game-item" onclick="selectScheduledGame('${g.id}')">
               <span class="select-game-time">${g.slot}</span>
               <span class="select-game-teams">${g.home} <span style="color:var(--text-dim);font-size:11px;font-weight:600"> vs </span> ${g.away}</span>
             </div>
           `).join('')}
         </div>`;
-      }).join('');
+      }).filter(Boolean).join('');
     }
 
     document.getElementById('select-game-modal').hidden = false;
@@ -2011,18 +2495,18 @@
   function closeSelectGame() { document.getElementById('select-game-modal').hidden = true; }
 
   function selectScheduledGame(id) {
-    const g = schedule.games.find(x => x.id === id);
+    const g = allGames().find(x => x.id === id);
     if (!g) return;
+    const block = (schedule.blocks || []).find(b => b.games && b.games.some(x => x.id === id));
 
-    // Reset game first, then load teams
     resetGame();
     document.getElementById('team-a-name').textContent = g.home;
     document.getElementById('team-b-name').textContent = g.away;
     activeScheduledGameId = id;
 
-    // Show active game indicator
     const lbl = document.getElementById('active-game-label');
-    lbl.textContent = `● ${formatDateShort(g.sessionDate)} · ${g.slot}`;
+    const dateStr = block ? formatDateShort(block.date) : '';
+    lbl.textContent = `● ${dateStr ? dateStr + ' · ' : ''}${g.slot}`;
     lbl.hidden = false;
 
     updatePeriodLabel();
@@ -2036,7 +2520,7 @@
 
   function saveGameToSchedule() {
     if (!activeScheduledGameId) return;
-    const g = schedule.games.find(x => x.id === activeScheduledGameId);
+    const g = allGames().find(x => x.id === activeScheduledGameId);
     if (!g) return;
 
     g.scoreHome = S.scoreA;
@@ -2057,11 +2541,12 @@
   }
 
   // ── Schedule ──────────────────────────────────────────────────────
-  let schedule = {
-    gamesPerTeam: 2,
-    sessions: [],
-    games: []
-  };
+  let schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [] };
+
+  // Flat view of all games across all blocks
+  function allGames() {
+    return (schedule.blocks || []).flatMap(b => b.games || []);
+  }
 
   function saveSchedule() {
     try { localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule)); } catch(e) {}
@@ -2070,7 +2555,39 @@
   function loadSchedule() {
     try {
       const d = localStorage.getItem('jag3x3_schedule');
-      if (d) { schedule = JSON.parse(d); }
+      if (!d) return;
+      const parsed = JSON.parse(d);
+      // Migrate old format (sessions + games) → blocks
+      if (parsed.games && !parsed.blocks) {
+        schedule.gamesPerTeam = parsed.gamesPerTeam || 2;
+        schedule.rrIndex = 0;
+        const byDate = {};
+        (parsed.games || []).forEach(g => {
+          const key = g.sessionDate || 'unknown';
+          if (!byDate[key]) byDate[key] = [];
+          byDate[key].push(g);
+        });
+        schedule.blocks = Object.keys(byDate).sort().map((date, i) => ({
+          id: 'b' + (i + 1),
+          type: 'auto',
+          label: 'Round ' + (i + 1),
+          date,
+          startTime: '18:00',
+          slotInterval: 30,
+          games: byDate[date].map(g => ({
+            id: g.id,
+            slot: g.slot,
+            home: g.home,
+            away: g.away,
+            scoreHome: g.scoreHome,
+            scoreAway: g.scoreAway,
+            completed: g.completed || false
+          }))
+        }));
+      } else {
+        schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...parsed };
+        if (!schedule.blocks) schedule.blocks = [];
+      }
     } catch(e) {}
   }
 
@@ -2087,88 +2604,26 @@
     return d.toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short' });
   }
 
-  // Compute timeslot strings for a session
-  function getSlotTimes(session) {
-    if (!session.startTime) return [];
-    const [h, m] = session.startTime.split(':').map(Number);
-    const slots = [];
-    for (let i = 0; i < session.numSlots; i++) {
-      const totalMins = h * 60 + m + i * session.slotInterval;
-      const sh = Math.floor(totalMins / 60) % 24;
-      const sm = totalMins % 60;
-      const ampm = sh >= 12 ? 'PM' : 'AM';
-      const h12 = sh % 12 || 12;
-      slots.push(`${h12}:${String(sm).padStart(2,'0')} ${ampm}`);
-    }
-    return slots;
+  // Compute one time slot string
+  function getSlotTime(startTime, idx, interval) {
+    if (!startTime) return `Game ${idx + 1}`;
+    const [h, m] = startTime.split(':').map(Number);
+    const total = h * 60 + m + idx * (interval || 30);
+    const sh = Math.floor(total / 60) % 24;
+    const sm = total % 60;
+    const ampm = sh >= 12 ? 'PM' : 'AM';
+    const h12 = sh % 12 || 12;
+    return `${h12}:${String(sm).padStart(2,'0')} ${ampm}`;
   }
 
-  // Session builder
-  function addSession() {
-    schedule.sessions.push({ date: '', startTime: '18:00', numSlots: 3, slotInterval: 30 });
-    saveSchedule();
-    renderSessionBuilder();
+  function nextBlockId() {
+    const max = (schedule.blocks || []).reduce((m, b) => Math.max(m, parseInt(b.id.replace('b','')) || 0), 0);
+    return 'b' + (max + 1);
   }
 
-  function removeSession(i) {
-    schedule.sessions.splice(i, 1);
-    saveSchedule();
-    renderSessionBuilder();
-  }
-
-  function updateSessionField(i, field, value) {
-    schedule.sessions[i][field] = value;
-    saveSchedule();
-    renderSessionBuilder();
-  }
-
-  function renderSessionBuilder() {
-    const list = document.getElementById('sessions-list');
-    if (!schedule.sessions.length) {
-      list.innerHTML = '';
-      return;
-    }
-
-    list.innerHTML = schedule.sessions.map((s, i) => {
-      const slots = s.date && s.startTime ? getSlotTimes(s) : [];
-      const preview = slots.join(' · ');
-
-      return `<div class="session-card">
-        <div class="session-row">
-          <input type="date" class="session-date" value="${s.date}"
-            onchange="updateSessionField(${i},'date',this.value)">
-          <input type="time" class="session-time" value="${s.startTime}"
-            onchange="updateSessionField(${i},'startTime',this.value)">
-          <select class="session-select" onchange="updateSessionField(${i},'numSlots',+this.value)">
-            ${[1,2,3,4,5,6,7,8].map(n =>
-              `<option value="${n}"${n === s.numSlots ? ' selected' : ''}>${n} game${n !== 1 ? 's' : ''}</option>`
-            ).join('')}
-          </select>
-          <span class="session-sep">every</span>
-          <select class="session-select" onchange="updateSessionField(${i},'slotInterval',+this.value)">
-            ${[15,20,30,45,60].map(n =>
-              `<option value="${n}"${n === s.slotInterval ? ' selected' : ''}>${n}min</option>`
-            ).join('')}
-          </select>
-          <button class="session-remove" onclick="removeSession(${i})" title="Remove session">✕</button>
-        </div>
-        ${preview ? `<div class="session-slots-preview">${preview}</div>` : ''}
-      </div>`;
-    }).join('');
-  }
-
-  // Games-per-team picker
-  function renderGptPicker() {
-    const wrap = document.getElementById('gpt-btns');
-    wrap.innerHTML = [1,2,3,4].map(n =>
-      `<button class="gpt-btn${n === schedule.gamesPerTeam ? ' active' : ''}" onclick="setGamesPerTeam(${n})">${n}</button>`
-    ).join('');
-  }
-
-  function setGamesPerTeam(n) {
-    schedule.gamesPerTeam = n;
-    saveSchedule();
-    renderGptPicker();
+  function nextGameId() {
+    const max = allGames().reduce((m, g) => Math.max(m, parseInt(g.id.replace('g','')) || 0), 0);
+    return 'g' + (max + 1);
   }
 
   // Round-robin generator (circle method)
@@ -2189,184 +2644,317 @@
     return rounds;
   }
 
-  function generateSchedule() {
-    if (teams.length < 2) {
-      alert('Add at least 2 teams in the Teams tab first.');
-      return;
+  function getNextRRRound() {
+    if (teams.length < 2) return [];
+    const rounds = roundRobin(teams.map(t => t.name));
+    if (!rounds.length) return [];
+    return rounds[(schedule.rrIndex || 0) % rounds.length];
+  }
+
+  // ── Block management ──────────────────────────────────────────────
+  function moveBlock(id, dir) {
+    const idx = (schedule.blocks || []).findIndex(b => b.id === id);
+    if (idx < 0) return;
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= schedule.blocks.length) return;
+    [schedule.blocks[idx], schedule.blocks[newIdx]] = [schedule.blocks[newIdx], schedule.blocks[idx]];
+    saveSchedule();
+    renderScheduleTab();
+  }
+
+  function deleteBlock(id) {
+    const block = (schedule.blocks || []).find(b => b.id === id);
+    if (!block) return;
+    const hasScores = (block.games || []).some(g => g.completed);
+    if (hasScores && !confirm(`"${block.label}" has recorded scores. Delete anyway?`)) return;
+    // If active game is in this block, clear it
+    if (activeScheduledGameId && block.games && block.games.some(g => g.id === activeScheduledGameId)) {
+      activeScheduledGameId = null;
+      document.getElementById('active-game-label').hidden = true;
+      updatePeriodLabel();
     }
-    const validSessions = schedule.sessions.filter(s => s.date);
-    if (!validSessions.length) {
-      alert('Add at least one session with a date selected.');
-      return;
-    }
-    if (schedule.games && schedule.games.some(g => g.completed)) {
-      if (!confirm('Regenerating will clear all recorded scores. Continue?')) return;
-    }
-
-    // Sort by date
-    const sessions = [...validSessions].sort((a, b) => a.date.localeCompare(b.date));
-
-    // Build matchup pool: cycle through rounds until we have plenty
-    const teamNames = teams.map(t => t.name);
-    const rounds = roundRobin(teamNames);
-    const totalSlots = sessions.reduce((s, sess) => s + sess.numSlots, 0);
-    const pool = [];
-    const gamesPerRound = rounds.reduce((s, r) => s + r.length, 0);
-    const copies = gamesPerRound > 0 ? Math.ceil((totalSlots * 3) / gamesPerRound) + 1 : 1;
-    for (let c = 0; c < copies; c++) {
-      for (const round of rounds) {
-        for (const m of round) pool.push({ home: m.home, away: m.away });
-      }
-    }
-
-    const games = [];
-    let gId = 1;
-
-    for (const session of sessions) {
-      const slots = getSlotTimes(session);
-      const teamCountInSession = {};
-      const usedIndices = new Set();
-      const sessionMatchups = [];
-
-      for (let slotIdx = 0; slotIdx < slots.length; slotIdx++) {
-        // Find next valid matchup from pool
-        for (let j = 0; j < pool.length; j++) {
-          if (usedIndices.has(j)) continue;
-          const m = pool[j];
-          const hc = teamCountInSession[m.home] || 0;
-          const ac = teamCountInSession[m.away] || 0;
-          if (hc < schedule.gamesPerTeam && ac < schedule.gamesPerTeam) {
-            usedIndices.add(j);
-            teamCountInSession[m.home] = hc + 1;
-            teamCountInSession[m.away] = ac + 1;
-            sessionMatchups.push({ slot: slots[slotIdx], matchup: m });
-            break;
-          }
-        }
-      }
-
-      // Remove used matchups from pool (high → low to preserve indices)
-      [...usedIndices].sort((a, b) => b - a).forEach(idx => pool.splice(idx, 1));
-
-      for (const sg of sessionMatchups) {
-        games.push({
-          id: 'g' + gId++,
-          sessionDate: session.date,
-          slot: sg.slot,
-          home: sg.matchup.home,
-          away: sg.matchup.away,
-          scoreHome: null,
-          scoreAway: null,
-          completed: false
-        });
-      }
-    }
-
-    schedule.games = games;
+    schedule.blocks = schedule.blocks.filter(b => b.id !== id);
     saveSchedule();
     renderScheduleTab();
     updateSelectGameBtn();
   }
 
-  function renderScheduleTab() {
-    renderGptPicker();
-    renderSessionBuilder();
-    renderScheduleGames();
-    renderScheduleStandings();
+  // ── Block Editor Modal ─────────────────────────────────────────────
+  let editingBlockId = null;
+  let blockEditorGames = [];
+
+  function openManualBlockEditor(blockId) {
+    editingBlockId = blockId || null;
+    const block = blockId ? (schedule.blocks || []).find(b => b.id === blockId) : null;
+
+    document.getElementById('block-editor-title').textContent = block ? 'Edit Round' : 'Add Manual Round';
+    document.getElementById('block-label-input').value = block ? block.label : 'Week ' + (schedule.blocks.length + 1);
+    document.getElementById('block-date-input').value = block ? block.date : '';
+    document.getElementById('block-time-input').value = block ? block.startTime : '18:00';
+    document.getElementById('block-interval-input').value = block ? block.slotInterval : 30;
+
+    blockEditorGames = block ? JSON.parse(JSON.stringify(block.games || [])) : [];
+    renderBlockEditorGames();
+    document.getElementById('block-editor-modal').hidden = false;
+    setTimeout(() => document.getElementById('block-label-input').focus(), 60);
   }
 
-  function renderScheduleGames() {
-    const contentSection = document.getElementById('sched-content-section');
-    const blocksEl = document.getElementById('sched-blocks');
+  function renderBlockEditorGames() {
+    const list = document.getElementById('block-games-list');
+    const startTime = document.getElementById('block-time-input').value;
+    const interval = parseInt(document.getElementById('block-interval-input').value) || 30;
 
-    if (!schedule.games || !schedule.games.length) {
-      contentSection.hidden = true;
+    // Refresh datalist
+    const dl = document.getElementById('teams-datalist');
+    dl.innerHTML = teams.map(t => `<option value="${t.name.replace(/"/g,'&quot;')}">`).join('');
+
+    if (!blockEditorGames.length) {
+      list.innerHTML = '<div class="auto-round-empty">No games yet — click + Add Game to add matchups.</div>';
       return;
     }
 
-    contentSection.hidden = false;
+    list.innerHTML = blockEditorGames.map((g, i) => {
+      const timeStr = getSlotTime(startTime, i, interval);
+      const eh = (g.home || '').replace(/"/g,'&quot;');
+      const ea = (g.away || '').replace(/"/g,'&quot;');
+      const locked = g.completed;
+      return `<div class="block-game-entry">
+        <span class="block-game-time">${timeStr}</span>
+        <input class="block-team-input" type="text" list="teams-datalist" placeholder="HOME" value="${eh}"
+          ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].home=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
+        <span class="block-vs-sep">vs</span>
+        <input class="block-team-input" type="text" list="teams-datalist" placeholder="AWAY" value="${ea}"
+          ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].away=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
+        ${locked
+          ? '<span style="font-size:11px;color:var(--success);flex-shrink:0;">✓ played</span>'
+          : `<button class="block-ctrl-btn danger" type="button" onclick="removeBlockEditorGame(${i})" title="Remove">✕</button>`}
+      </div>`;
+    }).join('');
+  }
 
-    // Summary
-    const total = schedule.games.length;
-    const done = schedule.games.filter(g => g.completed).length;
-    const sessionCount = [...new Set(schedule.games.map(g => g.sessionDate))].length;
-    document.getElementById('sched-info-text').textContent =
-      `${sessionCount} session${sessionCount !== 1 ? 's' : ''} · ${total} games · ${done} played`;
+  function addBlockGame() {
+    blockEditorGames.push({ id: '', slot: '', home: '', away: '', scoreHome: null, scoreAway: null, completed: false });
+    renderBlockEditorGames();
+  }
 
-    // Group by date
-    const byDate = {};
-    schedule.games.forEach(g => {
-      if (!byDate[g.sessionDate]) byDate[g.sessionDate] = [];
-      byDate[g.sessionDate].push(g);
+  function removeBlockEditorGame(i) {
+    blockEditorGames.splice(i, 1);
+    renderBlockEditorGames();
+  }
+
+  function closeBlockEditor() {
+    document.getElementById('block-editor-modal').hidden = true;
+    editingBlockId = null;
+    blockEditorGames = [];
+  }
+
+  function saveBlockEditor() {
+    const label = document.getElementById('block-label-input').value.trim() || 'Round';
+    const date = document.getElementById('block-date-input').value;
+    const startTime = document.getElementById('block-time-input').value;
+    const slotInterval = parseInt(document.getElementById('block-interval-input').value) || 30;
+
+    if (!date) { alert('Please select a date for this round.'); return; }
+
+    // Assign IDs and slot times
+    let gCounter = allGames().reduce((m, g) => Math.max(m, parseInt(g.id.replace('g','')) || 0), 0);
+    // But keep existing IDs for existing games
+    const existingIds = new Set(allGames().map(g => g.id));
+    const games = blockEditorGames.map((g, i) => {
+      let id = g.id;
+      if (!id || (!existingIds.has(id) && id !== '')) id = '';
+      if (!id) { gCounter++; id = 'g' + gCounter; }
+      return {
+        id,
+        slot: getSlotTime(startTime, i, slotInterval),
+        home: (g.home || '').toUpperCase().trim() || 'TBD',
+        away: (g.away || '').toUpperCase().trim() || 'TBD',
+        scoreHome: g.scoreHome,
+        scoreAway: g.scoreAway,
+        completed: g.completed || false
+      };
     });
 
-    const sortedDates = Object.keys(byDate).sort();
-    blocksEl.innerHTML = sortedDates.map(date => {
-      const games = byDate[date];
-      const allDone = games.every(g => g.completed);
-      return `<div class="sched-block">
-        <div class="sched-block-header">
-          <span class="sched-date-label">${formatDate(date)}</span>
-          <span class="sched-game-count">${games.filter(g => g.completed).length}/${games.length} played</span>
-        </div>
-        <div class="sched-games-list">
-          ${games.map(g => {
+    if (editingBlockId) {
+      const idx = (schedule.blocks || []).findIndex(b => b.id === editingBlockId);
+      if (idx >= 0) schedule.blocks[idx] = { ...schedule.blocks[idx], label, date, startTime, slotInterval, games };
+    } else {
+      if (!schedule.blocks) schedule.blocks = [];
+      schedule.blocks.push({ id: nextBlockId(), type: 'manual', label, date, startTime, slotInterval, games });
+    }
+
+    saveSchedule();
+    renderScheduleTab();
+    updateSelectGameBtn();
+    closeBlockEditor();
+  }
+
+  // ── Auto Round Modal ──────────────────────────────────────────────
+  function openAutoRoundModal() {
+    if (teams.length < 2) {
+      alert('Add at least 2 teams in the Teams tab first.');
+      return;
+    }
+    const nextNum = (schedule.blocks || []).length + 1;
+    const rrRounds = roundRobin(teams.map(t => t.name));
+    const rrPos = ((schedule.rrIndex || 0) % (rrRounds.length || 1)) + 1;
+    document.getElementById('auto-label-input').value = `Round ${nextNum}`;
+    document.getElementById('auto-date-input').value = '';
+    document.getElementById('auto-time-input').value = '18:00';
+    document.getElementById('auto-interval-input').value = 30;
+    previewAutoRound();
+    document.getElementById('auto-round-modal').hidden = false;
+    setTimeout(() => document.getElementById('auto-date-input').focus(), 60);
+  }
+
+  function previewAutoRound() {
+    const preview = document.getElementById('auto-round-preview');
+    const startTime = document.getElementById('auto-time-input').value;
+    const interval = parseInt(document.getElementById('auto-interval-input').value) || 30;
+    const round = getNextRRRound();
+    if (!round || !round.length) {
+      preview.innerHTML = '<div class="auto-round-empty">Not enough teams to generate a round.</div>';
+      return;
+    }
+    preview.innerHTML = round.map((m, i) => {
+      const t = startTime ? getSlotTime(startTime, i, interval) : '';
+      return `<div class="auto-round-game-line">${t ? `<span class="at">${t}</span>` : ''}${m.home} <span style="color:var(--text-dim);font-size:10px">vs</span> ${m.away}</div>`;
+    }).join('');
+  }
+
+  function closeAutoRoundModal() {
+    document.getElementById('auto-round-modal').hidden = true;
+  }
+
+  function confirmAutoRound() {
+    const date = document.getElementById('auto-date-input').value;
+    if (!date) { alert('Please select a date.'); return; }
+
+    const label = document.getElementById('auto-label-input').value.trim() || 'Round';
+    const startTime = document.getElementById('auto-time-input').value;
+    const interval = parseInt(document.getElementById('auto-interval-input').value) || 30;
+    const round = getNextRRRound();
+    if (!round.length) { alert('Not enough teams.'); return; }
+
+    let gCounter = allGames().reduce((m, g) => Math.max(m, parseInt(g.id.replace('g','')) || 0), 0);
+    const games = round.map((m, i) => ({
+      id: 'g' + (++gCounter),
+      slot: getSlotTime(startTime, i, interval),
+      home: m.home,
+      away: m.away,
+      scoreHome: null,
+      scoreAway: null,
+      completed: false
+    }));
+
+    if (!schedule.blocks) schedule.blocks = [];
+    schedule.blocks.push({ id: nextBlockId(), type: 'auto', label, date, startTime, slotInterval: interval, games });
+    schedule.rrIndex = (schedule.rrIndex || 0) + 1;
+
+    saveSchedule();
+    renderScheduleTab();
+    updateSelectGameBtn();
+    closeAutoRoundModal();
+  }
+
+  // ── Schedule Rendering ─────────────────────────────────────────────
+  function renderScheduleTab() {
+    renderScheduleBlocks();
+    renderScheduleStandings();
+  }
+
+  function renderScheduleBlocks() {
+    const container = document.getElementById('sched-blocks-container');
+    const pdfWrap = document.getElementById('sched-pdf-wrap');
+    const infoEl = document.getElementById('sched-info-text');
+
+    if (!schedule.blocks || !schedule.blocks.length) {
+      container.innerHTML = `<div class="empty-state" style="margin-top:16px;">
+        <div class="empty-icon">📅</div>
+        <div class="empty-text">No rounds yet</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:6px;">Use <strong style="color:var(--text-muted)">+ Manual Round</strong> to enter an existing draw, or <strong style="color:var(--accent)">⚡ Auto Round</strong> to generate the next round-robin round.</div>
+      </div>`;
+      pdfWrap.hidden = true;
+      infoEl.textContent = '';
+      return;
+    }
+
+    pdfWrap.hidden = false;
+    const total = allGames().length;
+    const done = allGames().filter(g => g.completed).length;
+    infoEl.textContent = `${schedule.blocks.length} round${schedule.blocks.length !== 1 ? 's' : ''} · ${total} game${total !== 1 ? 's' : ''} · ${done} played`;
+
+    const n = schedule.blocks.length;
+    container.innerHTML = schedule.blocks.map((block, bi) => {
+      const gDone = (block.games || []).filter(g => g.completed).length;
+      const gTotal = (block.games || []).length;
+      const isAuto = block.type === 'auto';
+      const gameRows = (block.games || []).length
+        ? (block.games || []).map(g => {
             if (g.completed) {
-              const homeWon = g.scoreHome > g.scoreAway;
-              const awayWon = g.scoreAway > g.scoreHome;
+              const hw = g.scoreHome > g.scoreAway;
+              const aw = g.scoreAway > g.scoreHome;
               return `<div class="sched-game-row completed">
                 <span class="sched-timeslot">${g.slot}</span>
                 <div class="sched-matchup">
-                  <span class="sched-team home" style="${homeWon ? 'color:var(--accent)' : ''}">${g.home}</span>
+                  <span class="sched-team home" style="${hw ? 'color:var(--accent)' : ''}">${g.home}</span>
                   <span class="sched-vs">vs</span>
-                  <span class="sched-team away" style="${awayWon ? 'color:var(--accent)' : ''}">${g.away}</span>
+                  <span class="sched-team away" style="${aw ? 'color:var(--accent)' : ''}">${g.away}</span>
                 </div>
                 <span class="sched-result">${g.scoreHome} – ${g.scoreAway}</span>
               </div>`;
-            } else {
-              return `<div class="sched-game-row">
-                <span class="sched-timeslot">${g.slot}</span>
-                <div class="sched-matchup">
-                  <span class="sched-team home">${g.home}</span>
-                  <span class="sched-vs">vs</span>
-                  <span class="sched-team away">${g.away}</span>
-                </div>
-                <button class="sched-score-btn" onclick="loadGameForScoring('${g.id}')">Score</button>
-              </div>`;
             }
-          }).join('')}
+            return `<div class="sched-game-row">
+              <span class="sched-timeslot">${g.slot}</span>
+              <div class="sched-matchup">
+                <span class="sched-team home">${g.home}</span>
+                <span class="sched-vs">vs</span>
+                <span class="sched-team away">${g.away}</span>
+              </div>
+              <button class="sched-score-btn" onclick="loadGameForScoring('${g.id}')">Score</button>
+            </div>`;
+          }).join('')
+        : '<div class="auto-round-empty" style="padding:12px 14px;">No games in this round.</div>';
+
+      return `<div class="sched-block">
+        <div class="sched-block-header">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow:hidden;">
+            <span class="sched-date-label" style="flex-shrink:0;">${block.label || 'Round'}</span>
+            <span class="sched-game-count" style="flex-shrink:0;">${formatDateShort(block.date)} · ${gDone}/${gTotal}</span>
+            <span class="sched-block-type-tag${isAuto ? ' auto' : ''}">${isAuto ? 'Auto' : 'Manual'}</span>
+          </div>
+          <div class="sched-block-controls">
+            <button class="block-ctrl-btn" onclick="moveBlock('${block.id}',-1)" ${bi === 0 ? 'disabled' : ''} title="Move up">↑</button>
+            <button class="block-ctrl-btn" onclick="moveBlock('${block.id}',1)" ${bi === n - 1 ? 'disabled' : ''} title="Move down">↓</button>
+            <button class="block-ctrl-btn edit" onclick="openManualBlockEditor('${block.id}')" title="Edit">✎</button>
+            <button class="block-ctrl-btn danger" onclick="deleteBlock('${block.id}')" title="Delete">✕</button>
+          </div>
         </div>
+        <div class="sched-games-list">${gameRows}</div>
       </div>`;
     }).join('');
   }
 
   function loadGameForScoring(id) {
     selectScheduledGame(id);
-    // Switch to Score tab
-    const scoreBtn = document.getElementById('tab-btn-score');
-    switchTab('score', scoreBtn);
+    switchTab('score', document.getElementById('tab-btn-score'));
   }
 
   function renderScheduleStandings() {
     const section = document.getElementById('sched-standings-section');
-    const hasCompleted = schedule.games && schedule.games.some(g => g.completed);
+    const hasCompleted = allGames().some(g => g.completed);
 
-    if (!hasCompleted) {
-      section.hidden = true;
-      return;
-    }
-
+    if (!hasCompleted) { section.hidden = true; return; }
     section.hidden = false;
-    const sorted = computeStandings();
-    const tbody = document.getElementById('sched-standings-body');
 
-    tbody.innerHTML = sorted.map((t, i) => {
+    const sorted = computeStandings();
+    document.getElementById('sched-standings-body').innerHTML = sorted.map((t, i) => {
       const diff = t.pf - t.pa;
       const played = t.w + t.l;
       const dc = diff > 0 ? 'diff-positive' : diff < 0 ? 'diff-negative' : 'diff-zero';
       const ds = diff > 0 ? '+' + diff : '' + diff;
       return `<tr>
-        <td class="rank-cell${i < 3 ? ' top' : ''}">${i+1}</td>
+        <td class="rank-cell${i < 3 ? ' top' : ''}">${i + 1}</td>
         <td class="team-cell">${t.name}</td>
         <td class="num">${played}</td>
         <td class="num record-cell">${t.w}</td>
@@ -2395,6 +2983,79 @@
     if (e.target === e.currentTarget) closeAddTeam();
   });
 
+  document.getElementById('block-editor-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeBlockEditor();
+  });
+
+  document.getElementById('auto-round-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAutoRoundModal();
+  });
+
+  // ── Login ─────────────────────────────────────────────────────────
+  const CREDS = { admin: 'jag2026', scorer: 'score' };
+  let selectedLoginRole = 'admin';
+  let currentRole = null;
+
+  function selectLoginRole(role) {
+    selectedLoginRole = role;
+    document.getElementById('role-admin-btn').classList.toggle('active', role === 'admin');
+    document.getElementById('role-scorer-btn').classList.toggle('active', role === 'scorer');
+    setTimeout(() => document.getElementById('login-pin').focus(), 40);
+  }
+
+  function doLogin() {
+    const pin = document.getElementById('login-pin').value;
+    const err = document.getElementById('login-error');
+    if (CREDS[selectedLoginRole] && pin === CREDS[selectedLoginRole]) {
+      currentRole = selectedLoginRole;
+      try { sessionStorage.setItem('jag3x3_role', currentRole); } catch(e) {}
+      document.getElementById('login-screen').hidden = true;
+      err.hidden = true;
+      applyRole(currentRole);
+    } else {
+      err.hidden = false;
+      document.getElementById('login-pin').value = '';
+      document.getElementById('login-pin').focus();
+    }
+  }
+
+  function applyRole(role) {
+    const isAdmin = role === 'admin';
+    document.getElementById('tab-btn-teams').hidden = !isAdmin;
+    document.getElementById('tab-btn-schedule').hidden = !isAdmin;
+    document.getElementById('role-badge').textContent = isAdmin ? 'Admin' : 'Scorer';
+    document.getElementById('header-right').hidden = false;
+    if (!isAdmin) switchTab('score', document.getElementById('tab-btn-score'));
+  }
+
+  function doLogout() {
+    try { sessionStorage.removeItem('jag3x3_role'); } catch(e) {}
+    currentRole = null;
+    selectedLoginRole = 'admin';
+    document.getElementById('tab-btn-teams').hidden = false;
+    document.getElementById('tab-btn-schedule').hidden = false;
+    document.getElementById('header-right').hidden = true;
+    document.getElementById('login-screen').hidden = false;
+    document.getElementById('login-pin').value = '';
+    document.getElementById('login-error').hidden = true;
+    document.getElementById('role-admin-btn').classList.add('active');
+    document.getElementById('role-scorer-btn').classList.remove('active');
+    setTimeout(() => document.getElementById('login-pin').focus(), 80);
+  }
+
+  function checkSession() {
+    try {
+      const r = sessionStorage.getItem('jag3x3_role');
+      if (r && CREDS[r] !== undefined) {
+        currentRole = r;
+        document.getElementById('login-screen').hidden = true;
+        applyRole(r);
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
   // ── Init ──────────────────────────────────────────────────────────
   loadTeams();
   loadSchedule();
@@ -2405,4 +3066,6 @@
   renderDurationPicker();
   renderTeamsTable();
   updateSelectGameBtn();
+  renderScheduleTab();
+  checkSession();
 </script>
