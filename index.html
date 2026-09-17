@@ -1727,6 +1727,15 @@
 
   .auto-round-game-line .at { color: var(--accent); margin-right: 10px; font-variant-numeric: tabular-nums; }
   .auto-round-empty { font-size: 12px; color: var(--text-dim); text-align: center; padding: 6px 0; }
+
+  .auto-round-court-group { margin-bottom: 10px; }
+  .auto-round-court-group:last-child { margin-bottom: 0; }
+  .auto-round-court-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent);
+    padding-bottom: 5px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
 </style>
 
 <!-- Login Screen -->
@@ -2077,6 +2086,15 @@
           <option value="30" selected>30 min</option>
           <option value="45">45 min</option>
           <option value="60">60 min</option>
+        </select>
+      </div>
+      <div style="flex:1;">
+        <label class="block-field-label">Courts</label>
+        <select class="session-select" id="auto-courts-input" style="width:100%;" onchange="previewAutoRound()">
+          <option value="1" selected>1 court</option>
+          <option value="2">2 courts</option>
+          <option value="3">3 courts</option>
+          <option value="4">4 courts</option>
         </select>
       </div>
     </div>
@@ -2802,6 +2820,7 @@
     document.getElementById('auto-date-input').value = '';
     document.getElementById('auto-time-input').value = '18:00';
     document.getElementById('auto-interval-input').value = 30;
+    document.getElementById('auto-courts-input').value = '1';
     previewAutoRound();
     document.getElementById('auto-round-modal').hidden = false;
     setTimeout(() => document.getElementById('auto-date-input').focus(), 60);
@@ -2811,15 +2830,32 @@
     const preview = document.getElementById('auto-round-preview');
     const startTime = document.getElementById('auto-time-input').value;
     const interval = parseInt(document.getElementById('auto-interval-input').value) || 30;
+    const courts = parseInt(document.getElementById('auto-courts-input').value) || 1;
     const round = getNextRRRound();
     if (!round || !round.length) {
       preview.innerHTML = '<div class="auto-round-empty">Not enough teams to generate a round.</div>';
       return;
     }
-    preview.innerHTML = round.map((m, i) => {
-      const t = startTime ? getSlotTime(startTime, i, interval) : '';
-      return `<div class="auto-round-game-line">${t ? `<span class="at">${t}</span>` : ''}${m.home} <span style="color:var(--text-dim);font-size:10px">vs</span> ${m.away}</div>`;
-    }).join('');
+    if (courts === 1) {
+      preview.innerHTML = round.map((m, i) => {
+        const t = startTime ? getSlotTime(startTime, i, interval) : '';
+        return `<div class="auto-round-game-line">${t ? `<span class="at">${t}</span>` : ''}${m.home} <span style="color:var(--text-dim);font-size:10px">vs</span> ${m.away}</div>`;
+      }).join('');
+    } else {
+      // Distribute games interleaved across courts
+      const courtGames = Array.from({ length: courts }, () => []);
+      round.forEach((m, i) => courtGames[i % courts].push(m));
+      preview.innerHTML = courtGames.map((matchups, ci) => {
+        if (!matchups.length) return '';
+        return `<div class="auto-round-court-group">
+          <div class="auto-round-court-label">Court ${ci + 1}</div>
+          ${matchups.map((m, i) => {
+            const t = startTime ? getSlotTime(startTime, i, interval) : '';
+            return `<div class="auto-round-game-line">${t ? `<span class="at">${t}</span>` : ''}${m.home} <span style="color:var(--text-dim);font-size:10px">vs</span> ${m.away}</div>`;
+          }).join('')}
+        </div>`;
+      }).join('');
+    }
   }
 
   function closeAutoRoundModal() {
@@ -2833,24 +2869,39 @@
     const label = document.getElementById('auto-label-input').value.trim() || 'Round';
     const startTime = document.getElementById('auto-time-input').value;
     const interval = parseInt(document.getElementById('auto-interval-input').value) || 30;
+    const courts = parseInt(document.getElementById('auto-courts-input').value) || 1;
     const round = getNextRRRound();
     if (!round.length) { alert('Not enough teams.'); return; }
 
     let gCounter = allGames().reduce((m, g) => Math.max(m, parseInt(g.id.replace('g','')) || 0), 0);
-    const games = round.map((m, i) => ({
-      id: 'g' + (++gCounter),
-      slot: getSlotTime(startTime, i, interval),
-      home: m.home,
-      away: m.away,
-      scoreHome: null,
-      scoreAway: null,
-      completed: false
-    }));
-
     if (!schedule.blocks) schedule.blocks = [];
-    schedule.blocks.push({ id: nextBlockId(), type: 'auto', label, date, startTime, slotInterval: interval, games });
-    schedule.rrIndex = (schedule.rrIndex || 0) + 1;
 
+    if (courts === 1) {
+      const games = round.map((m, i) => ({
+        id: 'g' + (++gCounter),
+        slot: getSlotTime(startTime, i, interval),
+        home: m.home, away: m.away,
+        scoreHome: null, scoreAway: null, completed: false
+      }));
+      schedule.blocks.push({ id: nextBlockId(), type: 'auto', label, date, startTime, slotInterval: interval, games });
+    } else {
+      // Distribute games interleaved across courts, create one block per court
+      const courtGames = Array.from({ length: courts }, () => []);
+      round.forEach((m, i) => courtGames[i % courts].push(m));
+      courtGames.forEach((matchups, ci) => {
+        if (!matchups.length) return;
+        const blockLabel = `${label} · Court ${ci + 1}`;
+        const games = matchups.map((m, i) => ({
+          id: 'g' + (++gCounter),
+          slot: getSlotTime(startTime, i, interval),
+          home: m.home, away: m.away,
+          scoreHome: null, scoreAway: null, completed: false
+        }));
+        schedule.blocks.push({ id: nextBlockId(), type: 'auto', label: blockLabel, date, startTime, slotInterval: interval, games });
+      });
+    }
+
+    schedule.rrIndex = (schedule.rrIndex || 0) + 1;
     saveSchedule();
     renderScheduleTab();
     updateSelectGameBtn();
