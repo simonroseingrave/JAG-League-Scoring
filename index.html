@@ -1,6 +1,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JAG Score">
+<meta name="theme-color" content="#222b3a">
 <title>Just a Game 3×3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap">
@@ -3044,15 +3047,28 @@
         <path d="M6 50 C20 45 40 47 60 43" stroke="#8fa0bb" stroke-width="2.8" fill="none" stroke-linecap="round"/>
         <path d="M12 55 C28 51 46 53 62 49" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round"/>
         <path d="M8 60 C25 57 43 58 60 55" stroke="#8fa0bb" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <circle cx="67" cy="39" r="17" fill="none" stroke="#8fa0bb" stroke-width="1.8"/>
-        <path d="M50 39 C59 31 75 31 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
-        <path d="M50 39 C59 47 75 47 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
-        <path d="M67 22 C74 31 74 47 67 56" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
-        <circle cx="77" cy="46" r="17" fill="#E07828"/>
-        <ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/>
-        <path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
-        <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
-        <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+        <g id="logo-basketball">
+          <circle cx="67" cy="39" r="17" fill="none" stroke="#8fa0bb" stroke-width="1.8"/>
+          <path d="M50 39 C59 31 75 31 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+          <path d="M50 39 C59 47 75 47 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+          <path d="M67 22 C74 31 74 47 67 56" stroke="#8fa0bb" stroke-width="1.3" fill="none"/>
+          <circle cx="77" cy="46" r="17" fill="#E07828"/>
+          <ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/>
+          <path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+          <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+          <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
+        </g>
+        <g id="logo-futsal" hidden>
+          <circle cx="77" cy="46" r="17" fill="#f0f0ee"/>
+          <ellipse cx="71" cy="40" rx="5" ry="3.5" fill="#ffffff" opacity="0.3"/>
+          <polygon points="77,41.5 81.3,44.6 79.6,49.6 74.4,49.6 72.7,44.6" fill="#1e2d3d"/>
+          <line x1="77" y1="29" x2="77" y2="41.5" stroke="#1e2d3d" stroke-width="1.5"/>
+          <line x1="93.2" y1="40.7" x2="81.3" y2="44.6" stroke="#1e2d3d" stroke-width="1.5"/>
+          <line x1="87" y1="59.8" x2="79.6" y2="49.6" stroke="#1e2d3d" stroke-width="1.5"/>
+          <line x1="67" y1="59.8" x2="74.4" y2="49.6" stroke="#1e2d3d" stroke-width="1.5"/>
+          <line x1="60.8" y1="40.7" x2="72.7" y2="44.6" stroke="#1e2d3d" stroke-width="1.5"/>
+          <circle cx="77" cy="46" r="17" fill="none" stroke="#1e2d3d" stroke-width="1.2"/>
+        </g>
       </g>
     </svg>
     <div class="brand-text">
@@ -5009,6 +5025,11 @@
     window.scrollTo(0, 0);
     // Update header brand subtitle
     document.getElementById('brand-sub-text').textContent = sport === 'futsal' ? 'Futsal League' : '3×3 League';
+    // Update logo ball
+    document.getElementById('logo-basketball').hidden = (sport === 'futsal');
+    document.getElementById('logo-futsal').hidden = (sport !== 'futsal');
+    // Update home-screen icon
+    if (window._setAppIcon) window._setAppIcon(sport);
     // Update score tab placeholder
     document.getElementById('sport-emoji-placeholder').textContent = sport === 'futsal' ? '⚽' : '🏀';
     document.getElementById('sport-name-placeholder').textContent = sport === 'futsal' ? 'Tap a game below to score it' : 'Tap a game below to score it';
@@ -5806,6 +5827,8 @@
     fsUpdateTimerDisplay();
     fsUpdateStateBadge();
     document.getElementById('futsal-score-screen').hidden = false;
+    document.body.classList.add('login-open');
+    window.scrollTo(0, 0);
   }
 
   function fsExit() {
@@ -5814,6 +5837,9 @@
     fsTimerRunning = false;
     document.getElementById('futsal-score-screen').hidden = true;
     fsGameId = null;
+    if (document.getElementById('login-screen').hidden) {
+      document.body.classList.remove('login-open');
+    }
   }
 
   function fsRestart() {
@@ -5998,6 +6024,9 @@
         SB_ROW = sp === 'futsal' ? 'jagfutsal' : 'jag3x3';
         LS_PREFIX = SB_ROW;
         document.getElementById('brand-sub-text').textContent = sp === 'futsal' ? 'Futsal League' : '3×3 League';
+        document.getElementById('logo-basketball').hidden = (sp === 'futsal');
+        document.getElementById('logo-futsal').hidden = (sp !== 'futsal');
+        if (window._setAppIcon) window._setAppIcon(sp);
         document.getElementById('sport-emoji-placeholder').textContent = sp === 'futsal' ? '⚽' : '🏀';
         document.body.classList.remove('login-open');
         window.scrollTo(0, 0);
@@ -6027,4 +6056,88 @@
   // Then connect to cloud and pull latest data
   initSupabase();
   loadFromCloud();
+</script>
+
+<script>
+// PWA home-screen icon — renders the logo SVG to PNG for apple-touch-icon + web manifest
+(function() {
+  const BASE = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="ic"><circle cx="50" cy="50" r="46"/></clipPath></defs><circle cx="50" cy="50" r="50" fill="#222b3a"/><circle cx="50" cy="50" r="46.5" fill="none" stroke="#f59e0b" stroke-width="3.5"/><g clip-path="url(#ic)"><path d="M6 50 C20 45 40 47 60 43" stroke="#8fa0bb" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M12 55 C28 51 46 53 62 49" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M8 60 C25 57 43 58 60 55" stroke="#8fa0bb" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  const BALL_BB = `<circle cx="67" cy="39" r="17" fill="none" stroke="#8fa0bb" stroke-width="1.8"/><path d="M50 39 C59 31 75 31 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/><path d="M50 39 C59 47 75 47 84 39" stroke="#8fa0bb" stroke-width="1.3" fill="none"/><path d="M67 22 C74 31 74 47 67 56" stroke="#8fa0bb" stroke-width="1.3" fill="none"/><circle cx="77" cy="46" r="17" fill="#E07828"/><ellipse cx="71" cy="40" rx="6" ry="4" fill="#f09848" opacity="0.35"/><path d="M60 46 C68 36 86 36 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/><path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/><path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>`;
+  const BALL_FS = `<circle cx="77" cy="46" r="17" fill="#f0f0ee"/><ellipse cx="71" cy="40" rx="5" ry="3.5" fill="#ffffff" opacity="0.3"/><polygon points="77,41.5 81.3,44.6 79.6,49.6 74.4,49.6 72.7,44.6" fill="#1e2d3d"/><line x1="77" y1="29" x2="77" y2="41.5" stroke="#1e2d3d" stroke-width="1.5"/><line x1="93.2" y1="40.7" x2="81.3" y2="44.6" stroke="#1e2d3d" stroke-width="1.5"/><line x1="87" y1="59.8" x2="79.6" y2="49.6" stroke="#1e2d3d" stroke-width="1.5"/><line x1="67" y1="59.8" x2="74.4" y2="49.6" stroke="#1e2d3d" stroke-width="1.5"/><line x1="60.8" y1="40.7" x2="72.7" y2="44.6" stroke="#1e2d3d" stroke-width="1.5"/><circle cx="77" cy="46" r="17" fill="none" stroke="#1e2d3d" stroke-width="1.2"/>`;
+  const TAIL = `</g></svg>`;
+
+  const SVG = {
+    basketball: BASE + BALL_BB + TAIL,
+    futsal:     BASE + BALL_FS + TAIL
+  };
+
+  const cache = {};
+
+  function svgToPng(svgStr, size) {
+    return new Promise(resolve => {
+      try {
+        const blob = new Blob([svgStr], {type: 'image/svg+xml'});
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const c = document.createElement('canvas');
+            c.width = c.height = size;
+            c.getContext('2d').drawImage(img, 0, 0, size, size);
+            URL.revokeObjectURL(url);
+            resolve(c.toDataURL('image/png'));
+          } catch(e) { URL.revokeObjectURL(url); resolve(null); }
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
+      } catch(e) { resolve(null); }
+    });
+  }
+
+  async function preload() {
+    cache.basketball = await svgToPng(SVG.basketball, 512);
+    cache.futsal     = await svgToPng(SVG.futsal, 512);
+  }
+
+  window._setAppIcon = function(sport) {
+    const png = cache[sport] || cache.basketball;
+    if (!png) return;
+
+    // apple-touch-icon
+    let atl = document.getElementById('pwa-apple-icon');
+    if (!atl) {
+      atl = document.createElement('link');
+      atl.id = 'pwa-apple-icon';
+      atl.rel = 'apple-touch-icon';
+      atl.sizes = '512x512';
+      document.head.appendChild(atl);
+    }
+    atl.href = png;
+
+    // Web app manifest (lets Android/Chrome use the icon too)
+    const shortName = sport === 'futsal' ? 'JAG Futsal' : 'JAG 3×3';
+    const manifest = JSON.stringify({
+      name: 'Just a Game',
+      short_name: shortName,
+      start_url: './',
+      display: 'standalone',
+      background_color: '#222b3a',
+      theme_color: '#222b3a',
+      icons: [{ src: png, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }]
+    });
+    let ml = document.getElementById('pwa-manifest');
+    if (!ml) {
+      ml = document.createElement('link');
+      ml.id = 'pwa-manifest';
+      ml.rel = 'manifest';
+      document.head.appendChild(ml);
+    }
+    if (ml._blobUrl) URL.revokeObjectURL(ml._blobUrl);
+    const mblob = new Blob([manifest], {type: 'application/manifest+json'});
+    ml._blobUrl = URL.createObjectURL(mblob);
+    ml.href = ml._blobUrl;
+  };
+
+  document.addEventListener('DOMContentLoaded', preload);
+})();
 </script>
