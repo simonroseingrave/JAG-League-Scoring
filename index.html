@@ -2968,7 +2968,7 @@
 </div>
 
 <!-- Futsal Full-Screen Scoring Overlay -->
-<div id="futsal-score-screen" hidden style="position:relative">
+<div id="futsal-score-screen" hidden>
 
   <!-- Half-end interstitial (hidden by default) -->
   <div class="fs-halfend-overlay" id="fs-halfend-overlay" hidden>
@@ -3017,28 +3017,13 @@
     <button class="sm-score-btn pt1" onclick="fsGoal('b')" style="font-size:clamp(18px,4.5vw,28px);letter-spacing:0.04em">GOAL +1</button>
   </div>
 
-  <!-- Row 5: Fouls -->
-  <div class="smr smr-fouls">
-    <button class="sm-foul-add-btn" onclick="fsFoul('a')" title="Add foul">↑</button>
-    <div class="sm-foul-display">
-      <div class="sm-fouls-dots" id="fs-fouls-a-dots"></div>
-      <div class="sm-foul-count" id="fs-foul-count-a">0</div>
-    </div>
-    <div class="sm-fouls-center">FOULS</div>
-    <div class="sm-foul-display sm-foul-display-r">
-      <div class="sm-foul-count" id="fs-foul-count-b">0</div>
-      <div class="sm-fouls-dots" id="fs-fouls-b-dots"></div>
-    </div>
-    <button class="sm-foul-add-btn" onclick="fsFoul('b')" title="Add foul">↑</button>
-  </div>
-
-  <!-- Row 6: Half label + countdown timer -->
+  <!-- Row 5: Half label + countdown timer -->
   <div class="smr smr-gameclock">
     <span class="sm-row-label" id="fs-half-label">1ST HALF</span>
     <div class="sm-game-clock" id="fs-half-timer">15:00</div>
   </div>
 
-  <!-- Row 7: Start / Pause + End Half / Submit -->
+  <!-- Row 6: Start / Pause + End Half / Submit -->
   <div class="smr smr-start">
     <button class="sm-start-btn" id="fs-start-btn" onclick="fsToggleTimer()">START</button>
     <button class="sm-submit-btn" id="fs-end-half-btn" onclick="fsEndHalf()" hidden>End Half</button>
@@ -5760,7 +5745,7 @@
   // ── Futsal Scoring ────────────────────────────────────────────────
   let fsGameId = null;
   let fsScoreA = 0, fsScoreB = 0;
-  let fsFoulsA = 0, fsFoulsB = 0;
+
   let fsHalf = 1;
   let fsTimerSecs = 900; // 15 minutes
   let fsTimerRunning = false;
@@ -5775,24 +5760,6 @@
 
   function fsUpdateTimerDisplay() {
     document.getElementById('fs-half-timer').textContent = fsFormatTime(fsTimerSecs);
-  }
-
-  function fsFoulDots(side, count) {
-    const el = document.getElementById('fs-fouls-' + side + '-dots');
-    if (!el) return;
-    el.innerHTML = '';
-    for (let i = 0; i < Math.min(count, 6); i++) {
-      const d = document.createElement('div');
-      d.className = 'sm-foul-dot' + (i >= 5 ? ' danger' : i >= 3 ? ' warn' : '');
-      el.appendChild(d);
-    }
-  }
-
-  function fsRenderFouls() {
-    document.getElementById('fs-foul-count-a').textContent = fsFoulsA;
-    document.getElementById('fs-foul-count-b').textContent = fsFoulsB;
-    fsFoulDots('a', fsFoulsA);
-    fsFoulDots('b', fsFoulsB);
   }
 
   function fsUpdateScoreDisplay() {
@@ -5820,7 +5787,6 @@
       fsScoreA = 0; fsScoreB = 0; fsGameOver = false;
       fsHalf = 1; fsTimerSecs = 900;
     }
-    fsFoulsA = 0; fsFoulsB = 0;
     fsHistoryA = []; fsHistoryB = [];
     fsTimerRunning = false;
     if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
@@ -5838,7 +5804,6 @@
 
     fsUpdateScoreDisplay();
     fsUpdateTimerDisplay();
-    fsRenderFouls();
     fsUpdateStateBadge();
     document.getElementById('futsal-score-screen').hidden = false;
   }
@@ -5852,10 +5817,9 @@
   }
 
   function fsRestart() {
-    if (!confirm('Restart this game? All scores and fouls will be cleared.')) return;
+    if (!confirm('Restart this game? All scores will be cleared.')) return;
     if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
     fsScoreA = 0; fsScoreB = 0;
-    fsFoulsA = 0; fsFoulsB = 0;
     fsHalf = 1; fsTimerSecs = 900;
     fsTimerRunning = false; fsGameOver = false;
     fsHistoryA = []; fsHistoryB = [];
@@ -5866,7 +5830,6 @@
     document.getElementById('fs-halfend-overlay').hidden = true;
     fsUpdateScoreDisplay();
     fsUpdateTimerDisplay();
-    fsRenderFouls();
     fsUpdateStateBadge();
   }
 
@@ -5958,12 +5921,6 @@
     fsUpdateScoreDisplay();
     fsUpdateStateBadge();
     pushLiveScore(fsScoreA, fsScoreB);
-  }
-
-  function fsFoul(side) {
-    if (side === 'a') fsFoulsA++;
-    else fsFoulsB++;
-    fsRenderFouls();
   }
 
   function fsOpenSubmit() {
