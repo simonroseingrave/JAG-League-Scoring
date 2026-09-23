@@ -31,7 +31,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* Prevent body scroll while login overlay is visible */
-  body.login-open { overflow: hidden; position: fixed; width: 100%; }
+  body.login-open { overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
   html, body {
     height: 100%;
@@ -2338,6 +2338,10 @@
   #futsal-score-screen {
     position: fixed;
     inset: 0;
+    /* Belt-and-suspenders height: inset:0 should do it, but iOS Safari
+       can collapse fixed children when body.login-open is position:fixed */
+    width: 100%;
+    height: 100%;
     z-index: 150;
     background: var(--bg);
     display: flex;
