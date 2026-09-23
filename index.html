@@ -1755,6 +1755,45 @@
 
   .login-submit:hover { background: #d97706; }
 
+  /* Sport picker */
+  #sport-picker-screen { z-index: 190; }
+  .sport-pick-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .sport-pick-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
+  }
+  .sport-pick-btn:hover { border-color: var(--accent); background: rgba(245,158,11,0.06); }
+  .sport-pick-icon { font-size: 36px; flex-shrink: 0; line-height: 1; }
+  .sport-pick-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+  }
+  .sport-pick-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+  }
+
   .login-error {
     background: rgba(239,68,68,0.12);
     border: 1px solid rgba(239,68,68,0.35);
@@ -2292,7 +2331,8 @@
   }
 
   /* === FULL-SCREEN PORTRAIT SCORING OVERLAY — ROW-BASED === */
-  #score-mode-screen {
+  #score-mode-screen,
+  #futsal-score-screen {
     position: fixed;
     inset: 0;
     z-index: 150;
@@ -2302,6 +2342,49 @@
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+  /* Futsal half-end overlay */
+  .fs-halfend-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,13,26,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    z-index: 10;
+  }
+  .fs-halfend-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .fs-halfend-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+  .fs-halfend-sub { font-size: 14px; color: var(--text-muted); text-align: center; }
+  .fs-halfend-btn {
+    background: var(--accent);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    padding: 16px 36px;
+    cursor: pointer;
+    min-width: 220px;
+  }
+  .fs-halfend-btn:active { opacity: 0.85; }
 
   /* Every row: equal height, full width, no shrink */
   .smr {
@@ -2767,6 +2850,32 @@
   </div>
 </div>
 
+<!-- Sport Picker Screen — shown after login, before entering the app -->
+<div id="sport-picker-screen" class="login-screen" hidden>
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-title">Choose Sport</div>
+      <div class="login-sub">What are you scoring today?</div>
+    </div>
+    <div class="sport-pick-grid">
+      <button class="sport-pick-btn" onclick="selectSport('3x3')">
+        <span class="sport-pick-icon">🏀</span>
+        <div>
+          <span class="sport-pick-name">3×3 Basketball</span>
+          <span class="sport-pick-desc">First to 21 pts · Shot clock · 12 min cap</span>
+        </div>
+      </button>
+      <button class="sport-pick-btn" onclick="selectSport('futsal')">
+        <span class="sport-pick-icon">⚽</span>
+        <div>
+          <span class="sport-pick-name">Futsal</span>
+          <span class="sport-pick-desc">Two × 15 min halves · Goals +1</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Full-Screen Portrait Scoring Overlay — equal-height rows -->
 <div id="score-mode-screen" hidden>
 
@@ -2858,6 +2967,86 @@
 
 </div>
 
+<!-- Futsal Full-Screen Scoring Overlay -->
+<div id="futsal-score-screen" hidden style="position:relative">
+
+  <!-- Half-end interstitial (hidden by default) -->
+  <div class="fs-halfend-overlay" id="fs-halfend-overlay" hidden>
+    <div class="fs-halfend-title" id="fs-halfend-title">Half Time</div>
+    <div class="fs-halfend-score" id="fs-halfend-score">0 – 0</div>
+    <div class="fs-halfend-sub" id="fs-halfend-sub">Second half starting…</div>
+    <button class="fs-halfend-btn" id="fs-halfend-btn" onclick="fsHalfendAction()">Start 2nd Half</button>
+  </div>
+
+  <!-- Row 1: Navigation -->
+  <div class="smr smr-header">
+    <button class="sm-back-btn" onclick="fsExit()">← Games</button>
+    <span class="sm-game-info" id="fs-game-info">Select a game</span>
+    <span class="sm-badge" id="fs-state-badge">Not Started</span>
+    <button class="sm-restart-btn" id="fs-restart-btn" onclick="fsRestart()" title="Restart game">↺</button>
+  </div>
+
+  <!-- Row 2: Team names -->
+  <div class="smr smr-teams">
+    <div class="sm-team-cell">
+      <div class="sm-team-name" id="fs-team-a-name">HOME</div>
+    </div>
+    <div class="sm-vdiv"></div>
+    <div class="sm-team-cell">
+      <div class="sm-team-name" id="fs-team-b-name">AWAY</div>
+    </div>
+  </div>
+
+  <!-- Row 3: Scores -->
+  <div class="smr smr-scores">
+    <div class="sm-score-cell">
+      <div class="sm-score" id="fs-score-a">0</div>
+    </div>
+    <div class="sm-vdiv"></div>
+    <div class="sm-score-cell">
+      <div class="sm-score" id="fs-score-b">0</div>
+    </div>
+  </div>
+
+  <!-- Row 4: +1 Goal buttons + undo -->
+  <div class="smr smr-btn" style="flex:1.4">
+    <button class="sm-score-btn pt1" onclick="fsGoal('a')" style="font-size:clamp(18px,4.5vw,28px);letter-spacing:0.04em">GOAL +1</button>
+    <button class="sm-undo-score-btn" onclick="fsUndo('a')" title="Undo last goal">↩</button>
+    <div class="sm-vdiv"></div>
+    <button class="sm-undo-score-btn" onclick="fsUndo('b')" title="Undo last goal">↩</button>
+    <button class="sm-score-btn pt1" onclick="fsGoal('b')" style="font-size:clamp(18px,4.5vw,28px);letter-spacing:0.04em">GOAL +1</button>
+  </div>
+
+  <!-- Row 5: Fouls -->
+  <div class="smr smr-fouls">
+    <button class="sm-foul-add-btn" onclick="fsFoul('a')" title="Add foul">↑</button>
+    <div class="sm-foul-display">
+      <div class="sm-fouls-dots" id="fs-fouls-a-dots"></div>
+      <div class="sm-foul-count" id="fs-foul-count-a">0</div>
+    </div>
+    <div class="sm-fouls-center">FOULS</div>
+    <div class="sm-foul-display sm-foul-display-r">
+      <div class="sm-foul-count" id="fs-foul-count-b">0</div>
+      <div class="sm-fouls-dots" id="fs-fouls-b-dots"></div>
+    </div>
+    <button class="sm-foul-add-btn" onclick="fsFoul('b')" title="Add foul">↑</button>
+  </div>
+
+  <!-- Row 6: Half label + countdown timer -->
+  <div class="smr smr-gameclock">
+    <span class="sm-row-label" id="fs-half-label">1ST HALF</span>
+    <div class="sm-game-clock" id="fs-half-timer">15:00</div>
+  </div>
+
+  <!-- Row 7: Start / Pause + End Half / Submit -->
+  <div class="smr smr-start">
+    <button class="sm-start-btn" id="fs-start-btn" onclick="fsToggleTimer()">START</button>
+    <button class="sm-submit-btn" id="fs-end-half-btn" onclick="fsEndHalf()" hidden>End Half</button>
+    <button class="sm-submit-btn" id="fs-submit-btn" onclick="fsOpenSubmit()" hidden>Submit Result</button>
+  </div>
+
+</div>
+
 <header class="app-header">
   <div class="app-brand">
     <svg class="brand-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="Just a Game">
@@ -2883,7 +3072,7 @@
     </svg>
     <div class="brand-text">
       <span class="brand-name">Just a Game</span>
-      <span class="brand-sub">3×3 League</span>
+      <span class="brand-sub" id="brand-sub-text">League Scoring</span>
     </div>
   </div>
   <nav class="tab-nav">
@@ -2913,8 +3102,8 @@
       </div>
 
       <div id="no-game-msg" style="text-align:center;padding:24px 20px 16px;color:var(--text-muted);">
-        <div style="font-size:32px;margin-bottom:10px;">🏀</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Tap a game below to score it</div>
+        <div id="sport-emoji-placeholder" style="font-size:32px;margin-bottom:10px;">🏀</div>
+        <div id="sport-name-placeholder" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Tap a game below to score it</div>
       </div>
 
       <!-- Inline game picker accordion -->
@@ -3074,7 +3263,7 @@
     <div class="embed-tab-wrap">
       <div class="embed-tab-header">
         <h2 class="embed-tab-title">Website Embed Codes</h2>
-        <p class="embed-tab-desc">Paste these into a <strong>Code Block</strong> on your Squarespace page. Each widget auto-updates every 60 seconds when new results are added.</p>
+        <p class="embed-tab-desc"><span id="embed-sport-label"></span>Paste these into a <strong>Code Block</strong> on your Squarespace page. Each widget auto-updates every 60 seconds when new results are added.</p>
       </div>
 
       <div class="embed-widget-card">
@@ -3125,6 +3314,22 @@
         <div class="embed-btn-row">
           <button class="embed-copy-btn" onclick="copyEmbedCode('standings')">Copy Code</button>
           <button class="embed-png-btn" onclick="downloadSharePNG('standings')">⬇ Download PNG</button>
+        </div>
+      </div>
+
+      <div class="embed-widget-card">
+        <div class="embed-widget-meta">
+          <div class="embed-widget-icon">🔴</div>
+          <div>
+            <div class="embed-widget-name">Live Score</div>
+            <div class="embed-widget-hint">Shows the current in-progress game score in real time. Refreshes every 8 seconds. Works for both 3×3 and Futsal — put this widget in its own Code Block.</div>
+          </div>
+        </div>
+        <div class="embed-code-wrap">
+          <textarea class="embed-code-area" id="embed-code-live" readonly spellcheck="false"></textarea>
+        </div>
+        <div class="embed-btn-row">
+          <button class="embed-copy-btn" onclick="copyEmbedCode('live')">Copy Code</button>
         </div>
       </div>
 
@@ -3410,6 +3615,7 @@
     if (t === 'a') { S.histA.push(pts); S.scoreA += pts; document.getElementById('score-a').textContent = S.scoreA; }
     else            { S.histB.push(pts); S.scoreB += pts; document.getElementById('score-b').textContent = S.scoreB; }
     resetShotClock(); checkWin(); refreshOverlay();
+    pushLiveScore(S.scoreA, S.scoreB);
   }
 
   function undoScore(t) {
@@ -3417,6 +3623,7 @@
     if (t === 'a' && S.histA.length) { S.scoreA = Math.max(0, S.scoreA - S.histA.pop()); document.getElementById('score-a').textContent = S.scoreA; }
     else if (t === 'b' && S.histB.length) { S.scoreB = Math.max(0, S.scoreB - S.histB.pop()); document.getElementById('score-b').textContent = S.scoreB; }
     checkWin(); refreshOverlay();
+    pushLiveScore(S.scoreA, S.scoreB);
   }
 
   function checkWin() {
@@ -3560,7 +3767,8 @@
   // ── Supabase cloud sync (pure fetch — no library needed) ─────────
   const SB_URL = 'https://frkvpkfuewwtmyefbstf.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZya3Zwa2Z1ZXd3dG15ZWZic3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MzE1MjAsImV4cCI6MjEwNTIwNzUyMH0.8yJKlEaHeBNUKK3Vokwfz6NIYkNSwp7om5NwmP_o0Zg';
-  const SB_ROW = 'jag3x3';
+  let SB_ROW = 'jag3x3';
+  let LS_PREFIX = 'jag3x3';
   let syncTimeout = null;
   let lastCloudTs = null;
   let pollTimer   = null;
@@ -3594,6 +3802,46 @@
     lastCloudTs = new Date().toISOString();
   }
 
+  // ── Live Score Push ──────────────────────────────────────────────────
+  // Pushes the current in-progress score to a separate live row in Supabase.
+  // The live embed widget polls this row every 8 seconds.
+  async function pushLiveScore(scoreHome, scoreAway) {
+    const liveRowId = SB_ROW + '_live';
+    const gameId = currentSport === 'futsal' ? fsGameId : activeScheduledGameId;
+    if (!gameId) return;
+    const g = allGames().find(x => x.id === gameId);
+    if (!g) return;
+    const liveData = {
+      gameId: g.id,
+      home: g.home || 'HOME',
+      away: g.away || 'AWAY',
+      scoreHome,
+      scoreAway,
+      sport: currentSport,
+      half: currentSport === 'futsal' ? fsHalf : null,
+      isLive: true,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await sbFetch('/rest/v1/league_data', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ id: liveRowId, data: { live_game: liveData }, updated_at: new Date().toISOString() })
+      });
+    } catch(e) { /* silent */ }
+  }
+
+  async function clearLiveScore() {
+    const liveRowId = SB_ROW + '_live';
+    try {
+      await sbFetch('/rest/v1/league_data', {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({ id: liveRowId, data: { live_game: null }, updated_at: new Date().toISOString() })
+      });
+    } catch(e) { /* silent */ }
+  }
+
   async function loadFromCloud() {
     setSyncDot('busy');
     try {
@@ -3608,8 +3856,8 @@
         teams    = incoming.teams;
         schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...incoming.schedule };
         try {
-          localStorage.setItem('jag3x3_teams',    JSON.stringify(teams));
-          localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule));
+          localStorage.setItem(LS_PREFIX+'_teams',    JSON.stringify(teams));
+          localStorage.setItem(LS_PREFIX+'_schedule', JSON.stringify(schedule));
         } catch(e) {}
         renderTeamsTable();
         renderScheduleTab();
@@ -3645,8 +3893,8 @@
         teams    = row.data.teams;
         schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [], ...row.data.schedule };
         try {
-          localStorage.setItem('jag3x3_teams',    JSON.stringify(teams));
-          localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule));
+          localStorage.setItem(LS_PREFIX+'_teams',    JSON.stringify(teams));
+          localStorage.setItem(LS_PREFIX+'_schedule', JSON.stringify(schedule));
         } catch(e) {}
         renderTeamsTable();
         renderScheduleTab();
@@ -3677,13 +3925,13 @@
   let teams = [];
 
   function saveTeams() {
-    try { localStorage.setItem('jag3x3_teams', JSON.stringify(teams)); } catch(e) {}
+    try { localStorage.setItem(LS_PREFIX+'_teams', JSON.stringify(teams)); } catch(e) {}
     syncToCloud();
   }
 
   function loadTeams() {
     try {
-      const d = localStorage.getItem('jag3x3_teams');
+      const d = localStorage.getItem(LS_PREFIX+'_teams');
       if (d) {
         const parsed = JSON.parse(d);
         // Handle both [{name}] and [{name,w,l,...}] and legacy string arrays
@@ -3832,11 +4080,16 @@
   // ── Game Picker (inline accordion on Score tab) ───────────────────
   // ── Full-screen scoring overlay ───────────────────────────────────
   function selectAndScore(id) {
+    if (currentSport === 'futsal') {
+      fsEnterScoringMode(id);
+      return;
+    }
     selectScheduledGame(id);
     enterScoringMode();
   }
 
   function enterScoringMode() {
+    if (currentSport === 'futsal') return; // futsal uses its own overlay
     document.getElementById('score-mode-screen').hidden = false;
     document.body.classList.add('login-open'); // freeze body scroll behind overlay
     renderSmFouls('a', S.foulsA);
@@ -3870,6 +4123,7 @@
   }
 
   function exitScoringMode() {
+    clearLiveScore();
     const ov = document.getElementById('score-mode-screen');
     if (ov) ov.hidden = true;
     // Only remove login-open if the login screen is also hidden
@@ -3993,7 +4247,7 @@
             ${block ? `<span class="gp-active-round">${block.label}</span>` : ''}
             <span class="gp-active-change">change ▾</span>
           </div>
-          <button class="gp-score-btn" onclick="enterScoringMode()">▶ Score</button>
+          <button class="gp-score-btn" onclick="currentSport==='futsal'?fsEnterScoringMode(activeScheduledGameId):enterScoringMode()">▶ Score</button>
         </div>`;
         return;
       }
@@ -4023,7 +4277,7 @@
 
         let statusHtml;
         if (isActive) {
-          statusHtml = `<button class="gp-play-btn" onclick="enterScoringMode()" style="background:var(--surface-3);color:var(--accent);border:1px solid var(--accent);">▶ Scoring</button>`;
+          statusHtml = `<button class="gp-play-btn" onclick="currentSport==='futsal'?fsEnterScoringMode('${g.id}'):enterScoringMode()" style="background:var(--surface-3);color:var(--accent);border:1px solid var(--accent);">▶ Scoring</button>`;
         } else if (g.completed) {
           const sc = (g.scoreHome !== null && g.scoreAway !== null)
             ? `${g.scoreHome}–${g.scoreAway}` : '✓';
@@ -4117,6 +4371,8 @@
   }
 
   function confirmSubmitResult() {
+    // If a futsal game is pending, delegate to futsal handler
+    if (window._fsSavePending) { window.confirmSubmitResultFS(); return; }
     if (!activeScheduledGameId) { closeSubmitResult(); return; }
 
     const homeScore = parseInt(document.getElementById('submit-score-home').value) || 0;
@@ -4186,7 +4442,7 @@
   }
 
   function saveSchedule() {
-    try { localStorage.setItem('jag3x3_schedule', JSON.stringify(schedule)); } catch(e) {}
+    try { localStorage.setItem(LS_PREFIX+'_schedule', JSON.stringify(schedule)); } catch(e) {}
     syncToCloud();
   }
 
@@ -4257,7 +4513,7 @@
 
   function loadSchedule() {
     try {
-      const d = localStorage.getItem('jag3x3_schedule');
+      const d = localStorage.getItem(LS_PREFIX+'_schedule');
       if (!d) return;
       const parsed = JSON.parse(d);
       // Migrate old format (sessions + games) → blocks
@@ -4727,10 +4983,11 @@
     if (e.target === e.currentTarget) closeAutoRoundModal();
   });
 
-  // ── Login ─────────────────────────────────────────────────────────
+  // ── Login + Sport ─────────────────────────────────────────────────
   const CREDS = { admin: 'jag2026', scorer: 'score' };
   let selectedLoginRole = 'admin';
   let currentRole = null;
+  let currentSport = null; // '3x3' or 'futsal'
 
   function selectLoginRole(role) {
     selectedLoginRole = role;
@@ -4746,15 +5003,41 @@
       currentRole = selectedLoginRole;
       try { sessionStorage.setItem('jag3x3_role', currentRole); } catch(e) {}
       document.getElementById('login-screen').hidden = true;
-      document.body.classList.remove('login-open');
-      window.scrollTo(0, 0);
       err.hidden = true;
-      applyRole(currentRole);
+      document.getElementById('login-pin').value = '';
+      // Show sport picker before entering the app
+      document.getElementById('sport-picker-screen').hidden = false;
     } else {
       err.hidden = false;
       document.getElementById('login-pin').value = '';
       document.getElementById('login-pin').focus();
     }
+  }
+
+  function selectSport(sport) {
+    currentSport = sport;
+    SB_ROW = sport === 'futsal' ? 'jagfutsal' : 'jag3x3';
+    LS_PREFIX = SB_ROW;
+    try { sessionStorage.setItem('jag3x3_sport', sport); } catch(e) {}
+    document.getElementById('sport-picker-screen').hidden = true;
+    document.body.classList.remove('login-open');
+    window.scrollTo(0, 0);
+    // Update header brand subtitle
+    document.getElementById('brand-sub-text').textContent = sport === 'futsal' ? 'Futsal League' : '3×3 League';
+    // Update score tab placeholder
+    document.getElementById('sport-emoji-placeholder').textContent = sport === 'futsal' ? '⚽' : '🏀';
+    document.getElementById('sport-name-placeholder').textContent = sport === 'futsal' ? 'Tap a game below to score it' : 'Tap a game below to score it';
+    // Clear state and load sport-specific data
+    teams = []; schedule = { gamesPerTeam: 2, rrIndex: 0, blocks: [] };
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    lastCloudTs = null;
+    loadTeams();
+    loadSchedule();
+    renderTeamsTable();
+    renderScheduleTab();
+    renderGamePicker();
+    applyRole(currentRole);
+    loadFromCloud();
   }
 
   function applyRole(role) {
@@ -5200,6 +5483,9 @@
   function buildEmbedCodes() {
     const SB_URL_E = 'https://frkvpkfuewwtmyefbstf.supabase.co';
     const SB_KEY_E = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZya3Zwa2Z1ZXd3dG15ZWZic3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MzE1MjAsImV4cCI6MjEwNTIwNzUyMH0.8yJKlEaHeBNUKK3Vokwfz6NIYkNSwp7om5NwmP_o0Zg';
+    // Update sport label in embed tab header
+    const sportLabelEl = document.getElementById('embed-sport-label');
+    if (sportLabelEl) sportLabelEl.textContent = currentSport === 'futsal' ? 'Futsal League · ' : '3×3 League · ';
 
     const drawCode = `<div id="jag-draw-widget" style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:680px;margin:0 auto;"></div>
 <style>
@@ -5219,7 +5505,7 @@
   var el=document.getElementById('jag-draw-widget');
   function load(){
     el.innerHTML='<div class="jag-w"><div class="jag-w-loading">Loading draw…</div></div>';
-    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.${SB_ROW}&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
     .then(function(r){return r.json();})
     .then(function(rows){
       if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-w"><div class="jag-no-data">No schedule yet.</div></div>';return;}
@@ -5268,7 +5554,7 @@
   var el=document.getElementById('jag-results-widget');
   function load(){
     el.innerHTML='<div class="jag-r"><div class="jag-r-loading">Loading results…</div></div>';
-    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.${SB_ROW}&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
     .then(function(r){return r.json();})
     .then(function(rows){
       if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-r"><div class="jag-no-data">No results yet.</div></div>';return;}
@@ -5332,7 +5618,7 @@
   var el=document.getElementById('jag-standings-widget');
   function load(){
     el.innerHTML='<div class="jag-s"><div class="jag-s-loading">Loading standings…</div></div>';
-    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.jag3x3&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
+    fetch('${SB_URL_E}/rest/v1/league_data?id=eq.${SB_ROW}&select=data',{headers:{'apikey':'${SB_KEY_E}','Content-Type':'application/json'}})
     .then(function(r){return r.json();})
     .then(function(rows){
       if(!rows||!rows[0]||!rows[0].data){el.innerHTML='<div class="jag-s"><div class="jag-no-data">No standings yet.</div></div>';return;}
@@ -5375,9 +5661,66 @@
 })();
 <\/script>`;
 
+    const liveCode = `<div id="jag-live-widget" style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;"></div>
+<style>
+#jag-live-widget{font-family:system-ui,-apple-system,sans-serif;}
+.jag-live-wrap{background:#0d1424;border-radius:12px;padding:20px 24px;color:#f8faff;position:relative;overflow:hidden;}
+.jag-live-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.06));pointer-events:none;}
+.jag-live-badge{display:inline-flex;align-items:center;gap:6px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:14px;}
+.jag-live-dot{width:7px;height:7px;background:#fff;border-radius:50%;animation:jag-pulse 1.2s ease-in-out infinite;}
+@keyframes jag-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.jag-live-sport{font-size:11px;color:#6b7fa8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;}
+.jag-live-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.jag-live-team{flex:1;text-align:center;}
+.jag-live-team-name{font-size:13px;font-weight:600;color:#9ba8c0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.jag-live-score{font-size:52px;font-weight:800;color:#f8faff;font-variant-numeric:tabular-nums;line-height:1;}
+.jag-live-sep{font-size:28px;color:#3d5080;font-weight:300;padding:0 4px;flex:0 0 auto;margin-top:16px;}
+.jag-live-half{text-align:center;margin-top:14px;font-size:12px;color:#6b7fa8;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+.jag-live-idle{text-align:center;padding:24px 16px;color:#6b7fa8;font-size:14px;}
+.jag-live-idle-icon{font-size:28px;margin-bottom:8px;}
+</style>
+<script>
+(function(){
+  var el=document.getElementById('jag-live-widget');
+  var SB='https://frkvpkfuewwtmyefbstf.supabase.co';
+  var KEY='${SB_KEY_E}';
+  var LIVE_IDS='jag3x3_live,jagfutsal_live';
+  function load(){
+    fetch(SB+'/rest/v1/league_data?id=in.('+LIVE_IDS+')&select=data',{headers:{'apikey':KEY,'Content-Type':'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      var live=null;
+      if(rows&&rows.length){
+        rows.forEach(function(row){
+          if(row.data&&row.data.live_game&&row.data.live_game.isLive){live=row.data.live_game;}
+        });
+      }
+      if(!live){
+        el.innerHTML='<div class="jag-live-wrap"><div class="jag-live-idle"><div class="jag-live-idle-icon">🏟️</div>No live game right now</div></div>';
+        return;
+      }
+      var sportLabel=live.sport==='futsal'?'⚽ Futsal':'🏀 3×3 Basketball';
+      var halfHtml=live.half?'<div class="jag-live-half">Half '+live.half+'</div>':'';
+      el.innerHTML='<div class="jag-live-wrap">'
+        +'<div class="jag-live-badge"><span class="jag-live-dot"></span>Live</div>'
+        +'<div class="jag-live-sport">'+sportLabel+'</div>'
+        +'<div class="jag-live-teams">'
+        +'<div class="jag-live-team"><div class="jag-live-team-name">'+live.home+'</div><div class="jag-live-score">'+live.scoreHome+'</div></div>'
+        +'<div class="jag-live-sep">–</div>'
+        +'<div class="jag-live-team"><div class="jag-live-team-name">'+live.away+'</div><div class="jag-live-score">'+live.scoreAway+'</div></div>'
+        +'</div>'+halfHtml+'</div>';
+    })
+    .catch(function(){el.innerHTML='<div class="jag-live-wrap"><div class="jag-live-idle"><div class="jag-live-idle-icon">📡</div>Unable to connect</div></div>';});
+  }
+  load();
+  setInterval(load,8000);
+})();
+<\/script>`;
+
     document.getElementById('embed-code-draw').value = drawCode;
     document.getElementById('embed-code-results').value = resultsCode;
     document.getElementById('embed-code-standings').value = standingsCode;
+    document.getElementById('embed-code-live').value = liveCode;
   }
 
   function copyEmbedCode(which) {
@@ -5414,30 +5757,291 @@
     }, 2000);
   }
 
+  // ── Futsal Scoring ────────────────────────────────────────────────
+  let fsGameId = null;
+  let fsScoreA = 0, fsScoreB = 0;
+  let fsFoulsA = 0, fsFoulsB = 0;
+  let fsHalf = 1;
+  let fsTimerSecs = 900; // 15 minutes
+  let fsTimerRunning = false;
+  let fsTimerInterval = null;
+  let fsHistoryA = [], fsHistoryB = [];
+  let fsGameOver = false;
+
+  function fsFormatTime(s) {
+    const m = Math.floor(s / 60), sec = s % 60;
+    return m + ':' + String(sec).padStart(2, '0');
+  }
+
+  function fsUpdateTimerDisplay() {
+    document.getElementById('fs-half-timer').textContent = fsFormatTime(fsTimerSecs);
+  }
+
+  function fsFoulDots(side, count) {
+    const el = document.getElementById('fs-fouls-' + side + '-dots');
+    if (!el) return;
+    el.innerHTML = '';
+    for (let i = 0; i < Math.min(count, 6); i++) {
+      const d = document.createElement('div');
+      d.className = 'sm-foul-dot' + (i >= 5 ? ' danger' : i >= 3 ? ' warn' : '');
+      el.appendChild(d);
+    }
+  }
+
+  function fsRenderFouls() {
+    document.getElementById('fs-foul-count-a').textContent = fsFoulsA;
+    document.getElementById('fs-foul-count-b').textContent = fsFoulsB;
+    fsFoulDots('a', fsFoulsA);
+    fsFoulDots('b', fsFoulsB);
+  }
+
+  function fsUpdateScoreDisplay() {
+    document.getElementById('fs-score-a').textContent = fsScoreA;
+    document.getElementById('fs-score-b').textContent = fsScoreB;
+  }
+
+  function fsUpdateStateBadge() {
+    const badge = document.getElementById('fs-state-badge');
+    if (fsGameOver) { badge.textContent = 'Full Time'; badge.style.background = 'rgba(34,197,94,0.15)'; badge.style.color = '#22c55e'; }
+    else if (fsHalf === 2) { badge.textContent = 'Half 2'; badge.style.background = ''; badge.style.color = ''; }
+    else if (fsTimerRunning || fsScoreA || fsScoreB) { badge.textContent = 'Half 1'; badge.style.background = ''; badge.style.color = ''; }
+    else { badge.textContent = 'Not Started'; badge.style.background = ''; badge.style.color = ''; }
+  }
+
+  function fsEnterScoringMode(gameId) {
+    const g = allGames().find(x => x.id === gameId);
+    if (!g) return;
+    fsGameId = gameId;
+    // If game already completed, pre-fill scores
+    if (g.completed && g.scoreHome != null) {
+      fsScoreA = g.scoreHome; fsScoreB = g.scoreAway;
+      fsGameOver = true; fsHalf = 2; fsTimerSecs = 0;
+    } else {
+      fsScoreA = 0; fsScoreB = 0; fsGameOver = false;
+      fsHalf = 1; fsTimerSecs = 900;
+    }
+    fsFoulsA = 0; fsFoulsB = 0;
+    fsHistoryA = []; fsHistoryB = [];
+    fsTimerRunning = false;
+    if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
+
+    document.getElementById('fs-team-a-name').textContent = (g.home || 'HOME').toUpperCase();
+    document.getElementById('fs-team-b-name').textContent = (g.away || 'AWAY').toUpperCase();
+    document.getElementById('fs-game-info').textContent = (g.slot || '') + (g.slot && (g.home || g.away) ? ' · ' : '') + (g.home || '') + ' vs ' + (g.away || '');
+    document.getElementById('fs-half-label').textContent = fsHalf === 1 ? '1ST HALF' : '2ND HALF';
+    document.getElementById('fs-halfend-overlay').hidden = true;
+    document.getElementById('fs-start-btn').textContent = 'START';
+
+    // Button visibility
+    document.getElementById('fs-end-half-btn').hidden = fsGameOver;
+    document.getElementById('fs-submit-btn').hidden = !fsGameOver;
+
+    fsUpdateScoreDisplay();
+    fsUpdateTimerDisplay();
+    fsRenderFouls();
+    fsUpdateStateBadge();
+    document.getElementById('futsal-score-screen').hidden = false;
+  }
+
+  function fsExit() {
+    clearLiveScore();
+    if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
+    fsTimerRunning = false;
+    document.getElementById('futsal-score-screen').hidden = true;
+    fsGameId = null;
+  }
+
+  function fsRestart() {
+    if (!confirm('Restart this game? All scores and fouls will be cleared.')) return;
+    if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
+    fsScoreA = 0; fsScoreB = 0;
+    fsFoulsA = 0; fsFoulsB = 0;
+    fsHalf = 1; fsTimerSecs = 900;
+    fsTimerRunning = false; fsGameOver = false;
+    fsHistoryA = []; fsHistoryB = [];
+    document.getElementById('fs-half-label').textContent = '1ST HALF';
+    document.getElementById('fs-start-btn').textContent = 'START';
+    document.getElementById('fs-end-half-btn').hidden = false;
+    document.getElementById('fs-submit-btn').hidden = true;
+    document.getElementById('fs-halfend-overlay').hidden = true;
+    fsUpdateScoreDisplay();
+    fsUpdateTimerDisplay();
+    fsRenderFouls();
+    fsUpdateStateBadge();
+  }
+
+  function fsToggleTimer() {
+    if (fsGameOver) return;
+    const btn = document.getElementById('fs-start-btn');
+    if (fsTimerRunning) {
+      clearInterval(fsTimerInterval); fsTimerInterval = null;
+      fsTimerRunning = false;
+      btn.textContent = 'RESUME';
+    } else {
+      fsTimerRunning = true;
+      btn.textContent = 'PAUSE';
+      fsTimerInterval = setInterval(() => {
+        if (fsTimerSecs > 0) {
+          fsTimerSecs--;
+          fsUpdateTimerDisplay();
+        } else {
+          clearInterval(fsTimerInterval); fsTimerInterval = null;
+          fsTimerRunning = false;
+          document.getElementById('fs-start-btn').textContent = 'START';
+          // Auto-show half-end overlay when timer hits 0
+          fsShowHalfEnd();
+        }
+      }, 1000);
+    }
+  }
+
+  function fsShowHalfEnd() {
+    const overlay = document.getElementById('fs-halfend-overlay');
+    const scoreEl = document.getElementById('fs-halfend-score');
+    const titleEl = document.getElementById('fs-halfend-title');
+    const subEl = document.getElementById('fs-halfend-sub');
+    const btnEl = document.getElementById('fs-halfend-btn');
+    scoreEl.textContent = fsScoreA + ' – ' + fsScoreB;
+    if (fsHalf === 1) {
+      titleEl.textContent = 'Half Time';
+      subEl.textContent = 'Ready to start the second half?';
+      btnEl.textContent = 'Start 2nd Half';
+    } else {
+      titleEl.textContent = 'Full Time';
+      const nameA = document.getElementById('fs-team-a-name').textContent;
+      const nameB = document.getElementById('fs-team-b-name').textContent;
+      if (fsScoreA > fsScoreB) subEl.textContent = '🏆 ' + nameA + ' wins!';
+      else if (fsScoreB > fsScoreA) subEl.textContent = '🏆 ' + nameB + ' wins!';
+      else subEl.textContent = 'Draw — extra time?';
+      btnEl.textContent = 'Submit Result';
+    }
+    overlay.hidden = false;
+  }
+
+  function fsHalfendAction() {
+    document.getElementById('fs-halfend-overlay').hidden = true;
+    if (fsHalf === 1) {
+      fsHalf = 2;
+      fsTimerSecs = 900;
+      document.getElementById('fs-half-label').textContent = '2ND HALF';
+      document.getElementById('fs-start-btn').textContent = 'START';
+      fsUpdateTimerDisplay();
+      fsUpdateStateBadge();
+    } else {
+      fsOpenSubmit();
+    }
+  }
+
+  function fsEndHalf() {
+    if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
+    fsTimerRunning = false;
+    document.getElementById('fs-start-btn').textContent = 'START';
+    fsShowHalfEnd();
+  }
+
+  function fsGoal(side) {
+    if (fsGameOver) return;
+    if (side === 'a') { fsHistoryA.push(fsScoreA); fsScoreA++; }
+    else { fsHistoryB.push(fsScoreB); fsScoreB++; }
+    fsUpdateScoreDisplay();
+    fsUpdateStateBadge();
+    pushLiveScore(fsScoreA, fsScoreB);
+    // Flash score cell
+    const cell = document.getElementById('fs-score-' + side);
+    cell.style.transform = 'scale(1.15)'; cell.style.color = 'var(--success)';
+    setTimeout(() => { cell.style.transform = ''; cell.style.color = ''; }, 300);
+  }
+
+  function fsUndo(side) {
+    if (side === 'a' && fsHistoryA.length) { fsScoreA = fsHistoryA.pop(); }
+    else if (side === 'b' && fsHistoryB.length) { fsScoreB = fsHistoryB.pop(); }
+    fsUpdateScoreDisplay();
+    fsUpdateStateBadge();
+    pushLiveScore(fsScoreA, fsScoreB);
+  }
+
+  function fsFoul(side) {
+    if (side === 'a') fsFoulsA++;
+    else fsFoulsB++;
+    fsRenderFouls();
+  }
+
+  function fsOpenSubmit() {
+    if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
+    fsTimerRunning = false;
+    fsGameOver = true;
+    document.getElementById('fs-end-half-btn').hidden = true;
+    document.getElementById('fs-submit-btn').hidden = false;
+    // Reuse the existing submit result modal with futsal scores
+    document.getElementById('submit-team-home').textContent = document.getElementById('fs-team-a-name').textContent;
+    document.getElementById('submit-team-away').textContent = document.getElementById('fs-team-b-name').textContent;
+    document.getElementById('submit-score-home').value = fsScoreA;
+    document.getElementById('submit-score-away').value = fsScoreB;
+    document.getElementById('submit-warn').hidden = true; // timer is done
+    updateSubmitWinner();
+    document.getElementById('submit-result-modal').hidden = false;
+    // Override confirmSubmitResult to save to futsal schedule
+    window._fsSavePending = true;
+  }
+
+  // Patch confirmSubmitResult to handle futsal saves
+  const _origConfirmSubmitResult = window.confirmSubmitResult;
+  window.confirmSubmitResultFS = function() {
+    const homeScore = parseInt(document.getElementById('submit-score-home').value) || 0;
+    const awayScore = parseInt(document.getElementById('submit-score-away').value) || 0;
+    const g = allGames().find(x => x.id === fsGameId);
+    if (g) {
+      g.scoreHome = homeScore; g.scoreAway = awayScore; g.completed = true;
+      saveSchedule(); renderScheduleTab(); renderGamePicker(); renderTeamsTable();
+    }
+    clearLiveScore();
+    document.getElementById('submit-result-modal').hidden = true;
+    window._fsSavePending = false;
+    fsGameOver = true;
+    document.getElementById('fs-end-half-btn').hidden = true;
+    document.getElementById('fs-submit-btn').hidden = false;
+    fsUpdateStateBadge();
+    // Close futsal overlay after 800ms
+    setTimeout(fsExit, 800);
+  };
+
   function doLogout() {
-    try { sessionStorage.removeItem('jag3x3_role'); } catch(e) {}
+    try { sessionStorage.removeItem('jag3x3_role'); sessionStorage.removeItem('jag3x3_sport'); } catch(e) {}
     currentRole = null;
+    currentSport = null;
+    SB_ROW = 'jag3x3';
+    LS_PREFIX = 'jag3x3';
     selectedLoginRole = 'admin';
     document.getElementById('tab-btn-teams').hidden = false;
     document.getElementById('tab-btn-schedule').hidden = false;
     document.getElementById('tab-btn-embed').hidden = false;
     document.querySelector('.tab-nav').style.display = '';
     document.getElementById('header-right').hidden = true;
+    document.getElementById('sport-picker-screen').hidden = true;
     document.getElementById('login-screen').hidden = false;
     document.body.classList.add('login-open');
     document.getElementById('login-pin').value = '';
     document.getElementById('login-error').hidden = true;
     document.getElementById('role-admin-btn').classList.add('active');
     document.getElementById('role-scorer-btn').classList.remove('active');
+    // Close futsal overlay if open
+    document.getElementById('futsal-score-screen').hidden = true;
     setTimeout(() => document.getElementById('login-pin').focus(), 80);
   }
 
   function checkSession() {
     try {
       const r = sessionStorage.getItem('jag3x3_role');
-      if (r && CREDS[r] !== undefined) {
+      const sp = sessionStorage.getItem('jag3x3_sport');
+      if (r && CREDS[r] !== undefined && sp) {
         currentRole = r;
         document.getElementById('login-screen').hidden = true;
+        // Restore sport without showing sport picker again
+        currentSport = sp;
+        SB_ROW = sp === 'futsal' ? 'jagfutsal' : 'jag3x3';
+        LS_PREFIX = SB_ROW;
+        document.getElementById('brand-sub-text').textContent = sp === 'futsal' ? 'Futsal League' : '3×3 League';
+        document.getElementById('sport-emoji-placeholder').textContent = sp === 'futsal' ? '⚽' : '🏀';
         document.body.classList.remove('login-open');
         window.scrollTo(0, 0);
         applyRole(r);
