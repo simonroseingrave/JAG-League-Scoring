@@ -4,7 +4,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JAG Score">
 <meta name="theme-color" content="#222b3a">
-<title>Just a Game 3×3</title>
+<title>Just a Game · Scoring</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap">
 
@@ -2337,17 +2337,21 @@
   #score-mode-screen,
   #futsal-score-screen {
     position: fixed;
-    inset: 0;
-    /* Belt-and-suspenders height: inset:0 should do it, but iOS Safari
-       can collapse fixed children when body.login-open is position:fixed */
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
+    /* Use viewport units — they always refer to the real viewport,
+       unlike 100% which can be relative to a position:fixed body
+       (iOS Safari containing-block quirk) and collapse to zero. */
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh; /* dynamic viewport height on modern iOS/Android */
     z-index: 150;
     background: var(--bg);
     display: flex;
     flex-direction: column;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
   }
   /* Futsal half-end overlay */
   .fs-halfend-overlay {
@@ -3062,7 +3066,7 @@
           <path d="M60 46 C68 56 86 56 94 46" stroke="#6b2505" stroke-width="1.7" fill="none"/>
           <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
         </g>
-        <g id="logo-futsal" hidden>
+        <g id="logo-futsal" style="display:none">
           <circle cx="77" cy="46" r="17" fill="#f0f0ee"/>
           <ellipse cx="71" cy="40" rx="5" ry="3.5" fill="#ffffff" opacity="0.3"/>
           <polygon points="77,41.5 81.3,44.6 79.6,49.6 74.4,49.6 72.7,44.6" fill="#1e2d3d"/>
@@ -5029,9 +5033,9 @@
     window.scrollTo(0, 0);
     // Update header brand subtitle
     document.getElementById('brand-sub-text').textContent = sport === 'futsal' ? 'Futsal League' : '3×3 League';
-    // Update logo ball
-    document.getElementById('logo-basketball').hidden = (sport === 'futsal');
-    document.getElementById('logo-futsal').hidden = (sport !== 'futsal');
+    // Update logo ball — use style.display (more reliable than hidden on SVG <g>)
+    document.getElementById('logo-basketball').style.display = sport === 'futsal' ? 'none' : '';
+    document.getElementById('logo-futsal').style.display = sport === 'futsal' ? '' : 'none';
     // Update home-screen icon
     if (window._setAppIcon) window._setAppIcon(sport);
     // Update score tab placeholder
@@ -5802,10 +5806,10 @@
 
   function fsEnterScoringMode(gameId) {
     const g = allGames().find(x => x.id === gameId);
-    if (!g) return;
+    // Don't silently bail — show the screen even if game data isn't ready yet
     fsGameId = gameId;
     // If game already completed, pre-fill scores
-    if (g.completed && g.scoreHome != null) {
+    if (g && g.completed && g.scoreHome != null) {
       fsScoreA = g.scoreHome; fsScoreB = g.scoreAway;
       fsGameOver = true; fsHalf = 2; fsTimerSecs = 0;
     } else {
@@ -5816,9 +5820,9 @@
     fsTimerRunning = false;
     if (fsTimerInterval) { clearInterval(fsTimerInterval); fsTimerInterval = null; }
 
-    document.getElementById('fs-team-a-name').textContent = (g.home || 'HOME').toUpperCase();
-    document.getElementById('fs-team-b-name').textContent = (g.away || 'AWAY').toUpperCase();
-    document.getElementById('fs-game-info').textContent = (g.slot || '') + (g.slot && (g.home || g.away) ? ' · ' : '') + (g.home || '') + ' vs ' + (g.away || '');
+    document.getElementById('fs-team-a-name').textContent = (g && g.home || 'HOME').toUpperCase();
+    document.getElementById('fs-team-b-name').textContent = (g && g.away || 'AWAY').toUpperCase();
+    document.getElementById('fs-game-info').textContent = g ? ((g.slot || '') + (g.slot && (g.home || g.away) ? ' · ' : '') + (g.home || '') + ' vs ' + (g.away || '')) : gameId;
     document.getElementById('fs-half-label').textContent = fsHalf === 1 ? '1ST HALF' : '2ND HALF';
     document.getElementById('fs-halfend-overlay').hidden = true;
     document.getElementById('fs-start-btn').textContent = 'START';
@@ -6028,8 +6032,8 @@
         SB_ROW = sp === 'futsal' ? 'jagfutsal' : 'jag3x3';
         LS_PREFIX = SB_ROW;
         document.getElementById('brand-sub-text').textContent = sp === 'futsal' ? 'Futsal League' : '3×3 League';
-        document.getElementById('logo-basketball').hidden = (sp === 'futsal');
-        document.getElementById('logo-futsal').hidden = (sp !== 'futsal');
+        document.getElementById('logo-basketball').style.display = sp === 'futsal' ? 'none' : '';
+        document.getElementById('logo-futsal').style.display = sp === 'futsal' ? '' : 'none';
         if (window._setAppIcon) window._setAppIcon(sp);
         document.getElementById('sport-emoji-placeholder').textContent = sp === 'futsal' ? '⚽' : '🏀';
         document.body.classList.remove('login-open');
