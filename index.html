@@ -2337,14 +2337,7 @@
   #score-mode-screen,
   #futsal-score-screen {
     position: fixed;
-    top: 0;
-    left: 0;
-    /* Use viewport units — they always refer to the real viewport,
-       unlike 100% which can be relative to a position:fixed body
-       (iOS Safari containing-block quirk) and collapse to zero. */
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh; /* dynamic viewport height on modern iOS/Android */
+    inset: 0;
     z-index: 150;
     background: var(--bg);
     display: flex;
@@ -2841,7 +2834,7 @@
           <path d="M77 29 C85 38 85 54 77 63" stroke="#6b2505" stroke-width="1.7" fill="none"/>
         </g>
       </svg>
-      <div class="login-title">Just a Game · 3×3</div>
+      <div class="login-title">Just a Game · Scoring</div>
       <div class="login-sub">League Scoring</div>
     </div>
     <div class="login-error" id="login-error" hidden>Incorrect password — try again</div>
@@ -5805,10 +5798,17 @@
   }
 
   function fsEnterScoringMode(gameId) {
+    // Show the screen FIRST — before any other DOM work — so nothing can block it
+    const screen = document.getElementById('futsal-score-screen');
+    screen.hidden = false;
+    // Freeze background scroll without position:fixed on body (avoids iOS Safari
+    // containing-block bug where position:fixed body collapses fixed children)
+    document.body.style.overflow = 'hidden';
+
     const g = allGames().find(x => x.id === gameId);
-    // Don't silently bail — show the screen even if game data isn't ready yet
     fsGameId = gameId;
-    // If game already completed, pre-fill scores
+
+    // Set up state
     if (g && g.completed && g.scoreHome != null) {
       fsScoreA = g.scoreHome; fsScoreB = g.scoreAway;
       fsGameOver = true; fsHalf = 2; fsTimerSecs = 0;
@@ -5827,16 +5827,12 @@
     document.getElementById('fs-halfend-overlay').hidden = true;
     document.getElementById('fs-start-btn').textContent = 'START';
 
-    // Button visibility
     document.getElementById('fs-end-half-btn').hidden = fsGameOver;
     document.getElementById('fs-submit-btn').hidden = !fsGameOver;
 
     fsUpdateScoreDisplay();
     fsUpdateTimerDisplay();
     fsUpdateStateBadge();
-    document.getElementById('futsal-score-screen').hidden = false;
-    document.body.classList.add('login-open');
-    window.scrollTo(0, 0);
   }
 
   function fsExit() {
@@ -5845,9 +5841,8 @@
     fsTimerRunning = false;
     document.getElementById('futsal-score-screen').hidden = true;
     fsGameId = null;
-    if (document.getElementById('login-screen').hidden) {
-      document.body.classList.remove('login-open');
-    }
+    // Restore background scroll (we used body.style.overflow, not login-open class)
+    document.body.style.overflow = '';
   }
 
   function fsRestart() {
@@ -6015,8 +6010,9 @@
     document.getElementById('login-error').hidden = true;
     document.getElementById('role-admin-btn').classList.add('active');
     document.getElementById('role-scorer-btn').classList.remove('active');
-    // Close futsal overlay if open
+    // Close futsal overlay if open and reset its scroll freeze
     document.getElementById('futsal-score-screen').hidden = true;
+    document.body.style.overflow = '';
     setTimeout(() => document.getElementById('login-pin').focus(), 80);
   }
 
