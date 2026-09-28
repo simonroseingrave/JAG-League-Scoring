@@ -1988,7 +1988,7 @@
     flex-wrap: wrap;
   }
 
-  .block-field-row-3 > div { flex: 1; min-width: 90px; }
+  .block-field-row-3 > div { flex: 1; min-width: 70px; }
 
   .block-field-row-3 .session-date,
   .block-field-row-3 .session-time,
@@ -2026,15 +2026,49 @@
     overflow-y: auto;
   }
 
+  .block-slot-group {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .block-slot-group + .block-slot-group { margin-top: 0; }
+
+  .block-slot-time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-3);
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .block-slot-time-row .block-game-time-input {
+    width: 88px;
+    flex-shrink: 0;
+  }
+
+  .block-court-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    width: 54px;
+  }
+
   .block-game-entry {
     display: flex;
     align-items: center;
     gap: 6px;
     background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 7px;
+    border-top: 1px solid var(--border);
     padding: 7px 10px;
   }
+
+  .block-game-entry:first-child { border-top: none; }
 
   .block-game-time {
     font-family: 'Barlow Condensed', sans-serif;
@@ -2045,6 +2079,26 @@
     flex-shrink: 0;
     font-variant-numeric: tabular-nums;
   }
+
+  .block-game-time-input {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    width: 82px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    padding: 3px 4px;
+    outline: none;
+    color-scheme: dark;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .block-game-time-input:hover { border-color: var(--border-light); background: var(--surface-3); }
+  .block-game-time-input:focus { border-color: var(--accent); background: var(--surface-3); }
 
   .block-team-input {
     background: var(--surface-3);
@@ -2847,7 +2901,7 @@
     </div>
     <div>
       <label class="login-field-label" for="login-pin">Password</label>
-      <input class="login-pin" id="login-pin" type="password" placeholder="Enter password" autocomplete="current-password"
+      <input class="login-pin" id="login-pin" type="password" placeholder="Enter password" autocomplete="off"
         onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="login-submit" onclick="doLogin()">Sign In →</button>
@@ -3450,11 +3504,11 @@
       </div>
       <div>
         <label class="block-field-label">Start Time</label>
-        <input class="session-time" id="block-time-input" type="time" value="18:00" oninput="renderBlockEditorGames()">
+        <input class="session-time" id="block-time-input" type="time" value="18:00" oninput="resetBlockEditorTimes();renderBlockEditorGames()">
       </div>
       <div>
         <label class="block-field-label">Interval</label>
-        <select class="session-select" id="block-interval-input" onchange="renderBlockEditorGames()">
+        <select class="session-select" id="block-interval-input" onchange="resetBlockEditorTimes();renderBlockEditorGames()">
           <option value="15">15 min</option>
           <option value="20">20 min</option>
           <option value="30" selected>30 min</option>
@@ -3462,11 +3516,20 @@
           <option value="60">60 min</option>
         </select>
       </div>
+      <div>
+        <label class="block-field-label">Courts</label>
+        <select class="session-select" id="block-courts-input" onchange="blockEditorCourts=parseInt(this.value);resetBlockEditorTimes();renderBlockEditorGames()">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
     </div>
 
     <div class="block-games-header">
       <label class="block-field-label" style="margin:0;">Games</label>
-      <button class="block-add-game-btn" type="button" onclick="addBlockGame()">+ Add Game</button>
+      <button class="block-add-game-btn" type="button" onclick="addBlockGame()">+ Add Timeslot</button>
     </div>
     <div class="block-games-list" id="block-games-list"></div>
 
@@ -4577,6 +4640,33 @@
     return `${h12}:${String(sm).padStart(2,'0')} ${ampm}`;
   }
 
+  // Convert "6:30 PM" → "18:30" for <input type="time"> value
+  function slotToTime24(slot) {
+    if (!slot) return '';
+    const m = slot.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!m) return '';
+    let h = parseInt(m[1]);
+    const min = m[2];
+    const ampm = m[3].toUpperCase();
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return `${String(h).padStart(2,'0')}:${min}`;
+  }
+
+  // Convert "18:30" → "6:30 PM" for display/storage
+  function time24ToSlot(val) {
+    if (!val) return '';
+    const [h, m] = val.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+  }
+
+  // Clear custom-time flags so block-level start/interval changes reset all slots
+  function resetBlockEditorTimes() {
+    blockEditorGames.forEach(g => { g._customSlot = false; });
+  }
+
   function nextBlockId() {
     const max = (schedule.blocks || []).reduce((m, b) => Math.max(m, parseInt(b.id.replace('b','')) || 0), 0);
     return 'b' + (max + 1);
@@ -4643,6 +4733,7 @@
   // ── Block Editor Modal ─────────────────────────────────────────────
   let editingBlockId = null;
   let blockEditorGames = [];
+  let blockEditorCourts = 1;
 
   function openManualBlockEditor(blockId) {
     editingBlockId = blockId || null;
@@ -4653,6 +4744,8 @@
     document.getElementById('block-date-input').value = block ? block.date : '';
     document.getElementById('block-time-input').value = block ? block.startTime : '18:00';
     document.getElementById('block-interval-input').value = block ? block.slotInterval : 30;
+    blockEditorCourts = block ? (block.courtsPerSlot || 1) : 1;
+    document.getElementById('block-courts-input').value = blockEditorCourts;
 
     blockEditorGames = block ? JSON.parse(JSON.stringify(block.games || [])) : [];
     renderBlockEditorGames();
@@ -4674,27 +4767,60 @@
       return;
     }
 
-    list.innerHTML = blockEditorGames.map((g, i) => {
-      const timeStr = getSlotTime(startTime, i, interval);
-      const eh = (g.home || '').replace(/"/g,'&quot;');
-      const ea = (g.away || '').replace(/"/g,'&quot;');
-      const locked = g.completed;
-      return `<div class="block-game-entry">
-        <span class="block-game-time">${timeStr}</span>
-        <input class="block-team-input" type="text" list="teams-datalist" placeholder="HOME" value="${eh}"
-          ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].home=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
-        <span class="block-vs-sep">vs</span>
-        <input class="block-team-input" type="text" list="teams-datalist" placeholder="AWAY" value="${ea}"
-          ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].away=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
-        ${locked
-          ? '<span style="font-size:11px;color:var(--success);flex-shrink:0;">✓ played</span>'
-          : `<button class="block-ctrl-btn danger" type="button" onclick="removeBlockEditorGame(${i})" title="Remove">✕</button>`}
+    // Group games into timeslot buckets of blockEditorCourts
+    const courts = blockEditorCourts || 1;
+    const slotCount = Math.ceil(blockEditorGames.length / courts);
+    let html = '';
+    for (let s = 0; s < slotCount; s++) {
+      const slotGames = blockEditorGames.slice(s * courts, s * courts + courts);
+      // Compute / restore slot time for this group
+      const computedSlot = getSlotTime(startTime, s, interval);
+      const firstGame = slotGames[0];
+      if (firstGame && !firstGame._customSlot) firstGame.slot = computedSlot;
+      // Propagate slot time to all games in same group
+      slotGames.forEach((g, ci) => {
+        if (ci > 0) g.slot = firstGame.slot;
+      });
+      const slotVal = slotToTime24(firstGame ? (firstGame.slot || computedSlot) : computedSlot);
+      const firstIdx = s * courts;
+
+      const gameRows = slotGames.map((g, ci) => {
+        const i = firstIdx + ci;
+        const eh = (g.home || '').replace(/"/g,'&quot;');
+        const ea = (g.away || '').replace(/"/g,'&quot;');
+        const locked = g.completed;
+        const courtLabel = courts > 1 ? `<span class="block-court-label">Court ${ci + 1}</span>` : '';
+        return `<div class="block-game-entry">
+          ${courtLabel}
+          <input class="block-team-input" type="text" list="teams-datalist" placeholder="HOME" value="${eh}"
+            ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].home=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
+          <span class="block-vs-sep">vs</span>
+          <input class="block-team-input" type="text" list="teams-datalist" placeholder="AWAY" value="${ea}"
+            ${locked ? 'disabled style="opacity:.5"' : `oninput="blockEditorGames[${i}].away=this.value.toUpperCase();this.value=this.value.toUpperCase()"`}>
+          ${locked
+            ? '<span style="font-size:11px;color:var(--success);flex-shrink:0;">✓ played</span>'
+            : `<button class="block-ctrl-btn danger" type="button" onclick="removeBlockEditorSlotGame(${s},${ci})" title="Remove">✕</button>`}
+        </div>`;
+      }).join('');
+
+      html += `<div class="block-slot-group">
+        <div class="block-slot-time-row">
+          <input type="time" class="block-game-time-input" value="${slotVal}" title="Edit time"
+            oninput="updateBlockSlotTime(${s},this.value)">
+          ${courts > 1 ? `<span style="font-size:11px;color:var(--text-dim);">${slotGames.length} game${slotGames.length !== 1 ? 's' : ''}</span>` : ''}
+          <button class="block-ctrl-btn danger" type="button" onclick="removeBlockSlot(${s})" title="Remove timeslot" style="margin-left:auto;">✕</button>
+        </div>
+        ${gameRows}
       </div>`;
-    }).join('');
+    }
+    list.innerHTML = html || '<div class="auto-round-empty">No games yet — click + Add Timeslot to add matchups.</div>';
   }
 
   function addBlockGame() {
-    blockEditorGames.push({ id: '', slot: '', home: '', away: '', scoreHome: null, scoreAway: null, completed: false });
+    const courts = blockEditorCourts || 1;
+    for (let c = 0; c < courts; c++) {
+      blockEditorGames.push({ id: '', slot: '', home: '', away: '', scoreHome: null, scoreAway: null, completed: false });
+    }
     renderBlockEditorGames();
   }
 
@@ -4703,10 +4829,38 @@
     renderBlockEditorGames();
   }
 
+  // Remove a single game within a slot (e.g. remove just Court 2 from a timeslot)
+  function removeBlockEditorSlotGame(slotIdx, courtIdx) {
+    const courts = blockEditorCourts || 1;
+    const i = slotIdx * courts + courtIdx;
+    blockEditorGames.splice(i, 1);
+    renderBlockEditorGames();
+  }
+
+  // Remove an entire timeslot (all courts for that time)
+  function removeBlockSlot(slotIdx) {
+    const courts = blockEditorCourts || 1;
+    const start = slotIdx * courts;
+    blockEditorGames.splice(start, courts);
+    renderBlockEditorGames();
+  }
+
+  // Update all games in a slot group to use the new time
+  function updateBlockSlotTime(slotIdx, val) {
+    const courts = blockEditorCourts || 1;
+    const slot = time24ToSlot(val);
+    const start = slotIdx * courts;
+    for (let c = 0; c < courts; c++) {
+      const g = blockEditorGames[start + c];
+      if (g) { g.slot = slot; g._customSlot = true; }
+    }
+  }
+
   function closeBlockEditor() {
     document.getElementById('block-editor-modal').hidden = true;
     editingBlockId = null;
     blockEditorGames = [];
+    blockEditorCourts = 1;
   }
 
   function saveBlockEditor() {
@@ -4714,6 +4868,7 @@
     const date = document.getElementById('block-date-input').value;
     const startTime = document.getElementById('block-time-input').value;
     const slotInterval = parseInt(document.getElementById('block-interval-input').value) || 30;
+    const courtsPerSlot = blockEditorCourts || 1;
 
     if (!date) { alert('Please select a date for this round.'); return; }
 
@@ -4725,9 +4880,11 @@
       let id = g.id;
       if (!id || (!existingIds.has(id) && id !== '')) id = '';
       if (!id) { gCounter++; id = 'g' + gCounter; }
+      // Slot time: use stored value (custom or computed during render), fallback to slot-group position
+      const slotIdx = Math.floor(i / courtsPerSlot);
       return {
         id,
-        slot: getSlotTime(startTime, i, slotInterval),
+        slot: g.slot || getSlotTime(startTime, slotIdx, slotInterval),
         home: (g.home || '').toUpperCase().trim() || 'TBD',
         away: (g.away || '').toUpperCase().trim() || 'TBD',
         scoreHome: g.scoreHome,
@@ -4738,10 +4895,10 @@
 
     if (editingBlockId) {
       const idx = (schedule.blocks || []).findIndex(b => b.id === editingBlockId);
-      if (idx >= 0) schedule.blocks[idx] = { ...schedule.blocks[idx], label, date, startTime, slotInterval, games };
+      if (idx >= 0) schedule.blocks[idx] = { ...schedule.blocks[idx], label, date, startTime, slotInterval, courtsPerSlot, games };
     } else {
       if (!schedule.blocks) schedule.blocks = [];
-      schedule.blocks.push({ id: nextBlockId(), type: 'manual', label, date, startTime, slotInterval, games });
+      schedule.blocks.push({ id: nextBlockId(), type: 'manual', label, date, startTime, slotInterval, courtsPerSlot, games });
     }
 
     saveSchedule();
@@ -5797,28 +5954,7 @@
     else { badge.textContent = 'Not Started'; badge.style.background = ''; badge.style.color = ''; }
   }
 
-  // ── DEBUG toast (remove once blank-screen is solved) ──────────────
-  function _fsDebug(msg) {
-    let el = document.getElementById('_fs_dbg');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = '_fs_dbg';
-      el.style.cssText = [
-        'position:fixed','top:12px','left:50%','transform:translateX(-50%)',
-        'background:#dc2626','color:#fff','font-size:15px','font-weight:700',
-        'padding:10px 18px','border-radius:8px','z-index:9999',
-        'max-width:90vw','text-align:center','word-break:break-all',
-        'pointer-events:none','box-shadow:0 4px 12px rgba(0,0,0,.5)'
-      ].join(';');
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.remove(), 8000);
-  }
-
   function fsEnterScoringMode(gameId) {
-    _fsDebug('fsEnterScoringMode called · gameId=' + gameId + ' · games=' + allGames().length);
     // Show the screen FIRST — before any other DOM work — so nothing can block it
     const screen = document.getElementById('futsal-score-screen');
     screen.hidden = false;
